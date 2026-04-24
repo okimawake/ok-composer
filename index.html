@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -824,6 +824,42 @@
   }
   .tag-pick:hover { transform: scale(1.04); }
   .tag-pick.selected { border-color: var(--white); }
+
+  /* ── Mobile hamburger button (hidden on desktop) ── */
+  #mobileMenuBtn {
+    display: none;
+    align-items: center; justify-content: center;
+    width: 36px; height: 36px;
+    border: 1px solid var(--line); border-radius: 2px;
+    color: var(--grey-2); flex-shrink: 0;
+  }
+  #mobileMenuBtn:hover { color: var(--white); border-color: var(--grey); }
+
+  /* ── Mobile backdrop ── */
+  #mobileBackdrop {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55); z-index: 199;
+  }
+  #mobileBackdrop.show { display: block; }
+
+  /* ── Mobile layout ── */
+  @media (max-width: 768px) {
+    #mobileMenuBtn { display: flex; }
+    .tagline { display: none; }
+    .app { grid-template-columns: 1fr; }
+    aside {
+      position: fixed;
+      top: 64px; left: 0; bottom: 0;
+      width: min(85vw, 320px);
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+      z-index: 200;
+    }
+    aside.mobile-open {
+      transform: translateX(0);
+      box-shadow: 4px 0 24px rgba(0,0,0,0.65);
+    }
+  }
 </style>
 </head>
 <body>
@@ -880,6 +916,11 @@
       <span class="dot"></span><span id="storageLabel">Local</span>
     </div>
     <div class="tagline">Songwriter's Studio</div>
+    <button id="mobileMenuBtn" aria-label="Open library">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
   </header>
 
   <aside>
@@ -896,6 +937,7 @@
     </div>
     <div class="song-list" id="songList"></div>
   </aside>
+  <div id="mobileBackdrop"></div>
 
   <main>
     <div class="workspace-empty" id="workspaceEmpty">
@@ -8628,6 +8670,21 @@ async function boot(){
     setTimeout(() => $('#storageModal').classList.add('show'), 400);
   }
 }
+/* ── Mobile sidebar drawer ── */
+(function(){
+  const btn      = document.getElementById('mobileMenuBtn');
+  const sidebar  = document.querySelector('aside');
+  const backdrop = document.getElementById('mobileBackdrop');
+  function close(){ sidebar.classList.remove('mobile-open'); backdrop.classList.remove('show'); }
+  btn.addEventListener('click', () => {
+    const open = sidebar.classList.toggle('mobile-open');
+    backdrop.classList.toggle('show', open);
+  });
+  backdrop.addEventListener('click', close);
+  /* close drawer when user taps a song in the list */
+  document.getElementById('songList').addEventListener('click', close);
+})();
+
 boot();
 </script>
 
