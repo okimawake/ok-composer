@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="OKIMAWAKE" />
+<meta name="apple-mobile-web-app-title" content="OK-Composer" />
 <meta name="format-detection" content="telephone=no" />
 <meta name="theme-color" content="#0a0a0a" />
-<title>OKIMAWAKE — Songwriter's Studio</title>
+<title>OK-Composer — Songwriter's Studio</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   :root {
@@ -62,10 +62,9 @@
   .now-playing {
     display: flex; align-items: center; gap: 12px;
     background: var(--panel); border: 1px solid var(--line);
-    padding: 6px 14px; border-radius: 2px; min-width: 220px; max-width: 320px;
-    opacity: 0; transition: opacity 0.22s ease, border-color 0.2s, transform 0.3s ease, max-width 0.3s ease, margin 0.3s ease, padding 0.3s ease;
-    max-width: 0; min-width: 0; padding: 6px 0; margin: 0; overflow: hidden;
-    pointer-events: none;
+    border-radius: 2px; opacity: 1; pointer-events: auto;
+    min-width: 220px; max-width: 320px; padding: 6px 14px;
+    transition: opacity 0.22s ease, border-color 0.2s;
   }
   .now-playing.visible {
     opacity: 1; max-width: 320px; min-width: 220px; padding: 6px 14px; pointer-events: auto;
@@ -685,6 +684,26 @@
   /* Greyed-out panel state (for inactive sampler / audio-loop) */
   .compose-section.dimmed { opacity: 0.45; pointer-events: none; filter: grayscale(0.5); }
   .compose-section.dimmed .sampler-controls input[type=file] { pointer-events: none; }
+  details.compose-section > summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+  }
+  details.compose-section > summary::-webkit-details-marker { display: none; }
+  details.compose-section > summary h4 { margin: 0; }
+  details.compose-section > summary::after {
+    content: '\25B6';
+    font-size: 8px;
+    color: var(--grey-2);
+    transition: transform 120ms;
+    margin-left: auto;
+  }
+  details.compose-section[open] > summary::after {
+    transform: rotate(90deg);
+  }
 
   /* Instrument grid reuse beat-card styling; show icon/name */
   .beat-card.active { background: var(--red); border-color: var(--red); color: var(--white); }
@@ -1039,21 +1058,7 @@
 <div class="app">
   <header>
     <div class="logo">
-      <svg id="logoImg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="OKIMAWAKE">
-        <!-- Eye outline (almond shape) -->
-        <path d="M 6 50 Q 50 12 94 50 Q 50 88 6 50 Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
-        <!-- Sclera (white of the eye) -->
-        <path d="M 10 50 Q 50 16 90 50 Q 50 84 10 50 Z" fill="#fff"/>
-        <!-- Iris -->
-        <circle cx="50" cy="50" r="18" fill="#c62828"/>
-        <!-- Inner iris ring -->
-        <circle cx="50" cy="50" r="12" fill="none" stroke="#7a1818" stroke-width="1.5"/>
-        <!-- Pupil -->
-        <circle cx="50" cy="50" r="7" fill="#0a0a0a"/>
-        <!-- Catchlight -->
-        <circle cx="45" cy="45" r="2.5" fill="#fff"/>
-      </svg>
-      <span class="logo-text">OKIMAWAKE</span>
+      <span class="logo-text">OK:Composer</span>
     </div>
     <div class="header-center" id="headerCenter">
       <!-- Compose loop pill -->
@@ -1237,194 +1242,196 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 <button class="subtab" data-sub="melody">Melody</button>
                 <button class="subtab" data-sub="progression">Progressions</button>
               </div>
-              <div class="compose-transport">
-                <button class="transport-btn primary" id="composePlay" title="Play / Stop">▶</button>
-                <button class="transport-btn" id="composeLoop" title="Toggle loop">↻</button>
-                <button class="transport-btn" id="composeRec" title="Record">●</button>
-                <div class="meta-field">
-                  <label>BPM</label>
-                  <input type="number" id="composeTempo" min="40" max="240" value="100" style="width:54px;" />
-                </div>
-                <div class="meta-field">
-                  <label>Time</label>
-                  <select id="composeTime" style="width:64px;">
-                    <option value="4/4">4/4</option>
-                    <option value="3/4">3/4</option>
-                    <option value="6/8">6/8</option>
-                    <option value="2/4">2/4</option>
-                    <option value="5/4">5/4</option>
-                    <option value="7/8">7/8</option>
-                    <option value="12/8">12/8</option>
-                  </select>
-                </div>
-                <div class="meta-field">
-                  <label>Key ±</label>
-                  <input type="number" id="composeTranspose" min="-12" max="12" value="0" style="width:48px;" title="Semitones" />
-                </div>
-                <div class="meta-field" id="trackLoopField" title="Loop length for the current track (bars). Natural = use the progression's own length.">
-                  <label>Loop bars</label>
-                  <select id="trackLoopLen" style="width:76px;">
-                    <option value="">Natural</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="6">6</option>
-                    <option value="8">8</option>
-                    <option value="12">12</option>
-                    <option value="16">16</option>
-                  </select>
-                </div>
-                <div class="meta-field" style="margin-left:auto;">
-                  <label>Link to</label>
-                  <select id="composeLink" style="width:140px;"><option value="">— unlinked —</option></select>
-                </div>
-                <button class="transport-btn icon-btn" id="saveProgressionTop" title="Save" aria-label="Save">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                </button>
-              </div>
+              <!-- Compose engine inputs — controlled via global song settings; hidden from UI -->
+              <input type="number" id="composeTempo" value="100" min="40" max="240" style="display:none;" />
+              <select id="composeTime" style="display:none;"><option value="4/4" selected>4/4</option><option value="3/4">3/4</option><option value="6/8">6/8</option><option value="2/4">2/4</option><option value="5/4">5/4</option><option value="7/8">7/8</option><option value="12/8">12/8</option></select>
+              <input type="number" id="composeTranspose" value="0" min="-12" max="12" style="display:none;" />
 
-              <div class="compose-progression-wrap" id="chordProgWrap">
-                <div class="progression-row" id="progressionRow">
+              <details class="compose-section" id="chordProgWrap" open>
+                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
+                  <h4 style="margin:0;">Progression</h4>
+                  <button class="transport-btn primary" id="composePlay" title="Play / Stop" style="width:28px;height:28px;font-size:13px;padding:0;margin-left:auto;flex-shrink:0;">▶</button>
+                </summary>
+                <div class="progression-row" id="progressionRow" style="margin-top:10px;">
                   <div class="playhead" id="playhead"></div>
                 </div>
                 <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                   <button class="chord-type-btn" id="clearProgression">Clear</button>
                 </div>
-              </div>
+              </details>
             </div>
 
             <!-- CHORDS sub-pane -->
             <div class="compose-sub-pane active" data-sub="chords">
-              <div class="compose-section">
-                <h4>Instrument</h4>
-                <div class="compact-grid" id="instrumentGrid"></div>
-              </div>
-              <div class="compose-section">
-                <h4>Chord Type</h4>
-                <div class="chord-palette" id="chordPalette"></div>
-                <h4 style="margin-top:14px;">Inversion</h4>
-                <div class="chord-palette" id="inversionPalette"></div>
-                <div style="margin-top:10px; font-size:11px; color:var(--grey-2); letter-spacing:0.1em;">Click a key below to add that root to the progression with the selected type &amp; inversion. Use <strong>Custom</strong> to pick up to 7 notes manually.</div>
-              </div>
-
+              <!-- Keyboard always visible at top -->
               <div class="compose-section">
                 <h4>Keyboard</h4>
                 <div class="piano-wrap"><div class="piano" id="piano"></div></div>
-                <div class="custom-chord-builder" id="customBuilder" style="display:none; margin-top:10px;">
+                <div class="custom-chord-builder" id="customBuilder" style="margin-top:10px;">
                   <div class="custom-notes-display" id="customNotes">Select up to 7 notes on the keyboard…</div>
-                  <div style="display:flex; gap:6px;">
-                    <button class="chord-type-btn" id="customAdd">+ Add Custom Chord</button>
-                    <button class="chord-type-btn" id="customClear">Clear Selection</button>
-                  </div>
+                </div>
+                <div id="pendingChordInfo" style="min-height:24px;margin-top:6px;font-size:11px;color:var(--grey-2);">Click a key to build a chord.</div>
+                <div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap;">
+                  <select id="chordLenSel" style="width:84px;" title="Note length"><option value="2">2 bars</option><option value="1.5">d.1</option><option value="1" selected>1 bar</option><option value="0.75">d.1/2</option><option value="0.667">1/2T</option><option value="0.5">1/2</option><option value="0.375">d.1/4</option><option value="0.333">1/4T</option><option value="0.25">1/4</option><option value="0.1875">d.1/8</option><option value="0.167">1/8T</option><option value="0.125">1/8</option></select>
+                  <button class="chord-type-btn" id="addChordBtn" disabled>+ Add Chord</button>
+                  <button class="chord-type-btn" id="addChordRestBtn">+ Rest</button>
+                  <button class="chord-type-btn" id="clearChordSelBtn">Clear</button>
                 </div>
               </div>
 
-              <div class="compose-section">
-                <h4>Saved Chord Progressions</h4>
-                <div style="display:flex; gap:8px; margin-bottom:10px;">
+              <!-- Chord Type (open by default) -->
+              <details class="compose-section" open>
+                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
+                  <h4 style="margin:0;">Chord Type</h4>
+                </summary>
+                <div style="margin-top:10px;">
+                  <div class="chord-palette" id="chordPalette"></div>
+                  <h4 style="margin-top:14px;">Inversion</h4>
+                  <div class="chord-palette" id="inversionPalette"></div>
+                </div>
+              </details>
+
+              <!-- Instrument (closed by default) -->
+              <details class="compose-section">
+                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
+                  <h4 style="margin:0;">Instrument</h4>
+                </summary>
+                <div style="margin-top:10px;">
+                  <div class="compact-grid" id="instrumentGrid"></div>
+                  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px;">
+                    <div class="meta-field"><label>Loop bars</label><select id="chordLoopLen" style="width:76px;" title="Loop length for chords (bars)."><option value="">Natural</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></div>
+                    <div class="meta-field"><label>Link to</label><select id="composeLink" style="width:130px;"><option value="">— unlinked —</option></select></div>
+                    <button class="transport-btn icon-btn" id="saveProgressionTop" title="Save progression" aria-label="Save progression" style="width:28px;height:28px;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </details>
+
+              <!-- Saved Chord Progressions (closed by default) -->
+              <details class="compose-section">
+                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
+                  <h4 style="margin:0;">Saved Chord Progressions</h4>
+                </summary>
+                <div style="display:flex; gap:8px; margin-bottom:10px;margin-top:12px;">
                   <input type="text" id="progName" placeholder="Name this progression…" class="search" style="flex:1;" />
                   <button class="chord-type-btn" id="saveProgression">Save</button>
                 </div>
                 <div class="progressions-list" id="progressionsList"></div>
-              </div>
+              </details>
             </div>
 
             <!-- SAMPLER sub-pane -->
             <div class="compose-sub-pane" data-sub="sampler" style="display:none;">
-              <div class="compose-section" id="samplerPanel">
-                <h4>Sampler</h4>
-                <div class="sampler-controls">
-                  <input type="file" id="samplerFile" accept=".mp3,.wav,.flac,audio/mpeg,audio/wav,audio/flac,audio/x-flac" />
-                  <button class="chord-type-btn" id="samplerRecBtn" title="Record from microphone">● Record Sample</button>
-                  <span id="samplerName" style="font-size:11px;color:var(--grey-2);">No sample loaded</span>
-                </div>
-                <div class="sampler-grid">
-                  <div class="range-field"><label>Trim start (s) <span id="samTrimStartV">0.00</span></label><input type="range" id="samTrimStart" min="0" max="10" step="0.01" value="0" /></div>
-                  <div class="range-field"><label>Trim end (s) <span id="samTrimEndV">0.00</span></label><input type="range" id="samTrimEnd" min="0" max="10" step="0.01" value="10" /></div>
-                  <div class="range-field"><label>Fade in (s) <span id="samFadeInV">0.00</span></label><input type="range" id="samFadeIn" min="0" max="2" step="0.01" value="0" /></div>
-                  <div class="range-field"><label>Fade out (s) <span id="samFadeOutV">0.00</span></label><input type="range" id="samFadeOut" min="0" max="2" step="0.01" value="0" /></div>
-                  <div class="range-field"><label>Gain <span id="samGainV">1.00</span></label><input type="range" id="samGain" min="0" max="2" step="0.01" value="1" /></div>
-                  <div class="range-field"><label>Pitch (semitones) <span id="samPitchV">0</span></label><input type="range" id="samPitch" min="-24" max="24" step="1" value="0" /></div>
-                </div>
-              </div>
-              <div class="compose-section">
-                <h4>Sampler Voice</h4>
-                <div class="compact-grid" id="samplerVoiceGrid"></div>
-              </div>
-              <div class="compose-section env-section">
-                <h4>Envelope</h4>
-                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--grey-2);">
-                  <button class="chord-type-btn env-section-btn" id="samplerEnvBtn">✎ Edit ADSR</button>
-                  <span>Attack / Decay / Sustain / Release shape the sampler's final output.</span>
-                </div>
-              </div>
-              <div class="compose-section">
-                <h4>Sampler Mode</h4>
-                <div class="beat-grid" id="samplerModeGrid">
-                  <div class="beat-card active" data-sampler-mode="follow">Follow Chord Root<small>plays at each chord trigger, pitched to the root</small></div>
-                  <div class="beat-card" data-sampler-mode="own">Own Progression<small>define your own sampler line</small></div>
-                </div>
-              </div>
+              <!-- Keyboard always visible at top -->
               <div class="compose-section">
                 <h4>Keyboard</h4>
                 <div class="piano-wrap"><div class="piano" id="samplerPiano"></div></div>
-                <div style="font-size:11px;color:var(--grey-2);margin-top:6px;">Click a key to preview the sample at that pitch. In <strong>Own Progression</strong> mode, taps add to the sampler line below.</div>
-              </div>
-              <div class="compose-section" id="samplerOwnWrap" style="display:none;">
-                <h4>Sampler Progression</h4>
-                <div class="progression-row" id="samplerProgRow"></div>
-                <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                  <button class="chord-type-btn" id="samplerClear">Clear</button>
-                  <div style="font-size:11px;color:var(--grey-2);">Tap the keyboard above to add sampler notes. Drag blocks to reorder.</div>
+                <div id="pendingSamplerInfo" style="min-height:24px;margin-top:6px;font-size:11px;color:var(--grey-2);">Click a key to select a note.</div>
+                <div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap;">
+                  <select id="samplerLenSel" style="width:84px;" title="Note length"><option value="2">2 bars</option><option value="1.5">d.1</option><option value="1" selected>1 bar</option><option value="0.75">d.1/2</option><option value="0.667">1/2T</option><option value="0.5">1/2</option><option value="0.375">d.1/4</option><option value="0.333">1/4T</option><option value="0.25">1/4</option><option value="0.1875">d.1/8</option><option value="0.167">1/8T</option><option value="0.125">1/8</option></select>
+                  <button class="chord-type-btn" id="addSamplerNoteBtn" disabled>+ Add Note</button>
+                  <button class="chord-type-btn" id="addSamplerRestBtn">+ Rest</button>
                 </div>
               </div>
+
+              <!-- Sampler Progression (visible when not following root) -->
+              <details id="samplerOwnWrap" class="compose-section" open>
+                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
+                  <h4 style="margin:0;">Sampler Progression</h4>
+                </summary>
+                <div class="progression-row" id="samplerProgRow" style="margin-top:12px;"></div>
+                <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                  <button class="chord-type-btn" id="samplerClear">Clear</button>
+                </div>
+              </details>
+
+              <!-- Sampler settings (closed by default, minimisable) -->
+              <details class="compose-section" id="samplerPanel">
+                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
+                  <h4 style="margin:0;">Sampler</h4>
+                </summary>
+                <div style="margin-top:10px;">
+                  <div class="sampler-controls">
+                    <input type="file" id="samplerFile" accept=".mp3,.wav,.flac,audio/mpeg,audio/wav,audio/flac,audio/x-flac" />
+                    <button class="chord-type-btn" id="samplerRecBtn" title="Record from microphone">● Record Sample</button>
+                    <span id="samplerName" style="font-size:11px;color:var(--grey-2);">No sample loaded</span>
+                    <button class="chord-type-btn env-section-btn" id="samplerEnvBtn">✎ Edit ADSR</button>
+                    <label style="font-size:11px;color:var(--grey-2);display:flex;align-items:center;gap:6px;"><input type="checkbox" id="samplerFollowRoot"> Follow chord root</label>
+                  </div>
+                  <div class="sampler-grid" style="margin-top:10px;">
+                    <div class="range-field"><label>Trim start (s) <span id="samTrimStartV">0.00</span></label><input type="range" id="samTrimStart" min="0" max="10" step="0.01" value="0" /></div>
+                    <div class="range-field"><label>Trim end (s) <span id="samTrimEndV">0.00</span></label><input type="range" id="samTrimEnd" min="0" max="10" step="0.01" value="10" /></div>
+                    <div class="range-field"><label>Fade in (s) <span id="samFadeInV">0.00</span></label><input type="range" id="samFadeIn" min="0" max="2" step="0.01" value="0" /></div>
+                    <div class="range-field"><label>Fade out (s) <span id="samFadeOutV">0.00</span></label><input type="range" id="samFadeOut" min="0" max="2" step="0.01" value="0" /></div>
+                    <div class="range-field"><label>Gain <span id="samGainV">1.00</span></label><input type="range" id="samGain" min="0" max="2" step="0.01" value="1" /></div>
+                    <div class="range-field"><label>Pitch (semitones) <span id="samPitchV">0</span></label><input type="range" id="samPitch" min="-24" max="24" step="1" value="0" /></div>
+                  </div>
+                  <div style="margin-top:10px;"><div class="meta-field"><label>Loop bars</label><select id="samplerLoopLen" style="width:76px;"><option value="">Natural</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></div></div>
+                </div>
+              </details>
             </div>
 
             <!-- BASS sub-pane -->
             <div class="compose-sub-pane" data-sub="bass" style="display:none;">
-              <div class="compose-section">
-                <h4>Bass Voice</h4>
-                <div class="compact-grid" id="bassVoiceGrid"></div>
-              </div>
-              <div class="compose-section">
-                <h4>Bass Mode</h4>
-                <div class="beat-grid" id="bassModeGrid">
-                  <div class="beat-card active" data-bass-mode="follow">Follow Chord Root<small>matches the chord progression</small></div>
-                  <div class="beat-card" data-bass-mode="own">Own Progression<small>define your own bass line</small></div>
-                </div>
-                <div class="sampler-grid" style="margin-top:14px;">
-                  <div class="range-field"><label>Octave <span id="bassOctV">-2</span></label><input type="range" id="bassOctave" min="-4" max="0" step="1" value="-2" /></div>
-                  <div class="range-field"><label>Gain <span id="bassGainV">0.90</span></label><input type="range" id="bassGain" min="0" max="2" step="0.01" value="0.9" /></div>
-                </div>
-              </div>
+              <!-- Keyboard always visible at top -->
               <div class="compose-section">
                 <h4>Keyboard</h4>
                 <div class="piano-wrap"><div class="piano" id="bassPiano"></div></div>
-                <div style="font-size:11px;color:var(--grey-2);margin-top:6px;">Click a key to preview the bass voice. In <strong>Own Progression</strong> mode, taps add to the bass line below.</div>
-              </div>
-              <div class="compose-section" id="bassOwnWrap" style="display:none;">
-                <h4>Bass Progression</h4>
-                <div class="progression-row" id="bassProgRow"></div>
-                <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                  <button class="chord-type-btn" id="bassClear">Clear</button>
-                  <div style="font-size:11px;color:var(--grey-2);">Tap the keyboard above to add bass notes. Drag blocks to reorder.</div>
+                <div id="pendingBassInfo" style="min-height:24px;margin-top:6px;font-size:11px;color:var(--grey-2);">Click a key to select a bass note.</div>
+                <div id="bassAddNoteRow" style="display:none;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap;">
+                  <select id="bassLenSel" style="width:84px;" title="Note length"><option value="2">2 bars</option><option value="1.5">d.1</option><option value="1" selected>1 bar</option><option value="0.75">d.1/2</option><option value="0.667">1/2T</option><option value="0.5">1/2</option><option value="0.375">d.1/4</option><option value="0.333">1/4T</option><option value="0.25">1/4</option><option value="0.1875">d.1/8</option><option value="0.167">1/8T</option><option value="0.125">1/8</option></select>
+                  <button class="chord-type-btn" id="addBassNoteBtn" disabled>+ Add Note</button>
+                  <button class="chord-type-btn" id="addBassRestBtn">+ Rest</button>
                 </div>
               </div>
-              <div class="compose-section">
-                <h4>Saved Bass Progressions</h4>
-                <div style="display:flex;gap:8px;margin-bottom:10px;">
+
+              <!-- Bass Voice (closed by default) — includes follow root checkbox -->
+              <details class="compose-section">
+                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
+                  <h4 style="margin:0;">Bass Voice</h4>
+                </summary>
+                <div style="margin-top:10px;">
+                  <div class="compact-grid" id="bassVoiceGrid"></div>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--grey-2);margin-top:10px;"><input type="checkbox" id="bassFollowRoot" checked> Follow chord root</label>
+                  <div class="sampler-grid" style="margin-top:10px;">
+                    <div class="range-field"><label>Octave <span id="bassOctV">-2</span></label><input type="range" id="bassOctave" min="-4" max="0" step="1" value="-2" /></div>
+                    <div class="range-field"><label>Gain <span id="bassGainV">0.90</span></label><input type="range" id="bassGain" min="0" max="2" step="0.01" value="0.9" /></div>
+                  </div>
+                  <div style="margin-top:10px;"><div class="meta-field"><label>Loop bars</label><select id="bassLoopLen" style="width:76px;"><option value="">Natural</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></div></div>
+                </div>
+              </details>
+
+              <!-- Bass Progression (hidden while following root) -->
+              <details id="bassOwnWrap" class="compose-section" style="display:none;">
+                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
+                  <h4 style="margin:0;">Bass Progression</h4>
+                </summary>
+                <div class="progression-row" id="bassProgRow" style="margin-top:12px;"></div>
+                <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                  <button class="chord-type-btn" id="bassClear">Clear</button>
+                </div>
+              </details>
+
+              <!-- Saved Bass Progressions (closed by default) -->
+              <details class="compose-section">
+                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
+                  <h4 style="margin:0;">Saved Bass Progressions</h4>
+                </summary>
+                <div style="display:flex;gap:8px;margin-bottom:10px;margin-top:12px;">
                   <input type="text" id="bassProgName" placeholder="Name this bass line…" class="search" style="flex:1;" />
                   <button class="chord-type-btn" id="saveBassProgression">Save</button>
                 </div>
                 <div class="progressions-list" id="bassProgressionsList"></div>
-              </div>
+              </details>
             </div>
 
             <!-- BEAT sub-pane -->
             <div class="compose-sub-pane" data-sub="beat" style="display:none;">
-              <div class="compose-section">
-                <h4>Beat</h4>
+              <details class="compose-section" open>
+                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
+                  <h4 style="margin:0;">Beat</h4>
+                </summary>
                 <div class="drum-fx-panel" id="beatDrumFxPanel">
                   <div class="drum-fx-header" id="beatDrumFxHeader">
                     <span class="dfx-arrow">▶</span>
@@ -1453,8 +1460,9 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                   </div>
                 </div>
                 <div class="beat-grid" id="beatGrid"></div>
-              </div>
-              <div class="compose-section" id="audioLoopPanel">
+                <div style="margin-top:10px;"><div class="meta-field"><label>Loop bars</label><select id="beatLoopLen" style="width:76px;"><option value="">Natural</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></div></div>
+              </details>
+              <div class="compose-section" id="audioLoopPanel" style="display:none;">
                 <h4>Audio Loop</h4>
                 <div class="sampler-controls">
                   <input type="file" id="loopFile" accept=".mp3,.wav,.flac,audio/mpeg,audio/wav,audio/flac,audio/x-flac" />
@@ -1530,11 +1538,6 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 <div id="seqGrid"></div>
 
                 <div class="seq-toolbar" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px;">
-                  <div>
-                    <label>Preview</label>
-                    <button class="chord-type-btn" id="seqPreview" title="Play just the beat at the current tempo">▶ Play</button>
-                    <button class="chord-type-btn" id="seqStop">■ Stop</button>
-                  </div>
                   <div style="flex:1;"></div>
                   <div>
                     <label>Name</label>
@@ -1604,9 +1607,6 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
 
                 <div class="seq-toolbar" style="margin-top:10px;border-top:1px solid var(--line);padding-top:12px;">
                   <div>
-                    <button class="chord-type-btn" id="melPlay">▶ Play</button>
-                    <button class="chord-type-btn" id="melStop">■ Stop</button>
-                    <button class="chord-type-btn" id="melLoop" title="Toggle loop">↻ Loop</button>
                     <button class="chord-type-btn" id="melClear" title="Remove all notes">Clear</button>
                   </div>
                   <div>
@@ -1633,17 +1633,31 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 <div style="display:flex;gap:8px;align-items:center;margin-top:14px;flex-wrap:wrap;">
                   <input type="text" id="compName" placeholder="Name this composition…" class="search" style="flex:1;min-width:180px;" />
                   <select id="compLink" style="width:140px;"><option value="">— unlinked —</option></select>
-                  <button class="chord-type-btn" id="compPlay">▶ Play</button>
+                  <label style="font-size:11px;color:var(--grey-2);">Loop Bars</label>
+                  <select id="progLoopBars" style="width:76px;">
+                    <option value="">Natural</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="4">4</option>
+                    <option value="6">6</option>
+                    <option value="8">8</option>
+                    <option value="12">12</option>
+                    <option value="16">16</option>
+                  </select>
                   <button class="chord-type-btn" id="compSave">Save</button>
                 </div>
               </div>
-              <div class="compose-section">
-                <h4>Saved Compositions</h4>
-                <div class="progressions-list" id="compositionsList"></div>
-              </div>
-              <div class="compose-section">
-                <h4>Copy From Another Song</h4>
-                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <details class="compose-section">
+                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
+                  <h4 style="margin:0;">Saved Compositions</h4>
+                </summary>
+                <div class="progressions-list" id="compositionsList" style="margin-top:12px;"></div>
+              </details>
+              <details class="compose-section">
+                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
+                  <h4 style="margin:0;">Copy From Another Song</h4>
+                </summary>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;">
                   <select id="copyFromSong" style="flex:1;min-width:180px;"></select>
                   <select id="copyFromKind" style="width:140px;">
                     <option value="chords">Chord Progression</option>
@@ -1653,7 +1667,7 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                   <select id="copyFromItem" style="flex:1;min-width:180px;"></select>
                   <button class="chord-type-btn" id="copyFromDo">Copy Here</button>
                 </div>
-              </div>
+              </details>
             </div>
 
           </div>
@@ -1933,7 +1947,7 @@ const CHORD_TYPES = {
   'Maj3 b5':      [0, 4, 6],
 };
 // Order + labels in the palette (newest / user-facing list).
-const VISIBLE_CHORD_TYPES = ['Unison','Major','Minor','5','7','Maj7','Min7','Sus2','Sus4','Dim','Add9','Custom'];
+const VISIBLE_CHORD_TYPES = ['Custom','Unison','Major','Minor','5','7','Maj7','Min7','Sus2','Sus4','Dim','Add9'];
 const CHORD_TYPE_LABELS = {
   'Unison':'Unison','Major':'Major','Minor':'Minor',
   '5':'5th','7':'7th','Maj7':'Major 7th','Min7':'Minor 7th',
@@ -2052,14 +2066,21 @@ const BEAT_HINTS = {
 };
 
 const CHORD_LENGTHS = [
-  { val: 0.0625, label: '1/16' },
-  { val: 0.125,  label: '1/8'  },
-  { val: 0.25,   label: '1/4'  },
-  { val: 0.5,    label: '1/2'  },
-  { val: 1,      label: '1 bar'  },
-  { val: 2,      label: '2 bars' },
-  { val: 3,      label: '3 bars' },
-  { val: 4,      label: '4 bars' },
+  { val: 0.0625,  label: '1/16'  },
+  { val: 0.125,   label: '1/8'   },
+  { val: 0.1667,  label: '1/8T'  },
+  { val: 0.1875,  label: 'd.1/8' },
+  { val: 0.25,    label: '1/4'   },
+  { val: 0.333,   label: '1/4T'  },
+  { val: 0.375,   label: 'd.1/4' },
+  { val: 0.5,     label: '1/2'   },
+  { val: 0.667,   label: '1/2T'  },
+  { val: 0.75,    label: 'd.1/2' },
+  { val: 1,       label: '1 bar' },
+  { val: 1.5,     label: 'd.1'   },
+  { val: 2,       label: '2 bars'},
+  { val: 3,       label: '3 bars'},
+  { val: 4,       label: '4 bars'},
 ];
 function chordLengthLabel(v){ const m = CHORD_LENGTHS.find(l => Math.abs(l.val - v) < 0.0001); return m ? m.label : `${v} bars`; }
 function chordWidth(v){ return Math.max(58, Math.min(320, 70 * v + 20)); }
@@ -2089,9 +2110,9 @@ const samplerState = {
   gain: 1, pitch: 0, // semitones
   rootMidi: 60,     // sample's assumed pitch; we transpose from this
   // Sampler-as-its-own-track:
-  enabled: false,            // false === voice "None"
+  enabled: true,             // true: enabled by default
   voice: 'sampler',          // future-proofed for more voices
-  followRoot: true,          // true: trigger on each chord; false: own progression
+  followRoot: false,         // false: own progression by default
   ownProgression: [],        // [{ root, duration }]
 };
 // Audio-loop state (for Beat = Audio Loop)
@@ -2117,7 +2138,7 @@ const BASS_VOICES = [
   { id: 'picked',   name: 'Picked Bass'   },
 ];
 const bassState = {
-  enabled: false,
+  enabled: true,
   voice: 'electric',     // from BASS_VOICES
   followRoot: true,      // if true, follow chord progression's root notes
   octave: -2,            // octaves below chord root
@@ -2258,7 +2279,7 @@ const state = {
   tags: [],                 // [{id,name,color}]
   storage: 'local',         // 'local' | 'fs'
   folderHandle: null,
-  composeSelectedType: 'Major',
+  composeSelectedType: 'Custom',
   composeSelectedInversion: 0,
   composeCustomNotes: [],
   composeActiveProgressionId: null,
@@ -2491,6 +2512,7 @@ function inversionName(typeKey, root, bassPc){
 // Clean display label for a chord in the progression row.
 function buildChordLabel(c){
   if (!c) return '';
+  if (c.rest) return 'Rest';
   const t = normalizeChordType(c.type);
   if (t === 'Unison') return noteName(c.root);
   if (t === 'Custom'){
@@ -3120,6 +3142,7 @@ function renderWorkspace(){
   renderPreview();
   try { typeof renderLauncher === 'function' && renderLauncher(); } catch {}
   try { if (typeof renderMixer === 'function' && state.tab === 'mixer') renderMixer(); } catch {}
+  try { if (typeof refreshTrackLoopUI === 'function') refreshTrackLoopUI(); } catch {}
   updateUndoRedoButtons();
 }
 
@@ -4758,9 +4781,11 @@ function renderMixer(){
         <label style="font-size:9px;color:#555;letter-spacing:0.1em;text-transform:uppercase;display:flex;align-items:center;gap:4px;">
           Sync <input type="checkbox" id="mxDelSync" ${mm.delaySync?'checked':''} style="accent-color:var(--red);" />
         </label>
-        <select id="mxDelDiv" ${!mm.delaySync?'style="display:none"':''} style="background:#1a1a1a;color:#888;border:1px solid #2a2a2a;padding:2px 4px;font-size:9px;border-radius:2px;">
-          ${['1/32','1/16','1/8','1/4','3/8','1/2','3/4','1 bar'].map(d=>`<option value="${d}" ${(mm.delayDiv||'1/4')===d?'selected':''}>${d}</option>`).join('')}
-        </select>
+        <div id="mxDelDivWrap" style="display:${mm.delaySync?'flex':'none'};align-items:center;gap:4px;">
+          <button class="chord-type-btn" id="mxDelDivPrev" style="padding:2px 6px;font-size:11px;">&lt;</button>
+          <span id="mxDelDivLabel" style="font-size:11px;color:#888;min-width:36px;text-align:center;">${mm.delayDiv||'1/4'}</span>
+          <button class="chord-type-btn" id="mxDelDivNext" style="padding:2px 6px;font-size:11px;">&gt;</button>
+        </div>
       </div>
     </div>
   `;
@@ -4830,17 +4855,35 @@ function renderMixer(){
       const mx = getMixer();
       mx.master.delaySync = !!delSyncEl.checked;
       const timeKnob = master.querySelector('#mxDelTimeKnob');
-      const divSel = master.querySelector('#mxDelDiv');
+      const divSel = master.querySelector('#mxDelDivWrap');
       if (timeKnob) timeKnob.style.display = mx.master.delaySync ? 'none' : '';
       if (divSel) divSel.style.display = mx.master.delaySync ? '' : 'none';
       applyMixerToNodes(); touchActive();
     });
   }
-  const delDivEl = master.querySelector('#mxDelDiv');
-  if (delDivEl){
-    delDivEl.addEventListener('change', () => {
-      getMixer().master.delayDiv = delDivEl.value; applyMixerToNodes(); touchActive();
-    });
+  const _delDivs = ['1/32','1/16','1/8','1/4','3/8','1/2','3/4','1 bar'];
+  function _updateDelDivUI(){
+    const mx = getMixer();
+    const label = master.querySelector('#mxDelDivLabel');
+    if (label) label.textContent = mx.master.delayDiv || '1/4';
+  }
+  const mxDelDivPrev = master.querySelector('#mxDelDivPrev');
+  const mxDelDivNext = master.querySelector('#mxDelDivNext');
+  if (mxDelDivPrev){
+    mxDelDivPrev.onclick = () => {
+      const mx = getMixer();
+      const idx = _delDivs.indexOf(mx.master.delayDiv || '1/4');
+      mx.master.delayDiv = _delDivs[Math.max(0, idx-1)];
+      _updateDelDivUI(); applyMixerToNodes(); touchActive();
+    };
+  }
+  if (mxDelDivNext){
+    mxDelDivNext.onclick = () => {
+      const mx = getMixer();
+      const idx = _delDivs.indexOf(mx.master.delayDiv || '1/4');
+      mx.master.delayDiv = _delDivs[Math.min(_delDivs.length-1, idx+1)];
+      _updateDelDivUI(); applyMixerToNodes(); touchActive();
+    };
   }
 
   // Wire FX cards — click header to toggle, knobs to edit params
@@ -5596,6 +5639,13 @@ function onPianoKey(midi){
     else if (state.composeCustomNotes.length < 7) state.composeCustomNotes.push(midi);
     updateCustomSelection();
     playRhodesNote(midi, 0.6);
+    if (state.composeCustomNotes.length > 0) {
+      _pendingChord = { root: state.composeCustomNotes[0], type: 'Custom', notes: [...state.composeCustomNotes], duration: 1, inversion: 0 };
+      const info = document.getElementById('pendingChordInfo');
+      if (info) { info.textContent = `Custom: ${state.composeCustomNotes.map(n=>NOTE_NAMES[n%12]).join(' ')}`; info.style.color = 'var(--white)'; }
+      const addBtn = document.getElementById('addChordBtn');
+      if (addBtn) addBtn.disabled = false;
+    }
     return;
   }
   const inv = state.composeSelectedInversion || 0;
@@ -5603,8 +5653,16 @@ function onPianoKey(midi){
   notes = invertChordNotes(notes, inv);
   notes.forEach((n,i) => { playRhodesNote(n, 1.0, ensureComposeCtx().currentTime + i*0.01); flashKey(n); });
   highlightChordNotes(notes);
-  // Add to progression
-  addChordToProgression({ root: midi, type, notes, duration: 1, inversion: inv });
+  // Stage as pending chord — user must click + Add Chord to commit
+  _pendingChord = { root: midi, type, notes, duration: 1, inversion: inv };
+  const _pInfo = document.getElementById('pendingChordInfo');
+  if (_pInfo) {
+    const rootName = NOTE_NAMES[midi % 12];
+    _pInfo.textContent = `Selected: ${rootName} ${type}${inv ? ` (inv ${inv})` : ''}`;
+    _pInfo.style.color = 'var(--white)';
+  }
+  const _pAddBtn = document.getElementById('addChordBtn');
+  if (_pAddBtn) _pAddBtn.disabled = false;
 }
 
 function updateCustomSelection(){
@@ -6313,7 +6371,7 @@ function scheduleIteration(iterStart){
     const effTime = c.timeOverride || compose.global.time;
     const dur = computeChordDur(c, compose.global);
     const extraTranspose = (c.chordTransposeSemis || 0);
-    if (!c._silent){
+    if (!c._silent && !c.rest){
       const notes = (c.notes || chordNotes(c.root, c.type, c.customNotes))
         .map(n => n + (compose.global.transpose || 0) + extraTranspose);
       notes.forEach((n, ii) => {
@@ -6322,13 +6380,13 @@ function scheduleIteration(iterStart){
       });
     }
     // Bass follow-root: play root of each chord
-    if (compose.global.bassEnabled && compose.global.bassMode === 'follow' && !c._silent){
+    if (compose.global.bassEnabled && compose.global.bassMode === 'follow' && !c._silent && !c.rest){
       const root = c.root + (compose.global.transpose || 0) + extraTranspose;
       const bns = playBassVoiceNote(root, dur * 0.9, t, (compose.global.bassGain || 0.9) * 0.35);
       _tagAndPushSynth(bns, t);
     }
     // Sampler follow-root: trigger sample at the chord root
-    if (compose.global.samplerEnabled && compose.global.samplerMode === 'follow' && !c._silent && samplerState.buffer){
+    if (compose.global.samplerEnabled && compose.global.samplerMode === 'follow' && !c._silent && !c.rest && samplerState.buffer){
       const root = c.root + (compose.global.transpose || 0) + extraTranspose;
       const sns = playSamplerNote(root, dur * 0.95, t, 0.9);
       _tagAndPushSynth(sns, t);
@@ -6458,8 +6516,8 @@ function rescheduleTimelineFromNow(){
     const effTime = c.timeOverride || compose.global.time;
     const dur = computeChordDur(c, compose.global);
     const extraTranspose = (c.chordTransposeSemis || 0);
-    const notes = (c.notes || chordNotes(c.root, c.type, c.customNotes))
-      .map(n => n + (compose.global.transpose || 0) + extraTranspose);
+    const notes = (!c._silent && !c.rest) ? (c.notes || chordNotes(c.root, c.type, c.customNotes))
+      .map(n => n + (compose.global.transpose || 0) + extraTranspose) : [];
     // Only schedule notes for future boundaries (not the currently-playing one — already sounding)
     if (i > curr.idx){
       notes.forEach((n, ii) => {
@@ -6468,13 +6526,13 @@ function rescheduleTimelineFromNow(){
       });
       scheduleDrumsInRange(effBeat, effTime, t, t, t + dur, i);
       // Bass follow-root for future chord
-      if (compose.global.bassEnabled && compose.global.bassMode === 'follow' && !c._silent){
+      if (compose.global.bassEnabled && compose.global.bassMode === 'follow' && !c._silent && !c.rest){
         const root = c.root + (compose.global.transpose || 0) + extraTranspose;
         const bns = playBassVoiceNote(root, dur * 0.9, t, (compose.global.bassGain || 0.9) * 0.35);
         _tagAndPushSynth(bns, t);
       }
       // Sampler follow-root for future chord
-      if (compose.global.samplerEnabled && compose.global.samplerMode === 'follow' && !c._silent && samplerState.buffer){
+      if (compose.global.samplerEnabled && compose.global.samplerMode === 'follow' && !c._silent && !c.rest && samplerState.buffer){
         const root = c.root + (compose.global.transpose || 0) + extraTranspose;
         const sns = playSamplerNote(root, dur * 0.95, t, 0.9);
         _tagAndPushSynth(sns, t);
@@ -6677,12 +6735,13 @@ $('#composePlay').onclick = () => {
   if (compose.playing){ stopCompose(); return; }
   composePlayProgression({ chords: composeWorking.chords });
 };
-$('#composeLoop').onclick = () => {
+const _composeLoopBtn = $('#composeLoop');
+if (_composeLoopBtn) _composeLoopBtn.onclick = () => {
   composeLooping = !composeLooping;
   compose.looping = composeLooping;
   if (composeLooping) compose.maxIterations = Infinity;
-  $('#composeLoop').style.color = composeLooping ? '' : 'var(--grey)';
-  $('#composeLoop').title = composeLooping ? 'Loop: ON — click to turn off' : 'Loop: OFF — click to turn on';
+  _composeLoopBtn.style.color = composeLooping ? '' : 'var(--grey)';
+  _composeLoopBtn.title = composeLooping ? 'Loop: ON — click to turn off' : 'Loop: OFF — click to turn on';
 };
 // Now-playing compose pill stop button
 const _npCompStop = document.getElementById('npComposeStop');
@@ -6774,7 +6833,7 @@ function refreshSamplerPanelState(){
 }
 function refreshAudioLoopPanelState(){
   const active = $('.beat-card[data-beat="Audio Loop"]')?.classList?.contains('active');
-  const p = $('#audioLoopPanel'); if (p) p.classList.toggle('dimmed', !active);
+  const p = $('#audioLoopPanel'); if (p) p.style.display = active ? '' : 'none';
 }
 renderInstrumentGrid();
 
@@ -6795,33 +6854,15 @@ function switchComposeSubTab(name){
 }
 $$('.compose-subtabs .subtab').forEach(b => { b.onclick = () => switchComposeSubTab(b.dataset.sub); });
 
-// --- Live Loops: per-track loop length, bound to the current compose sub-tab ---
-function _trackLoopKeyForSub(sub){
-  if (sub === 'chords' || sub === 'progression') return 'chords';
-  if (sub === 'bass')    return 'bass';
-  if (sub === 'sampler') return 'sampler';
-  if (sub === 'beat')    return 'beat';
-  if (sub === 'melody')  return 'melody';
-  return null;
-}
-function refreshTrackLoopUI(){
-  const sel = document.getElementById('trackLoopLen');
-  const field = document.getElementById('trackLoopField');
-  if (!sel || !field) return;
-  const key = _trackLoopKeyForSub(composeSubTab);
-  if (!key){ field.style.display = 'none'; return; }
-  field.style.display = '';
+// --- Live Loops: per-track loop length — each sub-tab has its own select ---
+function _wireLoopSel(id, key){
+  const sel = document.getElementById(id);
+  if (!sel) return;
   const v = trackLoopLens[key];
   sel.value = (v == null) ? '' : String(v);
-}
-const _trackLoopSel = document.getElementById('trackLoopLen');
-if (_trackLoopSel){
-  _trackLoopSel.onchange = () => {
-    const key = _trackLoopKeyForSub(composeSubTab);
-    if (!key) return;
-    const raw = _trackLoopSel.value;
+  sel.onchange = () => {
+    const raw = sel.value;
     trackLoopLens[key] = raw === '' ? null : parseInt(raw, 10);
-    // For melody, mirror into melodyState.cycleBars so the independent scheduler sees it
     if (key === 'melody' && typeof melodyState !== 'undefined'){
       melodyState.cycleBars = trackLoopLens.melody || null;
     }
@@ -6829,13 +6870,16 @@ if (_trackLoopSel){
     if (compose.playing) rescheduleTimelineFromNow();
   };
 }
-// Hook into sub-tab switches so the loop-len select reflects the current track
-const _origSwitchSubTab = switchComposeSubTab;
-switchComposeSubTab = function(name){
-  _origSwitchSubTab(name);
-  refreshTrackLoopUI();
-};
-refreshTrackLoopUI();
+function refreshTrackLoopUI(){
+  _wireLoopSel('chordLoopLen', 'chords');
+  _wireLoopSel('bassLoopLen', 'bass');
+  _wireLoopSel('samplerLoopLen', 'sampler');
+  _wireLoopSel('beatLoopLen', 'beat');
+}
+_wireLoopSel('chordLoopLen', 'chords');
+_wireLoopSel('bassLoopLen', 'bass');
+_wireLoopSel('samplerLoopLen', 'sampler');
+_wireLoopSel('beatLoopLen', 'beat');
 
 /* -------- BASS UI -------- */
 function renderBassVoiceGrid(){
@@ -6876,26 +6920,22 @@ function renderBassVoiceGrid(){
     };
   });
 }
+function _syncBassFollowUI(){
+  const own = document.getElementById('bassOwnWrap');
+  if (own) own.style.display = bassState.followRoot ? 'none' : '';
+  const addRow = document.getElementById('bassAddNoteRow');
+  if (addRow) addRow.style.display = bassState.followRoot ? 'none' : 'flex';
+}
 function renderBassModeGrid(){
-  const host = $('#bassModeGrid'); if (!host) return;
-  host.querySelectorAll('.beat-card').forEach(el => el.classList.toggle('active', el.dataset.bassMode === (bassState.followRoot ? 'follow' : 'own')));
-  host.querySelectorAll('.beat-card').forEach(el => {
-    el.onclick = () => {
-      host.querySelectorAll('.beat-card').forEach(x => x.classList.remove('active'));
-      el.classList.add('active');
-      bassState.followRoot = el.dataset.bassMode === 'follow';
-      $('#bassOwnWrap').style.display = bassState.followRoot ? 'none' : '';
-      if (compose.playing){ compose.global.bassMode = bassState.followRoot ? 'follow' : 'own'; rescheduleTimelineFromNow(); }
-    };
-  });
-  $('#bassOwnWrap').style.display = bassState.followRoot ? 'none' : '';
+  // Legacy: kept for back-compat callers; the mode grid is now a checkbox
+  _syncBassFollowUI();
 }
 function renderBassProgRow(){
   const row = $('#bassProgRow'); if (!row) return;
   const notes = bassState.ownProgression;
-  if (!notes.length){ row.innerHTML = `<div style="font-size:11px;color:var(--grey);padding:10px;">Use the piano + "Add From Piano" to build a bass line.</div>`; return; }
+  if (!notes.length){ row.innerHTML = `<div style="font-size:11px;color:var(--grey);padding:10px;">Tap the keyboard to build a bass line.</div>`; return; }
   row.innerHTML = notes.map((n, i) => {
-    const label = NOTE_NAMES[n.root%12] + (Math.floor(n.root/12)-1);
+    const label = n.rest ? 'Rest' : (n.root != null ? NOTE_NAMES[n.root%12] + (Math.floor(n.root/12)-1) : '—');
     const w = chordWidth(n.duration || 1);
     return `<div class="prog-chord" data-idx="${i}" style="width:${w}px;">
       <span class="label">${label}</span>
@@ -6974,6 +7014,7 @@ function renderBassProgressionsList(){
     };
   });
 }
+let _pendingBassNote = null;
 function onBassPianoKey(midi){
   _lastPianoMidi = midi;
   // Always preview the bass voice, regardless of mode.
@@ -6981,24 +7022,34 @@ function onBassPianoKey(midi){
     playBassVoiceNote(midi, 0.5, undefined, (bassState.gain || 0.9) * 0.5);
   }
   flashKeyIn($('#bassPiano'), midi);
-  // In Own Progression mode, taps add to the bass line.
+  // In Own Progression mode, stage the note — user must press Add Note to commit.
   if (!bassState.followRoot){
-    bassState.ownProgression.push({ root: midi, duration: 1 });
-    renderBassProgRow();
-    touchActive();
-    if (compose.playing){
-      compose.global.bassOwnProg = bassState.ownProgression.map(n => ({...n}));
-      rescheduleTimelineFromNow();
-    }
+    _pendingBassNote = { root: midi, duration: 1 };
+    const info = document.getElementById('pendingBassInfo');
+    if (info){ info.textContent = `Selected: ${noteName(midi)}`; info.style.color = 'var(--white)'; }
+    const btn = document.getElementById('addBassNoteBtn');
+    if (btn) btn.disabled = false;
   }
 }
 function renderBassUI(){
-  renderBassVoiceGrid(); renderBassModeGrid(); renderBassProgRow(); renderBassProgressionsList();
+  renderBassVoiceGrid(); renderBassProgRow(); renderBassProgressionsList();
   $('#bassOctV').textContent = bassState.octave;
   $('#bassGainV').textContent = (bassState.gain || 0.9).toFixed(2);
   $('#bassOctave').value = bassState.octave;
   $('#bassGain').value = bassState.gain;
   buildPianoInto($('#bassPiano'), (midi) => onBassPianoKey(midi));
+  // Wire follow-root checkbox
+  const bassFollowCb = document.getElementById('bassFollowRoot');
+  if (bassFollowCb) {
+    bassFollowCb.checked = !!bassState.followRoot;
+    bassFollowCb.onchange = () => {
+      bassState.followRoot = bassFollowCb.checked;
+      _syncBassFollowUI();
+      if (compose.playing){ compose.global.bassMode = bassState.followRoot ? 'follow' : 'own'; rescheduleTimelineFromNow(); }
+      touchActive();
+    };
+  }
+  _syncBassFollowUI();
 }
 const _bassOct = document.getElementById('bassOctave');
 if (_bassOct) {
@@ -7034,6 +7085,7 @@ if (_bassG) {
 }
 // Track the last piano-tap (used as a generic "last note" hint elsewhere).
 let _lastPianoMidi = 60;
+let _pendingChord = null;
 const _bassClearBtn = document.getElementById('bassClear');
 if (_bassClearBtn) _bassClearBtn.onclick = () => {
   bassState.ownProgression = []; renderBassProgRow();
@@ -7102,9 +7154,9 @@ function renderSamplerModeGrid(){
 function renderSamplerProgRow(){
   const row = $('#samplerProgRow'); if (!row) return;
   const notes = samplerState.ownProgression;
-  if (!notes.length){ row.innerHTML = `<div style="font-size:11px;color:var(--grey);padding:10px;">Tap the keyboard above to build a sampler line.</div>`; return; }
+  if (!notes.length){ row.innerHTML = `<div style="font-size:11px;color:var(--grey);padding:10px;">Tap the keyboard to build a sampler line.</div>`; return; }
   row.innerHTML = notes.map((n, i) => {
-    const label = NOTE_NAMES[n.root%12] + (Math.floor(n.root/12)-1);
+    const label = n.rest ? 'Rest' : (n.root != null ? NOTE_NAMES[n.root%12] + (Math.floor(n.root/12)-1) : '—');
     const w = chordWidth(n.duration || 1);
     return `<div class="prog-chord" data-idx="${i}" style="width:${w}px;">
       <span class="label">${label}</span>
@@ -7145,6 +7197,7 @@ function renderSamplerProgRow(){
     if (compose.playing){ compose.global.samplerOwnProg = samplerState.ownProgression.map(n => ({...n})); rescheduleTimelineFromNow(); }
   });
 }
+let _pendingSamplerNote = null;
 function onSamplerPianoKey(midi){
   _lastPianoMidi = midi;
   if (samplerState.enabled && samplerState.buffer){
@@ -7152,20 +7205,40 @@ function onSamplerPianoKey(midi){
   }
   flashKeyIn($('#samplerPiano'), midi);
   if (!samplerState.followRoot){
-    samplerState.ownProgression.push({ root: midi, duration: 1 });
-    renderSamplerProgRow();
-    touchActive();
-    if (compose.playing){
-      compose.global.samplerOwnProg = samplerState.ownProgression.map(n => ({...n}));
-      rescheduleTimelineFromNow();
-    }
+    _pendingSamplerNote = { root: midi, duration: 1 };
+    const info = document.getElementById('pendingSamplerInfo');
+    if (info){ info.textContent = `Selected: ${noteName(midi)}`; info.style.color = 'var(--white)'; }
+    const btn = document.getElementById('addSamplerNoteBtn');
+    if (btn) btn.disabled = false;
   }
+}
+function _syncSamplerFollowUI(){
+  const wrap = document.getElementById('samplerOwnWrap');
+  if (wrap) wrap.style.display = samplerState.followRoot ? 'none' : '';
+  const addBtn = document.getElementById('addSamplerNoteBtn');
+  if (addBtn) addBtn.disabled = samplerState.followRoot || !_pendingSamplerNote;
+  const restBtn = document.getElementById('addSamplerRestBtn');
+  if (restBtn) restBtn.style.display = samplerState.followRoot ? 'none' : '';
 }
 function renderSamplerUI(){
   renderSamplerVoiceGrid();
-  renderSamplerModeGrid();
   renderSamplerProgRow();
   buildPianoInto($('#samplerPiano'), (midi) => onSamplerPianoKey(midi));
+  _syncSamplerFollowUI();
+  // Wire follow-root checkbox
+  const samplerFollowCb = document.getElementById('samplerFollowRoot');
+  if (samplerFollowCb) {
+    samplerFollowCb.checked = !!samplerState.followRoot;
+    samplerFollowCb.onchange = () => {
+      samplerState.followRoot = samplerFollowCb.checked;
+      _syncSamplerFollowUI();
+      if (compose.playing) {
+        compose.global.samplerMode = samplerState.followRoot ? 'follow' : 'own';
+        rescheduleTimelineFromNow();
+      }
+      touchActive();
+    };
+  }
 }
 const _samplerClearBtn = document.getElementById('samplerClear');
 if (_samplerClearBtn) _samplerClearBtn.onclick = () => {
@@ -8566,16 +8639,17 @@ async function startComposeRecording(){
   };
   composeRec.start();
   composeRecStart = Date.now();
-  $('#composeRec').classList.add('active');
-  $('#composeRec').textContent = '■ Stop Recording';
+  const _cRecBtn = $('#composeRec');
+  if (_cRecBtn) { _cRecBtn.classList.add('active'); _cRecBtn.textContent = '■ Stop Recording'; }
 }
 function stopComposeRecording(){
   if (composeRec && composeRec.state !== 'inactive') composeRec.stop();
   composeRec = null;
-  $('#composeRec').classList.remove('active');
-  $('#composeRec').textContent = '● Record';
+  const _cRecBtn2 = $('#composeRec');
+  if (_cRecBtn2) { _cRecBtn2.classList.remove('active'); _cRecBtn2.textContent = '● Record'; }
 }
-$('#composeRec').onclick = () => { composeRec ? stopComposeRecording() : startComposeRecording(); };
+const _composeRecBtn = $('#composeRec');
+if (_composeRecBtn) _composeRecBtn.onclick = () => { composeRec ? stopComposeRecording() : startComposeRecording(); };
 
 /* -------- ARRANGER (formerly PREVIEW) -------- */
 let previewRunning = false;
@@ -8969,6 +9043,14 @@ async function exportSong(){
 /* -------- GENERAL HANDLERS -------- */
 $('#newSongBtn').onclick = () => {
   try { stopAllPlayback(); } catch {}
+  // Reset compose state to defaults
+  composeWorking = { chords: [] };
+  _pendingChord = null; _pendingBassNote = null; _pendingSamplerNote = null;
+  state.composeSelectedType = 'Custom'; state.composeSelectedInversion = 0;
+  Object.keys(trackLoopLens).forEach(k => { trackLoopLens[k] = null; });
+  bassState.followRoot = true; bassState.ownProgression = []; bassState.voice = 'electric'; bassState.enabled = true; bassState.octave = -2; bassState.gain = 0.9;
+  samplerState.followRoot = false; samplerState.ownProgression = [];
+  if (typeof melodyState !== 'undefined'){ melodyState.notes = []; melodyState.selectedId = null; }
   const s = newSong(); state.songs.unshift(s); state.activeId = s.id; save();
   renderAll(); $('#songTitle').focus(); $('#songTitle').select();
 };
@@ -9271,15 +9353,93 @@ $('#npStop').onclick = stopAllPlayback;
 $('#storageBadge').onclick = () => $('#storageModal').classList.add('show');
 $('#storageUseLocal').onclick = () => { state.storage='local'; localStorage.setItem('okimawake.storageMode','local'); updateStorageBadge(); $('#storageModal').classList.remove('show'); };
 $('#storageConnect').onclick = async () => { $('#storageModal').classList.remove('show'); await connectFolder(); };
-$('#customAdd').onclick = () => {
-  if (!state.composeCustomNotes.length){ showToast('Select notes first'); return; }
-  const sorted = [...state.composeCustomNotes].sort((a,b)=>a-b);
-  const chord = { root: sorted[0], type:'Custom', customNotes: sorted, notes: [...sorted], duration: 1 };
-  applyChordDetection(chord);   // relabel if the notes match a known chord shape
-  addChordToProgression(chord);
-  state.composeCustomNotes = []; updateCustomSelection();
-};
-$('#customClear').onclick = () => { state.composeCustomNotes = []; updateCustomSelection(); };
+function _getLen(selId){ const s = document.getElementById(selId); return s ? parseFloat(s.value) || 1 : 1; }
+function _autoPlay(){ if (!compose.playing && composeWorking.chords.length > 0) composePlayProgression({ chords: composeWorking.chords }); }
+
+const _addChordBtn = document.getElementById('addChordBtn');
+if (_addChordBtn) {
+  _addChordBtn.onclick = () => {
+    if (_pendingChord) {
+      _pendingChord.duration = _getLen('chordLenSel');
+      if (_pendingChord.type === 'Custom') applyChordDetection(_pendingChord);
+      addChordToProgression(_pendingChord);
+      _pendingChord = null;
+      _addChordBtn.disabled = true;
+      const info = document.getElementById('pendingChordInfo');
+      if (info) { info.textContent = 'Click a key to build a chord.'; info.style.color = ''; }
+      state.composeCustomNotes = []; updateCustomSelection();
+      _autoPlay();
+    }
+  };
+}
+const _addChordRestBtn = document.getElementById('addChordRestBtn');
+if (_addChordRestBtn) {
+  _addChordRestBtn.onclick = () => {
+    addChordToProgression({ notes: [], duration: _getLen('chordLenSel'), rest: true, root: null, type: 'Rest' });
+    _autoPlay();
+  };
+}
+const _clearChordSelBtn = document.getElementById('clearChordSelBtn');
+if (_clearChordSelBtn) {
+  _clearChordSelBtn.onclick = () => {
+    _pendingChord = null;
+    if (_addChordBtn) _addChordBtn.disabled = true;
+    const info = document.getElementById('pendingChordInfo');
+    if (info) { info.textContent = 'Click a key to build a chord.'; info.style.color = ''; }
+    state.composeCustomNotes = [];
+    updateCustomSelection();
+  };
+}
+const _addBassNoteBtn = document.getElementById('addBassNoteBtn');
+if (_addBassNoteBtn) {
+  _addBassNoteBtn.onclick = () => {
+    if (_pendingBassNote) {
+      _pendingBassNote.duration = _getLen('bassLenSel');
+      bassState.ownProgression.push(_pendingBassNote);
+      _pendingBassNote = null;
+      _addBassNoteBtn.disabled = true;
+      const info = document.getElementById('pendingBassInfo');
+      if (info) { info.textContent = 'Click a key to select a bass note.'; info.style.color = ''; }
+      renderBassProgRow(); touchActive();
+      if (compose.playing){ compose.global.bassOwnProg = bassState.ownProgression.map(n => ({...n})); rescheduleTimelineFromNow(); }
+      else if (bassState.ownProgression.length > 0) composePlayProgression({ chords: composeWorking.chords });
+    }
+  };
+}
+const _addBassRestBtn = document.getElementById('addBassRestBtn');
+if (_addBassRestBtn) {
+  _addBassRestBtn.onclick = () => {
+    bassState.ownProgression.push({ root: null, duration: _getLen('bassLenSel'), rest: true });
+    renderBassProgRow(); touchActive();
+    if (compose.playing){ compose.global.bassOwnProg = bassState.ownProgression.map(n => ({...n})); rescheduleTimelineFromNow(); }
+    else if (bassState.ownProgression.length > 0) composePlayProgression({ chords: composeWorking.chords });
+  };
+}
+const _addSamplerNoteBtn = document.getElementById('addSamplerNoteBtn');
+if (_addSamplerNoteBtn) {
+  _addSamplerNoteBtn.onclick = () => {
+    if (_pendingSamplerNote) {
+      _pendingSamplerNote.duration = _getLen('samplerLenSel');
+      samplerState.ownProgression.push(_pendingSamplerNote);
+      _pendingSamplerNote = null;
+      _addSamplerNoteBtn.disabled = true;
+      const info = document.getElementById('pendingSamplerInfo');
+      if (info) { info.textContent = 'Click a key to select a note.'; info.style.color = ''; }
+      renderSamplerProgRow(); touchActive();
+      if (compose.playing){ compose.global.samplerOwnProg = samplerState.ownProgression.map(n => ({...n})); rescheduleTimelineFromNow(); }
+      else if (samplerState.ownProgression.length > 0) composePlayProgression({ chords: composeWorking.chords });
+    }
+  };
+}
+const _addSamplerRestBtn = document.getElementById('addSamplerRestBtn');
+if (_addSamplerRestBtn) {
+  _addSamplerRestBtn.onclick = () => {
+    samplerState.ownProgression.push({ root: null, duration: _getLen('samplerLenSel'), rest: true });
+    renderSamplerProgRow(); touchActive();
+    if (compose.playing){ compose.global.samplerOwnProg = samplerState.ownProgression.map(n => ({...n})); rescheduleTimelineFromNow(); }
+    else if (samplerState.ownProgression.length > 0) composePlayProgression({ chords: composeWorking.chords });
+  };
+}
 $('#composeTempo').onchange = () => { const s=getActive(); if(s){ s.tempo = parseInt($('#composeTempo').value,10)||100; $('#songTempo').value = s.tempo; touchActive(); save(); } };
 $('#composeTime').onchange = () => { const s=getActive(); if(s){ s.time = $('#composeTime').value; $('#songTime').value = s.time; touchActive(); save(); } };
 
