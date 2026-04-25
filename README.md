@@ -1,4 +1,4 @@
-# OKIMAWAKE — Songwriter's Studio
+# OK-Composer
 
 A browser-based songwriting and music production tool. Write lyrics, build chord progressions, program beats, record audio, arrange sections, and mix everything — all in a single HTML file with no installation required.
 
