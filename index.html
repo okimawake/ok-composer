@@ -520,6 +520,13 @@
   .compact-grid .beat-card { padding: 8px 6px; font-size: 11px; }
   .compact-grid .beat-card small { font-size: 9px; margin-top: 1px; }
   .beat-section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--grey); text-transform: uppercase; margin-top: 4px; }
+  .beat-view-tabs { display: flex; gap: 5px; margin-bottom: 8px; }
+  .beat-view-tab {
+    padding: 3px 12px; border: 1px solid var(--line); background: var(--panel);
+    color: var(--grey); border-radius: 3px; font-size: 11px; cursor: pointer;
+    letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+  }
+  .beat-view-tab.active { border-color: var(--red); color: var(--white); }
   .beat-empty { padding: 14px; border: 1px dashed var(--line); border-radius: 2px; font-size: 11px; color: var(--grey-2); text-align: center; }
   .beat-card {
     padding: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 2px;
@@ -564,6 +571,7 @@
   }
   .seq-steps .seq-step:hover { border-color: var(--grey); }
   .seq-steps .seq-step.on { background: var(--red); border-color: var(--red); }
+  .seq-steps .seq-step.current { outline: 2px solid rgba(255,255,255,0.75); outline-offset: -2px; }
   .seq-steps .seq-step.beat-start { border-left: 2px solid var(--grey); }
   .seq-drum-controls { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--grey-2); }
   .seq-drum-controls label { display: flex; align-items: center; gap: 3px; white-space: nowrap; }
@@ -842,6 +850,90 @@
   }
   #mobileBackdrop.show { display: block; }
 
+  /* -------- LAUNCHER -------- */
+  .launcher-pane {
+    display: flex; flex-direction: column; height: 100%;
+    overflow-y: auto; padding: 20px 24px; gap: 20px;
+  }
+  .launcher-header {
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  }
+  .launcher-header h2 {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--grey-2); margin: 0;
+  }
+  .launcher-header-right { display: flex; gap: 10px; align-items: center; }
+  .launcher-edit-hint { font-size: 11px; color: var(--grey); font-style: italic; }
+  .launcher-edit-btn {
+    padding: 5px 14px; border: 1px solid var(--line); background: var(--panel);
+    color: var(--grey-2); border-radius: 3px; font-size: 11px; cursor: pointer;
+    letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+  }
+  .launcher-edit-btn.active { border-color: var(--red); color: var(--red); background: rgba(225,6,0,0.1); }
+  .launcher-row { display: flex; flex-direction: column; gap: 7px; }
+  .launcher-row-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--grey);
+  }
+  .launcher-row-label.row-chords  { color: #8cd3ff; }
+  .launcher-row-label.row-bass    { color: #ffcf70; }
+  .launcher-row-label.row-beat    { color: #ff8b8b; }
+  .launcher-row-label.row-audio   { color: #9effa0; }
+  .launcher-row-label.row-sampler { color: #c8b4fa; }
+  .launcher-row-label.row-melody  { color: #ffd6a5; }
+  .launcher-btn-row { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+  .launcher-btn {
+    position: relative; height: 58px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 4px; color: var(--grey); font-size: 11px; font-weight: 600;
+    cursor: pointer; text-align: center; padding: 6px 5px 5px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; transition: border-color 0.1s, background 0.1s; overflow: hidden;
+  }
+  .launcher-btn:hover { border-color: var(--grey); color: var(--white); }
+  .launcher-btn.assigned { color: var(--white); background: var(--panel-2); }
+  .launcher-btn.assigned.row-chords  { border-color: rgba(140,211,255,0.45); }
+  .launcher-btn.assigned.row-bass    { border-color: rgba(255,207,112,0.45); }
+  .launcher-btn.assigned.row-beat    { border-color: rgba(255,139,139,0.45); }
+  .launcher-btn.assigned.row-audio   { border-color: rgba(158,255,160,0.45); }
+  .launcher-btn.assigned.row-sampler { border-color: rgba(200,180,250,0.45); }
+  .launcher-btn.assigned.row-melody  { border-color: rgba(255,214,165,0.45); }
+  .launcher-btn.flash { background: rgba(225,6,0,0.22); border-color: var(--red); }
+  .lbtn-num {
+    font-size: 9px; font-weight: 400; color: var(--grey);
+    position: absolute; top: 3px; left: 5px; line-height: 1;
+  }
+  .lbtn-name {
+    font-size: 11px; font-weight: 600; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; max-width: 100%; padding: 0 10px;
+    line-height: 1.3;
+  }
+  /* Launcher assign popup */
+  .launcher-assign-pop {
+    position: fixed; z-index: 250; background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 5px; padding: 4px 0 6px; min-width: 200px; max-height: 280px;
+    overflow-y: auto; box-shadow: 0 8px 28px rgba(0,0,0,0.65); display: none;
+  }
+  .launcher-assign-pop.open { display: block; }
+  .launcher-assign-header {
+    padding: 6px 14px 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--grey); border-bottom: 1px solid var(--line);
+    margin-bottom: 3px;
+  }
+  .launcher-assign-item {
+    padding: 9px 14px; font-size: 12px; color: var(--grey-2); cursor: pointer;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .launcher-assign-item:hover { background: var(--line); color: var(--white); }
+  .launcher-assign-item.is-current { color: var(--white); font-weight: 600; }
+  .launcher-assign-item.clear-item {
+    color: var(--grey); border-top: 1px solid var(--line);
+    margin-top: 3px; padding-top: 10px;
+  }
+  @media (max-width: 700px) {
+    .launcher-btn-row { grid-template-columns: repeat(4, 1fr); }
+    .launcher-pane { padding: 14px 12px; }
+  }
+
   /* ── Mobile layout ── */
   @media (max-width: 768px) {
     #mobileMenuBtn { display: flex; }
@@ -1009,6 +1101,7 @@
         <button class="tab" data-tab="mixer">Mixer</button>
         <button class="tab" data-tab="notes">Notes</button>
         <button class="tab" data-tab="preview">Arranger</button>
+        <button class="tab" data-tab="launcher">Launcher</button>
       </div>
 
       <div class="tab-content">
@@ -1477,9 +1570,26 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
             </div>
           </div>
         </div>
+        <div class="tab-pane" data-pane="launcher">
+          <div class="launcher-pane">
+            <div class="launcher-header">
+              <h2>Launcher</h2>
+              <div class="launcher-header-right">
+                <span class="launcher-edit-hint" id="launcherEditHint"></span>
+                <button class="launcher-edit-btn" id="launcherEditBtn">Edit</button>
+              </div>
+            </div>
+            <div class="launcher-grid" id="launcherGrid"></div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
+</div>
+
+<div class="launcher-assign-pop" id="launcherAssignPop">
+  <div class="launcher-assign-header" id="launcherAssignHeader">Assign</div>
+  <div id="launcherAssignList"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -2835,15 +2945,23 @@ function renderMetaInputs(){
   sel.innerHTML = KEY_OPTIONS.map(k => `<option value="${k}">${k}</option>`).join('');
 }
 
+let _wsLastSongId = null;
 function renderWorkspace(){
   const s = getActive();
   if (!s){
     $('#workspaceEmpty').style.display = 'flex';
     $('#songWorkspace').classList.remove('active');
+    _wsLastSongId = null;
     return;
   }
   $('#workspaceEmpty').style.display = 'none';
   $('#songWorkspace').classList.add('active');
+  if (s.id !== _wsLastSongId) {
+    _wsLastSongId = s.id;
+    try { if (typeof melodyState !== 'undefined' && melodyState.playing) melStop(); } catch {}
+    try { if (typeof melodyState !== 'undefined') { melodyState.notes = []; melodyState.selectedId = null; } } catch {}
+    try { if (typeof _melStopPlayhead === 'function') _melStopPlayhead(); } catch {}
+  }
 
   if ($('#songTitle').value !== s.title) $('#songTitle').value = s.title || '';
   if ($('#songKey').value !== s.key) $('#songKey').value = s.key || 'C major';
@@ -2859,6 +2977,8 @@ function renderWorkspace(){
   renderLyricsStructured();
   renderCompose();
   renderPreview();
+  try { typeof renderLauncher === 'function' && renderLauncher(); } catch {}
+  try { if (typeof renderMixer === 'function' && state.tab === 'mixer') renderMixer(); } catch {}
   updateUndoRedoButtons();
 }
 
@@ -6998,6 +7118,7 @@ document.querySelectorAll('.drum-env-btn').forEach(b => {
     openAdsrPop(b, slot, 'Envelope · ' + label);
   };
 });
+let beatGridView = 'factory';  // 'factory' | 'user'
 function renderBeatGrid(){
   const host = $('#beatGrid');
   if (!host) return;
@@ -7006,6 +7127,9 @@ function renderBeatGrid(){
   const prevActive = host.querySelector('.beat-card.active')?.dataset.beat || 'None';
   const factory = getFactoryBeatKeys();
   const user    = getUserBeatKeys();
+  const activeIsUser = isUserBeatKey(prevActive);
+  // If there's an active beat in the other section, switch view automatically on first load
+  // but not on explicit user-triggered renders.
   const factoryCards = factory.map(b => {
     const sub = (BEAT_HINTS && BEAT_HINTS[b]) ? BEAT_HINTS[b] : (b === 'None' ? 'no drums' : (b === 'Audio Loop' ? 'load a file' : 'pattern'));
     const isActive = b === prevActive;
@@ -7026,12 +7150,19 @@ function renderBeatGrid(){
   const userBlock = user.length
     ? userCards
     : `<div class="beat-empty">No user beats yet. Create one in the Sequencer sub-tab.</div>`;
+  const fLabel = `Factory${!activeIsUser ? ' ●' : ''}`;
+  const uLabel = `User${activeIsUser ? ' ●' : ''}`;
   host.innerHTML = `
-    <div class="beat-section-label">Factory</div>
-    <div class="beat-grid-inner">${factoryCards}</div>
-    <div class="beat-section-label">User</div>
-    <div class="beat-grid-inner">${userBlock}</div>
+    <div class="beat-view-tabs">
+      <button class="beat-view-tab ${beatGridView==='factory'?'active':''}" data-view="factory">${fLabel}</button>
+      <button class="beat-view-tab ${beatGridView==='user'?'active':''}" data-view="user">${uLabel}</button>
+    </div>
+    <div class="beat-grid-inner" ${beatGridView!=='factory'?'style="display:none;"':''}>${factoryCards}</div>
+    <div class="beat-grid-inner" ${beatGridView!=='user'?'style="display:none;"':''}>${userBlock}</div>
   `;
+  host.querySelectorAll('.beat-view-tab').forEach(btn => {
+    btn.onclick = (e) => { e.stopPropagation(); beatGridView = btn.dataset.view; renderBeatGrid(); };
+  });
   // If the previously-active beat was deleted, default to None.
   if (!host.querySelector('.beat-card.active')){
     const none = host.querySelector('.beat-card[data-beat="None"]');
@@ -7175,9 +7306,9 @@ function renderSequencerUI(){
   const beatsPerBar = 4;
   const stepsPerBeat = (p.subdivision === 'triplet') ? 3 : (p.subdivision === 'dotted') ? 2 : 4;
   const drumDef = [
-    { id: 'k', label: 'Kick',  delay: 'delayK', swingInc: 'swingK' },
-    { id: 's', label: 'Snare', delay: 'delayS', swingInc: 'swingS' },
     { id: 'h', label: 'Hat',   delay: 'delayH', swingInc: 'swingH' },
+    { id: 's', label: 'Snare', delay: 'delayS', swingInc: 'swingS' },
+    { id: 'k', label: 'Kick',  delay: 'delayK', swingInc: 'swingK' },
   ];
   grid.innerHTML = drumDef.map(d => {
     const arr = p[d.id] || [];
@@ -7254,6 +7385,35 @@ function _seqSyncLivePreview(){
   }
 }
 
+let _seqRafId = null;
+function _seqStartPlayhead(){
+  _seqStopPlayhead();
+  const tick = () => {
+    if (!compose.playing || compose.global.beat !== '__seq_preview__'){ _seqStopPlayhead(); return; }
+    try {
+      const ctx = ensureComposeCtx();
+      const now = ctx.currentTime;
+      const grid = document.getElementById('seqGrid');
+      if (!grid){ _seqStopPlayhead(); return; }
+      const b = compose.boundaries.find(b => now >= b.startT && now < b.endT);
+      if (b){
+        const barFrac = (now - b.startT) / Math.max(0.001, b.endT - b.startT);
+        const steps = sequencerState.pattern.steps || 16;
+        const step = Math.floor(barFrac * steps) % steps;
+        grid.querySelectorAll('.seq-step.current').forEach(el => el.classList.remove('current'));
+        grid.querySelectorAll(`.seq-step[data-step="${step}"]`).forEach(el => el.classList.add('current'));
+      }
+    } catch {}
+    _seqRafId = requestAnimationFrame(tick);
+  };
+  _seqRafId = requestAnimationFrame(tick);
+}
+function _seqStopPlayhead(){
+  if (_seqRafId){ cancelAnimationFrame(_seqRafId); _seqRafId = null; }
+  const grid = document.getElementById('seqGrid');
+  if (grid) grid.querySelectorAll('.seq-step.current').forEach(el => el.classList.remove('current'));
+}
+
 // Load handler
 document.addEventListener('click', (e) => {
   if (!e.target) return;
@@ -7274,9 +7434,11 @@ document.addEventListener('click', (e) => {
     _seqPreviewPattern = sequencerState.pattern;
     // Play with empty chord list so only the drum pattern is heard.
     composePlayProgression({ chords: [{ root: 60, type: 'Unison', notes: [], duration: 1, _silent: true }], beat: '__seq_preview__' });
+    _seqStartPlayhead();
   }
   if (e.target.id === 'seqStop'){
     stopCompose();
+    _seqStopPlayhead();
   }
   if (e.target.id === 'seqSave'){
     const p = sequencerState.pattern;
@@ -7548,6 +7710,12 @@ function renderMelodyRoll(){
     el.appendChild(resize);
     host.appendChild(el);
   });
+  // Playhead (always present; shown only during playback)
+  const ph = document.createElement('div');
+  ph.className = 'mel-playhead';
+  ph.id = 'melPlayhead';
+  ph.style.display = melodyState.playing ? 'block' : 'none';
+  host.appendChild(ph);
   _melAttachInteractions(host);
 }
 
@@ -7654,6 +7822,39 @@ function _melScheduleIteration(iterStart){
   return iterStart + loopLen;
 }
 
+let _melRafId = null;
+function _melStartPlayhead(){
+  _melStopPlayhead();
+  const tick = () => {
+    if (!melodyState.playing){ _melStopPlayhead(); return; }
+    try {
+      const ctx = ensureComposeCtx();
+      const ph = document.getElementById('melPlayhead');
+      if (!ph){ _melStopPlayhead(); return; }
+      const now = ctx.currentTime;
+      const tempo = parseInt(document.getElementById('composeTempo')?.value, 10) || 100;
+      const bpb = parseInt((document.getElementById('composeTime')?.value || '4/4').split('/')[0], 10) || 4;
+      const barDur = (60 / tempo) * bpb;
+      const cellDur = barDur / melodyState.grid;
+      const totalCells = (melodyState.cycleBars || melodyState.bars) * melodyState.grid;
+      const totalDur = totalCells * cellDur;
+      if (totalDur <= 0){ _melStopPlayhead(); return; }
+      const elapsed = now - melodyState.playStartT;
+      const posInLoop = ((elapsed % totalDur) + totalDur) % totalDur;
+      const x = (posInLoop / cellDur) * MEL_CELL_WIDTH;
+      ph.style.display = 'block';
+      ph.style.left = x + 'px';
+    } catch {}
+    _melRafId = requestAnimationFrame(tick);
+  };
+  _melRafId = requestAnimationFrame(tick);
+}
+function _melStopPlayhead(){
+  if (_melRafId){ cancelAnimationFrame(_melRafId); _melRafId = null; }
+  const ph = document.getElementById('melPlayhead');
+  if (ph) ph.style.display = 'none';
+}
+
 function melPlay(){
   melStop();
   if (!melodyState.notes.length){ showToast('No notes to play'); return; }
@@ -7690,11 +7891,13 @@ function melPlay(){
     }, delayMs);
   };
   stepAndReschedule(t0);
+  _melStartPlayhead();
   const btn = $('#melPlay'); if (btn) btn.textContent = '■';
 }
 
 function melStop(){
   melodyState.playing = false;
+  _melStopPlayhead();
   const btn = $('#melPlay'); if (btn) btn.textContent = '▶ Play';
   clearTimeout(melodyState.playTimer);
   clearTimeout(melodyState.iterTimer);
@@ -8545,6 +8748,7 @@ $$('.tab').forEach(t => {
     if (state.tab === 'compose'){ ensureComposeCtx(); renderPiano(); }
     if (state.tab === 'mixer'){ ensureComposeCtx(); renderMixer(); }
     if (state.tab === 'preview'){ renderPreview(); }
+    if (state.tab === 'launcher'){ renderLauncher(); }
   };
 });
 $$('.mode-btn').forEach(b => {
@@ -8641,6 +8845,232 @@ document.addEventListener('keydown', (e) => {
     return;
   }
   // Lyrics / Notes: do nothing
+});
+
+/* -------- LAUNCHER -------- */
+let launcherEditMode = false;
+
+const LAUNCHER_ROWS = [
+  { key: 'chords',  label: 'Chords',  colorClass: 'row-chords'  },
+  { key: 'sampler', label: 'Sampler', colorClass: 'row-sampler' },
+  { key: 'bass',    label: 'Bass',    colorClass: 'row-bass'    },
+  { key: 'melody',  label: 'Melody',  colorClass: 'row-melody'  },
+  { key: 'beats',   label: 'Beats',   colorClass: 'row-beat'    },
+  { key: 'audio',   label: 'Audio',   colorClass: 'row-audio'   },
+];
+
+function getLauncherSlots(song){
+  if (!song) return null;
+  if (!song.launcherSlots) song.launcherSlots = {};
+  LAUNCHER_ROWS.forEach(r => {
+    if (!Array.isArray(song.launcherSlots[r.key])){
+      song.launcherSlots[r.key] = Array(8).fill(null);
+    } else {
+      while (song.launcherSlots[r.key].length < 8) song.launcherSlots[r.key].push(null);
+    }
+  });
+  return song.launcherSlots;
+}
+
+function getLauncherOptions(song, rowKey){
+  if (!song) return [];
+  if (rowKey === 'chords')  return (song.progressions || []).map(p => ({ id: p.id, label: p.name }));
+  if (rowKey === 'bass')    return (song.bassProgressions || []).map(p => ({ id: p.id, label: p.name }));
+  if (rowKey === 'audio')   return (song.recordings || []).map(r => ({ id: r.id, label: r.name || 'Take' }));
+  if (rowKey === 'beats'){
+    const factory = getFactoryBeatKeys().filter(k => k !== 'None' && k !== 'Audio Loop');
+    const user    = getUserBeatKeys();
+    return [
+      ...factory.map(k => ({ id: k, label: k })),
+      ...user.map(k => { const u = getUserBeat(k); return { id: k, label: u ? u.name : k }; }),
+    ];
+  }
+  return [];
+}
+
+function getLauncherItemLabel(song, rowKey, id){
+  if (!id) return null;
+  const found = getLauncherOptions(song, rowKey).find(o => o.id === id);
+  return found ? found.label : null;
+}
+
+function triggerLauncherSlot(rowKey, id){
+  const song = getActive();
+  if (rowKey === 'chords'){
+    if (!song) return;
+    const p = (song.progressions || []).find(x => x.id === id);
+    if (!p){ showToast('Progression not found'); return; }
+    if (compose.playing) stopCompose();
+    composeWorking = { chords: p.chords.map(c => ({...c})) };
+    $('#composeTempo').value = p.tempo ?? 100;
+    $('#composeTime').value  = p.time  ?? '4/4';
+    $('#composeTranspose').value = p.transpose ?? 0;
+    if (p.instrument){
+      currentInstrument = p.instrument;
+      $$('#instrumentGrid .beat-card').forEach(x => x.classList.toggle('active', x.dataset.instr === p.instrument));
+      try { refreshSamplerPanelState(); } catch {}
+    }
+    const beatCards = $$('#beatGrid .beat-card');
+    beatCards.forEach(el => el.classList.remove('active'));
+    const wantBeat = beatCards.find(el => el.dataset.beat === (p.beat || 'None')) || beatCards[0];
+    if (wantBeat) wantBeat.classList.add('active');
+    try { refreshAudioLoopPanelState(); } catch {}
+    renderCompose();
+    $('#composeLink').value = p.sectionLink || '';
+    try { renderProgressionRow(); } catch {}
+    $('#progName').value = p.name || '';
+    showToast(`Loaded "${p.name}"`);
+  } else if (rowKey === 'bass'){
+    if (!song) return;
+    const bp = (song.bassProgressions || []).find(x => x.id === id);
+    if (!bp){ showToast('Bass progression not found'); return; }
+    bassState.ownProgression = bp.notes.map(n => ({...n}));
+    bassState.voice = (bp.voice && bp.voice !== 'none') ? bp.voice : (bassState.voice || 'electric');
+    bassState.followRoot = false;
+    bassState.enabled = true;
+    try { renderBassUI(); } catch {}
+    if (compose.playing){
+      compose.global.bassEnabled = true;
+      compose.global.bassVoice = bassState.voice;
+      compose.global.bassMode = 'own';
+      compose.global.bassOwnProg = bassState.ownProgression.map(n => ({...n}));
+      try { rescheduleTimelineFromNow(); } catch {}
+    }
+    touchActive();
+    showToast(`Loaded "${bp.name}"`);
+  } else if (rowKey === 'beats'){
+    const beatCards = $$('#beatGrid .beat-card');
+    beatCards.forEach(el => el.classList.remove('active'));
+    const el = beatCards.find(b => b.dataset.beat === id);
+    if (el){
+      el.classList.add('active');
+      try { refreshAudioLoopPanelState(); } catch {}
+      if (compose.playing){
+        compose.global.beat = id;
+        try { rescheduleFromNow('beat'); } catch {}
+      }
+      showToast(`Beat: ${beatDisplayName(id)}`);
+    } else {
+      showToast('Beat not found');
+    }
+  } else if (rowKey === 'audio'){
+    if (!song) return;
+    const rec = (song.recordings || []).find(x => x.id === id);
+    if (!rec){ showToast('Recording not found'); return; }
+    playRecording(rec, 'Launcher');
+  } else {
+    showToast('No saved patterns yet');
+  }
+}
+
+function openLauncherAssignPop(anchor, rowKey, slotIdx){
+  const song = getActive();
+  const pop  = $('#launcherAssignPop');
+  const list = $('#launcherAssignList');
+  const hdr  = $('#launcherAssignHeader');
+  if (!pop) return;
+
+  const rowDef = LAUNCHER_ROWS.find(r => r.key === rowKey);
+  hdr.textContent = `${rowDef ? rowDef.label : rowKey}  —  Slot ${slotIdx + 1}`;
+
+  const opts      = getLauncherOptions(song, rowKey);
+  const slots     = song ? getLauncherSlots(song) : null;
+  const currentId = slots ? (slots[rowKey]?.[slotIdx] || null) : null;
+
+  if (!opts.length){
+    const noun = rowDef ? rowDef.label.toLowerCase() : rowKey;
+    list.innerHTML = `<div class="launcher-assign-item" style="pointer-events:none;font-style:italic;color:var(--grey);">No saved ${noun} yet</div>`;
+  } else {
+    list.innerHTML = opts.map(o =>
+      `<div class="launcher-assign-item ${o.id === currentId ? 'is-current' : ''}" data-assign-id="${esc(o.id)}">${esc(o.label)}</div>`
+    ).join('') + `<div class="launcher-assign-item clear-item" data-assign-id="__clear__">Clear slot</div>`;
+    list.querySelectorAll('[data-assign-id]').forEach(item => {
+      item.onclick = (e) => {
+        e.stopPropagation();
+        const s = getActive(); if (!s) return;
+        const sl = getLauncherSlots(s);
+        sl[rowKey][slotIdx] = item.dataset.assignId === '__clear__' ? null : item.dataset.assignId;
+        touchActive(); save();
+        renderLauncher();
+        pop.classList.remove('open');
+        pop.style.display = 'none';
+      };
+    });
+  }
+
+  pop.style.display = 'block';
+  pop.classList.add('open');
+  const rect = anchor.getBoundingClientRect();
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const pw = Math.max(pop.offsetWidth, 220);
+  const ph = Math.max(pop.offsetHeight, 100);
+  let left = rect.left + rect.width / 2 - pw / 2;
+  let top  = rect.bottom + 8;
+  if (left + pw > vw - 8) left = vw - pw - 8;
+  if (left < 8) left = 8;
+  if (top + ph > vh - 8) top = rect.top - ph - 8;
+  pop.style.left = left + 'px';
+  pop.style.top  = top  + 'px';
+}
+
+function renderLauncher(){
+  const grid = $('#launcherGrid');
+  if (!grid) return;
+  const song  = getActive();
+  const slots = song ? getLauncherSlots(song) : null;
+
+  grid.innerHTML = LAUNCHER_ROWS.map(row => {
+    const rowSlots = slots ? (slots[row.key] || Array(8).fill(null)) : Array(8).fill(null);
+    const btns = rowSlots.slice(0, 8).map((id, i) => {
+      const label    = song ? getLauncherItemLabel(song, row.key, id) : null;
+      const assigned = !!label;
+      const btnClass = `launcher-btn${assigned ? ' assigned ' + row.colorClass : ''}`;
+      const nameText = label ? esc(label) : (launcherEditMode ? '+' : '—');
+      return `<button class="${btnClass}" data-row="${row.key}" data-slot="${i}" title="${label ? esc(label) : 'Unassigned'}">
+        <span class="lbtn-num">${i + 1}</span>
+        <span class="lbtn-name">${nameText}</span>
+      </button>`;
+    }).join('');
+    return `<div class="launcher-row">
+      <div class="launcher-row-label ${row.colorClass}">${row.label}</div>
+      <div class="launcher-btn-row">${btns}</div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.launcher-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const rowKey  = btn.dataset.row;
+      const slotIdx = parseInt(btn.dataset.slot, 10);
+      if (launcherEditMode){
+        openLauncherAssignPop(btn, rowKey, slotIdx);
+      } else {
+        const s = getActive(); if (!s){ showToast('Pick a song first'); return; }
+        const sl = getLauncherSlots(s);
+        const id = sl[rowKey]?.[slotIdx];
+        if (!id){ showToast('Nothing assigned — press Edit to configure'); return; }
+        btn.classList.add('flash');
+        setTimeout(() => btn.classList.remove('flash'), 300);
+        triggerLauncherSlot(rowKey, id);
+      }
+    };
+  });
+}
+
+document.getElementById('launcherEditBtn').onclick = () => {
+  launcherEditMode = !launcherEditMode;
+  document.getElementById('launcherEditBtn').classList.toggle('active', launcherEditMode);
+  const hint = document.getElementById('launcherEditHint');
+  if (hint) hint.textContent = launcherEditMode ? 'Click a button to assign' : '';
+  renderLauncher();
+};
+
+document.addEventListener('click', (e) => {
+  const pop = document.getElementById('launcherAssignPop');
+  if (pop && pop.classList.contains('open') && !pop.contains(e.target)){
+    pop.classList.remove('open');
+    pop.style.display = 'none';
+  }
 });
 
 /* -------- BOOT -------- */
