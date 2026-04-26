@@ -57,7 +57,18 @@
   .logo img, .logo svg { width: 38px; height: 38px; display: block; object-fit: contain; }
   .logo-text { letter-spacing: 0.35em; font-weight: 900; font-size: 18px; }
   .tagline { color: var(--grey); font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; }
-  .header-center { flex: 1; display: flex; justify-content: center; gap: 10px; transition: transform 0.25s ease; }
+  .header-center { flex: 1; display: flex; justify-content: center; gap: 10px; align-items: center; transition: transform 0.25s ease; }
+  .global-transport { display: flex; align-items: center; gap: 6px; padding: 0 4px; }
+  .transport-play-btn, .transport-stop-btn {
+    width: 34px; height: 34px; border-radius: 2px; border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    background: var(--panel); color: var(--grey-2); cursor: pointer;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .transport-play-btn:hover { background: var(--red); border-color: var(--red); color: var(--white); }
+  .transport-play-btn.playing { background: var(--red); border-color: var(--red); color: var(--white); }
+  .transport-stop-btn:hover { color: var(--white); border-color: var(--grey); }
+  .transport-mode { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--grey-2); min-width: 60px; white-space: nowrap; }
 
   .now-playing {
     display: flex; align-items: center; gap: 12px;
@@ -136,7 +147,17 @@
   }
   .song-item:hover { background: var(--panel); }
   .song-item.active { background: var(--panel); border-left-color: var(--red); }
-  .song-item .title { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .song-item .title { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+  .song-item-head { display: flex; align-items: center; gap: 6px; }
+  .song-item-actions { display: none; gap: 4px; flex-shrink: 0; }
+  .song-item:hover .song-item-actions, .song-item.active .song-item-actions { display: flex; }
+  .song-act-btn { width: 24px; height: 24px; border: none; background: transparent; color: var(--grey); cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 2px; padding: 0; flex-shrink: 0; }
+  .song-act-btn:hover { color: var(--white); background: var(--panel-2); }
+  .song-act-btn.danger:hover { color: var(--red); }
+  .song-rename-input { font-size: 14px; font-weight: 600; width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--red); color: var(--white); outline: none; padding: 0; }
+  .song-key-sel { font-size: 10px; background: var(--panel); border: 1px solid var(--line); color: var(--grey-2); border-radius: 2px; padding: 1px 4px; cursor: pointer; max-width: 90px; }
+  .song-key-sel:focus, .song-key-sel:hover { border-color: var(--grey); color: var(--white); }
+  #songTempo:focus, #songTime:focus { border-color: var(--red) !important; outline: none; }
   .song-item .meta { font-size: 11px; color: var(--grey-2); display: flex; gap: 10px; flex-wrap: wrap; }
   .song-item .meta span { display: flex; align-items: center; gap: 4px; }
   .song-item .rec-dot { width: 6px; height: 6px; background: var(--red); border-radius: 50%; }
@@ -161,12 +182,6 @@
   .song-workspace { display: none; flex: 1; flex-direction: column; overflow: hidden; }
   .song-workspace.active { display: flex; }
 
-  .song-header {
-    padding: 16px 28px; border-bottom: 1px solid var(--line);
-    display: flex; align-items: center; justify-content: space-between; gap: 20px; background: var(--ink);
-  }
-  .song-title-input { font-size: 24px; font-weight: 700; width: 100%; padding: 4px 0; }
-  .song-title-input::placeholder { color: var(--grey); }
   .song-actions { display: flex; gap: 8px; align-items: center; }
   .icon-btn {
     width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 2px;
@@ -526,6 +541,22 @@
     letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
   }
   .beat-view-tab.active { border-color: var(--red); color: var(--white); }
+  /* Instrument sub-pane tab switcher (Keyboard / Type / Progression / etc.) */
+  .inst-view-tabs {
+    display: flex; gap: 5px; flex-wrap: wrap;
+    padding: 10px 14px 2px; border-bottom: 1px solid var(--line);
+    margin-bottom: 0; background: var(--ink);
+  }
+  .inst-view-tab {
+    padding: 3px 12px; border: 1px solid var(--line); background: var(--panel);
+    color: var(--grey); border-radius: 3px; font-size: 11px; cursor: pointer;
+    letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+    transition: border-color 0.12s, color 0.12s;
+  }
+  .inst-view-tab.active { border-color: var(--red); color: var(--white); }
+  .inst-view-tab:hover:not(.active) { color: var(--grey-2); border-color: var(--grey); }
+  .inst-view-panel { display: none; padding: 14px; }
+  .inst-view-panel.active { display: block; }
   .beat-empty { padding: 14px; border: 1px dashed var(--line); border-radius: 2px; font-size: 11px; color: var(--grey-2); text-align: center; }
   .beat-card {
     padding: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 2px;
@@ -997,6 +1028,8 @@
   .launcher-btn.assigned.row-sampler { border-color: rgba(200,180,250,0.45); }
   .launcher-btn.assigned.row-melody  { border-color: rgba(255,214,165,0.45); }
   .launcher-btn.flash { background: rgba(225,6,0,0.22); border-color: var(--red); }
+  .launcher-btn.playing { border-color: var(--red); color: var(--white); box-shadow: inset 0 0 0 1px var(--red); }
+  .launcher-btn.playing .lbtn-num { color: var(--red); }
   .lbtn-num {
     font-size: 9px; font-weight: 400; color: var(--grey);
     position: absolute; top: 3px; left: 5px; line-height: 1;
@@ -1061,33 +1094,39 @@
       <span class="logo-text">OK:Composer</span>
     </div>
     <div class="header-center" id="headerCenter">
-      <!-- Compose loop pill -->
-      <div class="now-playing np-compose" id="nowPlayingCompose">
-        <div class="np-icon" title="Compose loop">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
-        </div>
-        <div class="np-info">
-          <div class="np-title" id="npComposeTitle">Loop</div>
-          <div class="np-sub" id="npComposeSub">—</div>
-          <div class="np-chips" id="npComposeChips" style="display:none;"></div>
-        </div>
-        <button class="np-stop" id="npComposeStop" title="Stop loop">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg>
+      <!-- Global transport -->
+      <div class="global-transport">
+        <button id="composePlay" class="transport-play-btn" title="Play">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         </button>
-      </div>
-      <!-- Audio pill -->
-      <div class="now-playing np-audio" id="nowPlaying">
-        <div class="np-icon">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        </div>
-        <div class="np-info">
-          <div class="np-title" id="npTitle">Nothing playing</div>
-          <div class="np-sub" id="npSub">—</div>
-        </div>
-        <button class="np-stop" id="npStop" title="Stop">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg>
+        <button id="globalStop" class="transport-stop-btn" title="Stop">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16"/></svg>
         </button>
+        <span class="transport-mode" id="transportMode">Stopped</span>
+        <div style="width:1px;height:20px;background:var(--line);margin:0 2px;flex-shrink:0;"></div>
+        <button class="transport-stop-btn" id="undoBtn" title="Undo (Ctrl+Z)" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.4 2.6L3 13"/></svg>
+        </button>
+        <button class="transport-stop-btn" id="redoBtn" title="Redo (Ctrl+Shift+Z)" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6.4 2.6L21 13"/></svg>
+        </button>
+        <div style="width:1px;height:20px;background:var(--line);margin:0 2px;flex-shrink:0;"></div>
+        <input type="number" id="songTempo" placeholder="120" min="40" max="240" title="Tempo (BPM)"
+          style="width:54px;background:var(--panel);border:1px solid var(--line);color:var(--white);font-size:12px;padding:4px 6px;border-radius:2px;text-align:center;" />
+        <select id="songTime" title="Time signature"
+          style="background:var(--panel);border:1px solid var(--line);color:var(--white);font-size:12px;padding:4px 6px;border-radius:2px;">
+          <option value="4/4">4/4</option>
+          <option value="3/4">3/4</option>
+          <option value="6/8">6/8</option>
+          <option value="2/4">2/4</option>
+          <option value="5/4">5/4</option>
+          <option value="7/8">7/8</option>
+          <option value="12/8">12/8</option>
+        </select>
       </div>
+      <!-- Hidden data-binds for title/key (keeps existing renderWorkspace sync working) -->
+      <input type="text" id="songTitle" style="display:none;" />
+      <select id="songKey" style="display:none;"></select>
     </div>
     <div class="storage-badge" id="storageBadge">
       <span class="dot"></span><span id="storageLabel">Local</span>
@@ -1104,8 +1143,11 @@
     <div class="library-header">
       <div class="library-title">
         <h2>Library</h2>
-        <div style="display:flex; gap:6px;">
-          <button class="btn-new secondary" id="backupBtn" title="Backup everything">⤓ Backup</button>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button class="btn-new secondary" id="libImportBtn" title="Import library data from JSON">⤑ Import</button>
+          <button class="btn-new secondary" id="libExportBtn" title="Export library data as JSON">⤓ Export</button>
+          <input type="file" id="libImportFile" accept=".json" style="display:none;" />
+          <button class="btn-new secondary" id="backupBtn" title="Backup audio &amp; MIDI">⤓ Backup</button>
           <button class="btn-new" id="newSongBtn">+ New</button>
         </div>
       </div>
@@ -1127,57 +1169,6 @@
     </div>
 
     <div class="song-workspace" id="songWorkspace">
-      <div class="song-header">
-        <input class="song-title-input" id="songTitle" type="text" placeholder="Untitled Song" />
-        <div class="song-actions">
-          <button class="icon-btn" id="undoBtn" title="Undo (Ctrl+Z)" disabled>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.4 2.6L3 13"/></svg>
-          </button>
-          <button class="icon-btn" id="redoBtn" title="Redo (Ctrl+Shift+Z)" disabled>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6.4 2.6L21 13"/></svg>
-          </button>
-          <button class="icon-btn" id="exportBtn" title="Export song folder">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          </button>
-          <button class="icon-btn danger" id="deleteBtn" title="Delete song">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="song-meta-bar">
-        <div class="meta-field">
-          <label>Key</label>
-          <select id="songKey"></select>
-        </div>
-        <div class="meta-field">
-          <label>Tempo</label>
-          <input type="number" id="songTempo" placeholder="120" min="40" max="240" />
-        </div>
-        <div class="meta-field">
-          <label>Time</label>
-          <select id="songTime">
-            <option value="4/4">4/4</option>
-            <option value="3/4">3/4</option>
-            <option value="6/8">6/8</option>
-            <option value="2/4">2/4</option>
-            <option value="5/4">5/4</option>
-            <option value="7/8">7/8</option>
-            <option value="12/8">12/8</option>
-          </select>
-        </div>
-        <div class="meta-field">
-          <label>Status</label>
-          <select id="songStatus">
-            <option value="Draft">Draft</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Complete">Complete</option>
-          </select>
-        </div>
-        <div class="song-tags-inline" id="songTagsBar">
-          <span class="song-tags-label">Tags</span>
-        </div>
-      </div>
 
       <div class="tabs">
         <button class="tab active" data-tab="lyrics">Lyrics</button>
@@ -1247,183 +1238,168 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
               <select id="composeTime" style="display:none;"><option value="4/4" selected>4/4</option><option value="3/4">3/4</option><option value="6/8">6/8</option><option value="2/4">2/4</option><option value="5/4">5/4</option><option value="7/8">7/8</option><option value="12/8">12/8</option></select>
               <input type="number" id="composeTranspose" value="0" min="-12" max="12" style="display:none;" />
 
-              <details class="compose-section" id="chordProgWrap" open>
-                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
-                  <h4 style="margin:0;">Progression</h4>
-                  <button class="transport-btn primary" id="composePlay" title="Play / Stop" style="width:28px;height:28px;font-size:13px;padding:0;margin-left:auto;flex-shrink:0;">▶</button>
-                </summary>
-                <div class="progression-row" id="progressionRow" style="margin-top:10px;">
-                  <div class="playhead" id="playhead"></div>
-                </div>
-                <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                  <button class="chord-type-btn" id="clearProgression">Clear</button>
-                </div>
-              </details>
             </div>
 
             <!-- CHORDS sub-pane -->
-            <div class="compose-sub-pane active" data-sub="chords">
-              <!-- Keyboard always visible at top -->
-              <div class="compose-section">
-                <h4>Keyboard</h4>
+            <div class="compose-sub-pane active" data-sub="chords" id="chordsSubPane">
+              <div class="inst-view-tabs" id="chordsViewTabs">
+                <button class="inst-view-tab active" data-view="keyboard">Keyboard</button>
+                <button class="inst-view-tab" data-view="progression">Progression</button>
+                <button class="inst-view-tab" data-view="instrument">Instrument</button>
+                <button class="inst-view-tab" data-view="saved">Saved</button>
+              </div>
+
+              <div class="inst-view-panel active" data-view="keyboard">
                 <div class="piano-wrap"><div class="piano" id="piano"></div></div>
                 <div class="custom-chord-builder" id="customBuilder" style="margin-top:10px;">
                   <div class="custom-notes-display" id="customNotes">Select up to 7 notes on the keyboard…</div>
                 </div>
                 <div id="pendingChordInfo" style="min-height:24px;margin-top:6px;font-size:11px;color:var(--grey-2);">Click a key to build a chord.</div>
                 <div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap;">
-                  <select id="chordLenSel" style="width:84px;" title="Note length"><option value="2">2 bars</option><option value="1.5">d.1</option><option value="1" selected>1 bar</option><option value="0.75">d.1/2</option><option value="0.667">1/2T</option><option value="0.5">1/2</option><option value="0.375">d.1/4</option><option value="0.333">1/4T</option><option value="0.25">1/4</option><option value="0.1875">d.1/8</option><option value="0.167">1/8T</option><option value="0.125">1/8</option></select>
+                  <select id="chordLenSel" style="width:130px;" title="Note length"><option value="2">2 bars</option><option value="1.5">1 bar (Dotted)</option><option value="1" selected>1 bar</option><option value="0.75">1/2 (Dotted)</option><option value="0.667">1/2 (Triplet)</option><option value="0.5">1/2</option><option value="0.375">1/4 (Dotted)</option><option value="0.333">1/4 (Triplet)</option><option value="0.25">1/4</option><option value="0.1875">1/8 (Dotted)</option><option value="0.167">1/8 (Triplet)</option><option value="0.125">1/8</option></select>
                   <button class="chord-type-btn" id="addChordBtn" disabled>+ Add Chord</button>
                   <button class="chord-type-btn" id="addChordRestBtn">+ Rest</button>
                   <button class="chord-type-btn" id="clearChordSelBtn">Clear</button>
                 </div>
-              </div>
-
-              <!-- Chord Type (open by default) -->
-              <details class="compose-section" open>
-                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
-                  <h4 style="margin:0;">Chord Type</h4>
-                </summary>
-                <div style="margin-top:10px;">
+                <div style="margin-top:14px;">
                   <div class="chord-palette" id="chordPalette"></div>
                   <h4 style="margin-top:14px;">Inversion</h4>
                   <div class="chord-palette" id="inversionPalette"></div>
                 </div>
-              </details>
+              </div>
 
-              <!-- Instrument (closed by default) -->
-              <details class="compose-section">
-                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
-                  <h4 style="margin:0;">Instrument</h4>
-                </summary>
-                <div style="margin-top:10px;">
-                  <div class="compact-grid" id="instrumentGrid"></div>
-                  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px;">
-                    <div class="meta-field"><label>Loop bars</label><select id="chordLoopLen" style="width:76px;" title="Loop length for chords (bars)."><option value="">Natural</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></div>
-                    <div class="meta-field"><label>Link to</label><select id="composeLink" style="width:130px;"><option value="">— unlinked —</option></select></div>
-                    <button class="transport-btn icon-btn" id="saveProgressionTop" title="Save progression" aria-label="Save progression" style="width:28px;height:28px;">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                    </button>
-                  </div>
+              <div class="inst-view-panel" data-view="progression" id="chordProgWrap">
+                <div class="progression-row" id="progressionRow" style="margin-top:4px;">
+                  <div class="playhead" id="playhead"></div>
                 </div>
-              </details>
+                <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                  <button class="chord-type-btn" id="clearProgression">Clear</button>
+                </div>
+              </div>
 
-              <!-- Saved Chord Progressions (closed by default) -->
-              <details class="compose-section">
-                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
-                  <h4 style="margin:0;">Saved Chord Progressions</h4>
-                </summary>
-                <div style="display:flex; gap:8px; margin-bottom:10px;margin-top:12px;">
+              <div class="inst-view-panel" data-view="instrument">
+                <div class="compact-grid" id="instrumentGrid"></div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px;">
+                  <div class="meta-field"><label>Loop bars</label><select id="chordLoopLen" style="width:76px;" title="Loop length for chords (bars)."><option value="">Natural</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></div>
+                  <div class="meta-field"><label>Link to</label><select id="composeLink" style="width:130px;"><option value="">— unlinked —</option></select></div>
+                  <button class="transport-btn icon-btn" id="saveProgressionTop" title="Save progression" aria-label="Save progression" style="width:28px;height:28px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  </button>
+                  <button class="chord-type-btn" id="chordsEnvBtn">ADSR</button>
+                </div>
+              </div>
+
+              <div class="inst-view-panel" data-view="saved">
+                <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
                   <input type="text" id="progName" placeholder="Name this progression…" class="search" style="flex:1;" />
                   <button class="chord-type-btn" id="saveProgression">Save</button>
                 </div>
                 <div class="progressions-list" id="progressionsList"></div>
-              </details>
+              </div>
             </div>
 
             <!-- SAMPLER sub-pane -->
-            <div class="compose-sub-pane" data-sub="sampler" style="display:none;">
-              <!-- Keyboard always visible at top -->
-              <div class="compose-section">
-                <h4>Keyboard</h4>
+            <div class="compose-sub-pane" data-sub="sampler" style="display:none;" id="samplerSubPane">
+              <div class="inst-view-tabs" id="samplerViewTabs">
+                <button class="inst-view-tab active" data-view="keyboard">Keyboard</button>
+                <button class="inst-view-tab" data-view="progression">Progression</button>
+                <button class="inst-view-tab" data-view="sampler">Sampler</button>
+                <button class="inst-view-tab" data-view="saved">Saved</button>
+              </div>
+
+              <div class="inst-view-panel active" data-view="keyboard">
                 <div class="piano-wrap"><div class="piano" id="samplerPiano"></div></div>
                 <div id="pendingSamplerInfo" style="min-height:24px;margin-top:6px;font-size:11px;color:var(--grey-2);">Click a key to select a note.</div>
                 <div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap;">
-                  <select id="samplerLenSel" style="width:84px;" title="Note length"><option value="2">2 bars</option><option value="1.5">d.1</option><option value="1" selected>1 bar</option><option value="0.75">d.1/2</option><option value="0.667">1/2T</option><option value="0.5">1/2</option><option value="0.375">d.1/4</option><option value="0.333">1/4T</option><option value="0.25">1/4</option><option value="0.1875">d.1/8</option><option value="0.167">1/8T</option><option value="0.125">1/8</option></select>
+                  <select id="samplerLenSel" style="width:130px;" title="Note length"><option value="2">2 bars</option><option value="1.5">1 bar (Dotted)</option><option value="1" selected>1 bar</option><option value="0.75">1/2 (Dotted)</option><option value="0.667">1/2 (Triplet)</option><option value="0.5">1/2</option><option value="0.375">1/4 (Dotted)</option><option value="0.333">1/4 (Triplet)</option><option value="0.25">1/4</option><option value="0.1875">1/8 (Dotted)</option><option value="0.167">1/8 (Triplet)</option><option value="0.125">1/8</option></select>
                   <button class="chord-type-btn" id="addSamplerNoteBtn" disabled>+ Add Note</button>
                   <button class="chord-type-btn" id="addSamplerRestBtn">+ Rest</button>
+                  <button class="chord-type-btn" id="samplerClearKbd">Clear</button>
                 </div>
               </div>
 
-              <!-- Sampler Progression (visible when not following root) -->
-              <details id="samplerOwnWrap" class="compose-section" open>
-                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
-                  <h4 style="margin:0;">Sampler Progression</h4>
-                </summary>
-                <div class="progression-row" id="samplerProgRow" style="margin-top:12px;"></div>
+              <div class="inst-view-panel" data-view="progression" id="samplerOwnWrap">
+                <div class="progression-row" id="samplerProgRow" style="margin-top:4px;"></div>
                 <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                   <button class="chord-type-btn" id="samplerClear">Clear</button>
                 </div>
-              </details>
+              </div>
 
-              <!-- Sampler settings (closed by default, minimisable) -->
-              <details class="compose-section" id="samplerPanel">
-                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
-                  <h4 style="margin:0;">Sampler</h4>
-                </summary>
-                <div style="margin-top:10px;">
-                  <div class="sampler-controls">
-                    <input type="file" id="samplerFile" accept=".mp3,.wav,.flac,audio/mpeg,audio/wav,audio/flac,audio/x-flac" />
-                    <button class="chord-type-btn" id="samplerRecBtn" title="Record from microphone">● Record Sample</button>
-                    <span id="samplerName" style="font-size:11px;color:var(--grey-2);">No sample loaded</span>
-                    <button class="chord-type-btn env-section-btn" id="samplerEnvBtn">✎ Edit ADSR</button>
-                    <label style="font-size:11px;color:var(--grey-2);display:flex;align-items:center;gap:6px;"><input type="checkbox" id="samplerFollowRoot"> Follow chord root</label>
-                  </div>
-                  <div class="sampler-grid" style="margin-top:10px;">
-                    <div class="range-field"><label>Trim start (s) <span id="samTrimStartV">0.00</span></label><input type="range" id="samTrimStart" min="0" max="10" step="0.01" value="0" /></div>
-                    <div class="range-field"><label>Trim end (s) <span id="samTrimEndV">0.00</span></label><input type="range" id="samTrimEnd" min="0" max="10" step="0.01" value="10" /></div>
-                    <div class="range-field"><label>Fade in (s) <span id="samFadeInV">0.00</span></label><input type="range" id="samFadeIn" min="0" max="2" step="0.01" value="0" /></div>
-                    <div class="range-field"><label>Fade out (s) <span id="samFadeOutV">0.00</span></label><input type="range" id="samFadeOut" min="0" max="2" step="0.01" value="0" /></div>
-                    <div class="range-field"><label>Gain <span id="samGainV">1.00</span></label><input type="range" id="samGain" min="0" max="2" step="0.01" value="1" /></div>
-                    <div class="range-field"><label>Pitch (semitones) <span id="samPitchV">0</span></label><input type="range" id="samPitch" min="-24" max="24" step="1" value="0" /></div>
-                  </div>
-                  <div style="margin-top:10px;"><div class="meta-field"><label>Loop bars</label><select id="samplerLoopLen" style="width:76px;"><option value="">Natural</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></div></div>
+              <div class="inst-view-panel" data-view="sampler" id="samplerPanel">
+                <div class="sampler-controls">
+                  <input type="file" id="samplerFile" accept=".mp3,.wav,.flac,audio/mpeg,audio/wav,audio/flac,audio/x-flac" />
+                  <button class="chord-type-btn" id="samplerRecBtn" title="Record from microphone">● Record Sample</button>
+                  <span id="samplerName" style="font-size:11px;color:var(--grey-2);">No sample loaded</span>
+                  <button class="chord-type-btn env-section-btn" id="samplerEnvBtn">ADSR</button>
+                  <label style="font-size:11px;color:var(--grey-2);display:flex;align-items:center;gap:6px;"><input type="checkbox" id="samplerFollowRoot"> Follow chord root</label>
                 </div>
-              </details>
+                <div class="sampler-grid" style="margin-top:10px;">
+                  <div class="range-field"><label>Trim start (s) <span id="samTrimStartV">0.00</span></label><input type="range" id="samTrimStart" min="0" max="10" step="0.01" value="0" /></div>
+                  <div class="range-field"><label>Trim end (s) <span id="samTrimEndV">0.00</span></label><input type="range" id="samTrimEnd" min="0" max="10" step="0.01" value="10" /></div>
+                  <div class="range-field"><label>Fade in (s) <span id="samFadeInV">0.00</span></label><input type="range" id="samFadeIn" min="0" max="2" step="0.01" value="0" /></div>
+                  <div class="range-field"><label>Fade out (s) <span id="samFadeOutV">0.00</span></label><input type="range" id="samFadeOut" min="0" max="2" step="0.01" value="0" /></div>
+                  <div class="range-field"><label>Gain <span id="samGainV">1.00</span></label><input type="range" id="samGain" min="0" max="2" step="0.01" value="1" /></div>
+                  <div class="range-field"><label>Pitch (semitones) <span id="samPitchV">0</span></label><input type="range" id="samPitch" min="-24" max="24" step="1" value="0" /></div>
+                </div>
+                <div style="margin-top:10px;"><div class="meta-field"><label>Loop bars</label><select id="samplerLoopLen" style="width:76px;"><option value="">Natural</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></div></div>
+              </div>
+
+              <div class="inst-view-panel" data-view="saved">
+                <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
+                  <input type="text" id="samplerProgName" placeholder="Name this sampler pattern…" class="search" style="flex:1;" />
+                  <button class="chord-type-btn" id="saveSamplerProgression">Save</button>
+                </div>
+                <div class="progressions-list" id="samplerProgressionsList"></div>
+              </div>
             </div>
 
             <!-- BASS sub-pane -->
-            <div class="compose-sub-pane" data-sub="bass" style="display:none;">
-              <!-- Keyboard always visible at top -->
-              <div class="compose-section">
-                <h4>Keyboard</h4>
+            <div class="compose-sub-pane" data-sub="bass" style="display:none;" id="bassSubPane">
+              <div class="inst-view-tabs" id="bassViewTabs">
+                <button class="inst-view-tab active" data-view="keyboard">Keyboard</button>
+                <button class="inst-view-tab" data-view="progression">Progression</button>
+                <button class="inst-view-tab" data-view="voice">Instrument</button>
+                <button class="inst-view-tab" data-view="saved">Saved</button>
+              </div>
+
+              <div class="inst-view-panel active" data-view="keyboard">
                 <div class="piano-wrap"><div class="piano" id="bassPiano"></div></div>
                 <div id="pendingBassInfo" style="min-height:24px;margin-top:6px;font-size:11px;color:var(--grey-2);">Click a key to select a bass note.</div>
                 <div id="bassAddNoteRow" style="display:none;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap;">
-                  <select id="bassLenSel" style="width:84px;" title="Note length"><option value="2">2 bars</option><option value="1.5">d.1</option><option value="1" selected>1 bar</option><option value="0.75">d.1/2</option><option value="0.667">1/2T</option><option value="0.5">1/2</option><option value="0.375">d.1/4</option><option value="0.333">1/4T</option><option value="0.25">1/4</option><option value="0.1875">d.1/8</option><option value="0.167">1/8T</option><option value="0.125">1/8</option></select>
+                  <select id="bassLenSel" style="width:130px;" title="Note length"><option value="2">2 bars</option><option value="1.5">1 bar (Dotted)</option><option value="1" selected>1 bar</option><option value="0.75">1/2 (Dotted)</option><option value="0.667">1/2 (Triplet)</option><option value="0.5">1/2</option><option value="0.375">1/4 (Dotted)</option><option value="0.333">1/4 (Triplet)</option><option value="0.25">1/4</option><option value="0.1875">1/8 (Dotted)</option><option value="0.167">1/8 (Triplet)</option><option value="0.125">1/8</option></select>
                   <button class="chord-type-btn" id="addBassNoteBtn" disabled>+ Add Note</button>
                   <button class="chord-type-btn" id="addBassRestBtn">+ Rest</button>
+                  <button class="chord-type-btn" id="bassClearKbd">Clear</button>
                 </div>
               </div>
 
-              <!-- Bass Voice (closed by default) — includes follow root checkbox -->
-              <details class="compose-section">
-                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
-                  <h4 style="margin:0;">Bass Voice</h4>
-                </summary>
-                <div style="margin-top:10px;">
-                  <div class="compact-grid" id="bassVoiceGrid"></div>
-                  <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--grey-2);margin-top:10px;"><input type="checkbox" id="bassFollowRoot" checked> Follow chord root</label>
-                  <div class="sampler-grid" style="margin-top:10px;">
-                    <div class="range-field"><label>Octave <span id="bassOctV">-2</span></label><input type="range" id="bassOctave" min="-4" max="0" step="1" value="-2" /></div>
-                    <div class="range-field"><label>Gain <span id="bassGainV">0.90</span></label><input type="range" id="bassGain" min="0" max="2" step="0.01" value="0.9" /></div>
-                  </div>
-                  <div style="margin-top:10px;"><div class="meta-field"><label>Loop bars</label><select id="bassLoopLen" style="width:76px;"><option value="">Natural</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></div></div>
-                </div>
-              </details>
-
-              <!-- Bass Progression (hidden while following root) -->
-              <details id="bassOwnWrap" class="compose-section" style="display:none;">
-                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
-                  <h4 style="margin:0;">Bass Progression</h4>
-                </summary>
-                <div class="progression-row" id="bassProgRow" style="margin-top:12px;"></div>
+              <div class="inst-view-panel" data-view="progression" id="bassOwnWrap">
+                <div class="progression-row" id="bassProgRow" style="margin-top:4px;"></div>
                 <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                   <button class="chord-type-btn" id="bassClear">Clear</button>
                 </div>
-              </details>
+              </div>
 
-              <!-- Saved Bass Progressions (closed by default) -->
-              <details class="compose-section">
-                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
-                  <h4 style="margin:0;">Saved Bass Progressions</h4>
-                </summary>
-                <div style="display:flex;gap:8px;margin-bottom:10px;margin-top:12px;">
+              <div class="inst-view-panel" data-view="voice">
+                <div class="compact-grid" id="bassVoiceGrid"></div>
+                <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+                  <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--grey-2);"><input type="checkbox" id="bassFollowRoot"> Follow chord root</label>
+                  <button class="chord-type-btn" id="bassEnvBtn">ADSR</button>
+                </div>
+                <div class="sampler-grid" style="margin-top:10px;">
+                  <div class="range-field"><label>Octave <span id="bassOctV">-2</span></label><input type="range" id="bassOctave" min="-4" max="0" step="1" value="-2" /></div>
+                  <div class="range-field"><label>Gain <span id="bassGainV">0.90</span></label><input type="range" id="bassGain" min="0" max="2" step="0.01" value="0.9" /></div>
+                </div>
+                <div style="margin-top:10px;"><div class="meta-field"><label>Loop bars</label><select id="bassLoopLen" style="width:76px;"><option value="">Natural</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></div></div>
+              </div>
+
+              <div class="inst-view-panel" data-view="saved">
+                <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
                   <input type="text" id="bassProgName" placeholder="Name this bass line…" class="search" style="flex:1;" />
                   <button class="chord-type-btn" id="saveBassProgression">Save</button>
                 </div>
                 <div class="progressions-list" id="bassProgressionsList"></div>
-              </details>
+              </div>
             </div>
 
             <!-- BEAT sub-pane -->
@@ -1622,32 +1598,27 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
 
             <!-- PROGRESSION sub-pane: combine -->
             <div class="compose-sub-pane" data-sub="progression" style="display:none;">
-              <div class="compose-section">
-                <h4>New Composition</h4>
-                <div class="sampler-grid" style="grid-template-columns:repeat(2,1fr);">
-                  <div class="range-field"><label>Chords Progression</label><select id="compChordsSel"></select></div>
-                  <div class="range-field"><label>Bass Progression</label><select id="compBassSel"></select></div>
-                  <div class="range-field"><label>Beat</label><select id="compBeatSel"></select></div>
-                  <div class="range-field"><label>Audio Recording</label><select id="compAudioSel"></select></div>
+              <!-- Active Progressions — shows what's currently loaded and ready to play -->
+              <div class="compose-section" id="activeProgressionsBox">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                  <h4 style="margin:0;">Active Progressions</h4>
+                  <div style="display:flex;gap:6px;align-items:center;">
+                    <input type="text" id="compName" placeholder="Composition name…" class="search" style="width:180px;" />
+                    <select id="compLink" style="width:140px;"><option value="">— unlinked —</option></select>
+                    <button class="chord-type-btn" id="compSave">Save as Composition</button>
+                  </div>
                 </div>
-                <div style="display:flex;gap:8px;align-items:center;margin-top:14px;flex-wrap:wrap;">
-                  <input type="text" id="compName" placeholder="Name this composition…" class="search" style="flex:1;min-width:180px;" />
-                  <select id="compLink" style="width:140px;"><option value="">— unlinked —</option></select>
-                  <label style="font-size:11px;color:var(--grey-2);">Loop Bars</label>
-                  <select id="progLoopBars" style="width:76px;">
-                    <option value="">Natural</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="4">4</option>
-                    <option value="6">6</option>
-                    <option value="8">8</option>
-                    <option value="12">12</option>
-                    <option value="16">16</option>
-                  </select>
-                  <button class="chord-type-btn" id="compSave">Save</button>
+                <div id="activeProgressionsSummary" style="margin-top:12px;display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--grey-2);">
+                  <!-- Filled by renderActiveProgressionsSummary() -->
                 </div>
               </div>
-              <details class="compose-section">
+              <!-- Hidden selects needed by save logic -->
+              <select id="compChordsSel" style="display:none;"></select>
+              <select id="compBassSel" style="display:none;"></select>
+              <select id="compBeatSel" style="display:none;"></select>
+              <select id="compAudioSel" style="display:none;"></select>
+              <select id="progLoopBars" style="display:none;"></select>
+              <details class="compose-section" open>
                 <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
                   <h4 style="margin:0;">Saved Compositions</h4>
                 </summary>
@@ -1752,7 +1723,7 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
 
 <div class="modal-overlay" id="backupModal">
   <div class="modal">
-    <h3>Backup everything</h3>
+    <h3>Backup audio &amp; MIDI</h3>
     <p>Choose an audio format for the exported recordings. Your original files are never modified.</p>
     <div class="backup-format-grid">
       <label class="backup-fmt"><input type="radio" name="bkFmt" value="wav" checked /> <span><strong>WAV</strong> — lossless, universally readable</span></label>
@@ -2066,21 +2037,21 @@ const BEAT_HINTS = {
 };
 
 const CHORD_LENGTHS = [
-  { val: 0.0625,  label: '1/16'  },
-  { val: 0.125,   label: '1/8'   },
-  { val: 0.1667,  label: '1/8T'  },
-  { val: 0.1875,  label: 'd.1/8' },
-  { val: 0.25,    label: '1/4'   },
-  { val: 0.333,   label: '1/4T'  },
-  { val: 0.375,   label: 'd.1/4' },
-  { val: 0.5,     label: '1/2'   },
-  { val: 0.667,   label: '1/2T'  },
-  { val: 0.75,    label: 'd.1/2' },
-  { val: 1,       label: '1 bar' },
-  { val: 1.5,     label: 'd.1'   },
-  { val: 2,       label: '2 bars'},
-  { val: 3,       label: '3 bars'},
-  { val: 4,       label: '4 bars'},
+  { val: 0.0625,  label: '1/16'          },
+  { val: 0.125,   label: '1/8'           },
+  { val: 0.1667,  label: '1/8 (Triplet)' },
+  { val: 0.1875,  label: '1/8 (Dotted)'  },
+  { val: 0.25,    label: '1/4'           },
+  { val: 0.333,   label: '1/4 (Triplet)' },
+  { val: 0.375,   label: '1/4 (Dotted)'  },
+  { val: 0.5,     label: '1/2'           },
+  { val: 0.667,   label: '1/2 (Triplet)' },
+  { val: 0.75,    label: '1/2 (Dotted)'  },
+  { val: 1,       label: '1 bar'         },
+  { val: 1.5,     label: '1 bar (Dotted)'},
+  { val: 2,       label: '2 bars'        },
+  { val: 3,       label: '3 bars'        },
+  { val: 4,       label: '4 bars'        },
 ];
 function chordLengthLabel(v){ const m = CHORD_LENGTHS.find(l => Math.abs(l.val - v) < 0.0001); return m ? m.label : `${v} bars`; }
 function chordWidth(v){ return Math.max(58, Math.min(320, 70 * v + 20)); }
@@ -2140,7 +2111,7 @@ const BASS_VOICES = [
 const bassState = {
   enabled: true,
   voice: 'electric',     // from BASS_VOICES
-  followRoot: true,      // if true, follow chord progression's root notes
+  followRoot: false,     // if true, follow chord progression's root notes
   octave: -2,            // octaves below chord root
   gain: 0.9,
   ownProgression: [],    // [{ root, duration }]
@@ -3018,14 +2989,22 @@ function renderLibrary(){
     }).join('');
     return `<div class="song-item ${s.id===state.activeId?'active':''}" data-id="${s.id}">
       <div class="song-item-head">
-        <div class="title">${esc(s.title || 'Untitled Song')}</div>
+        <span class="title" data-rename-id="${s.id}">${esc(s.title || 'Untitled Song')}</span>
+        <div class="song-item-actions">
+          <button class="song-act-btn" data-action="export" data-id="${s.id}" title="Export song">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+          <button class="song-act-btn danger" data-action="delete" data-id="${s.id}" title="Delete song">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
       </div>
       <div class="meta">
         <span>${formatDate(s.updatedAt)}</span>
         ${recs?`<span><span class="rec-dot"></span>${recs}</span>`:''}
         ${progs?`<span>♪ ${progs}</span>`:''}
         ${lines?`<span>${lines} lines</span>`:''}
-        ${s.status?`<span>${esc(s.status)}</span>`:''}
+        <select class="song-key-sel" data-id="${s.id}" title="Song key" onclick="event.stopPropagation();">${KEY_OPTIONS.map(k=>`<option value="${k}"${k===(s.key||'C major')?'selected':''}>${k}</option>`).join('')}</select>
       </div>
       <div class="lib-tags" data-song="${s.id}">
         ${tagChips}
@@ -3035,9 +3014,72 @@ function renderLibrary(){
   }).join('');
   list.querySelectorAll('.song-item').forEach(el => {
     el.onclick = (e) => {
-      if (e.target.closest('.lib-tags')) return;   // don't switch song when clicking tags
+      if (e.target.closest('.lib-tags')) return;
+      if (e.target.closest('.song-item-actions')) return;
+      if (e.target.closest('[data-rename-id]')) return;
       if (el.dataset.id !== state.activeId) { try { stopAllPlayback(); } catch {} }
       state.activeId = el.dataset.id; save(); renderAll(); historyInit(); applyMixerToNodes();
+    };
+  });
+  list.querySelectorAll('[data-rename-id]').forEach(span => {
+    span.onclick = (e) => {
+      e.stopPropagation();
+      const id = span.dataset.renameId;
+      const song = state.songs.find(x => x.id === id);
+      if (!song) return;
+      if (id !== state.activeId) {
+        try { stopAllPlayback(); } catch {}
+        state.activeId = id; save(); renderAll(); historyInit(); applyMixerToNodes(); return;
+      }
+      const input = document.createElement('input');
+      input.className = 'song-rename-input';
+      input.value = song.title || '';
+      input.placeholder = 'Untitled Song';
+      span.replaceWith(input);
+      input.focus(); input.select();
+      const commit = () => {
+        song.title = input.value.trim() || 'Untitled Song';
+        const ti = document.getElementById('songTitle'); if (ti) ti.value = song.title;
+        touchActive(); save(); renderLibrary();
+      };
+      input.onblur = commit;
+      input.onkeydown = (ev) => {
+        if (ev.key === 'Enter') { input.blur(); ev.preventDefault(); }
+        if (ev.key === 'Escape') { renderLibrary(); ev.preventDefault(); }
+      };
+    };
+  });
+  list.querySelectorAll('[data-action="export"]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      const song = state.songs.find(x => x.id === id);
+      if (!song) return;
+      if (id !== state.activeId) { state.activeId = id; save(); renderAll(); historyInit(); applyMixerToNodes(); }
+      exportSong();
+    };
+  });
+  list.querySelectorAll('.song-key-sel').forEach(sel => {
+    sel.onchange = (e) => {
+      e.stopPropagation();
+      const song = state.songs.find(x => x.id === sel.dataset.id);
+      if (!song) return;
+      song.key = sel.value;
+      const ki = document.getElementById('songKey'); if (ki) ki.value = song.key;
+      touchActive(); save(); try { renderProgressionRow(); } catch {}
+    };
+  });
+  list.querySelectorAll('[data-action="delete"]').forEach(btn => {
+    btn.onclick = async (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      const song = state.songs.find(x => x.id === id);
+      if (!song) return;
+      if (!(await confirmDialog('Delete song?', `"${song.title||'Untitled Song'}" and all linked takes will be removed.`))) return;
+      try { stopAllPlayback(); } catch {}
+      state.songs = state.songs.filter(x => x.id !== id);
+      if (state.activeId === id) state.activeId = state.songs[0]?.id || null;
+      save(); renderAll(); showToast('Song deleted');
     };
   });
   list.querySelectorAll('.lib-tag-chip').forEach(el => {
@@ -3084,23 +3126,7 @@ function openLibTagPicker(songId, anchor){
 }
 
 function renderSongTags(){
-  const bar = $('#songTagsBar');
-  const s = getActive();
-  if (!s){ bar.style.display = 'none'; return; }
-  bar.style.display = 'inline-flex';
-  const chips = (s.tags||[]).map(id => {
-    const t = getTag(id); if (!t) return '';
-    return `<span class="tag-chip" data-id="${id}" style="background:${t.color}22;color:${t.color};border:1px solid ${t.color};">${esc(t.name)} <span class="x">×</span></span>`;
-  }).join('');
-  bar.innerHTML = `<span class="song-tags-label">Tags</span>${chips}<button class="add-tag-btn" id="openTagModal">+ Tag</button>`;
-  bar.querySelectorAll('.tag-chip').forEach(el => {
-    el.onclick = () => {
-      const s2 = getActive();
-      s2.tags = s2.tags.filter(id => id !== el.dataset.id);
-      touchActive(); save(); renderSongTags(); renderLibrary();
-    };
-  });
-  $('#openTagModal').onclick = openTagModal;
+  // Tags bar removed from workspace; no-op for call-site compat
 }
 
 function renderMetaInputs(){
@@ -3130,12 +3156,10 @@ function renderWorkspace(){
   if ($('#songKey').value !== s.key) $('#songKey').value = s.key || 'C major';
   if (String($('#songTempo').value) !== String(s.tempo)) $('#songTempo').value = s.tempo || 120;
   if ($('#songTime').value !== s.time) $('#songTime').value = s.time || '4/4';
-  if ($('#songStatus').value !== s.status) $('#songStatus').value = s.status || 'Draft';
   if ($('#lyricsEditor').value !== s.lyrics) $('#lyricsEditor').value = s.lyrics || '';
   if ($('#notesEditor').value !== s.notes) $('#notesEditor').value = s.notes || '';
 
   updateWordCount();
-  renderSongTags();
   renderRecordings();
   renderLyricsStructured();
   renderCompose();
@@ -3211,17 +3235,11 @@ function getAudio(rec){
 }
 
 function setNowPlaying(title, sub, active=true){
-  $('#npTitle').textContent = title || 'Nothing playing';
-  $('#npSub').textContent = sub || '—';
-  const pill = $('#nowPlaying');
-  pill.classList.toggle('active', !!active);
-  pill.classList.toggle('visible', !!active);
-  pill.style.display = '';
-  updateNowPlayingLayout();
+  // Pills removed; no-op kept for call-site compatibility
 }
 function setNowPlayingCompose(title, sub, active=true, parts=null){
   const pill = $('#nowPlayingCompose');
-  if (!pill) return;
+  if (!pill) return; // Pills removed; no-op
   // Title: if parts are provided, use content-aware label like "Beat + Chords"
   let displayTitle = title || 'Loop';
   if (parts){
@@ -5602,6 +5620,37 @@ function highlightChordNotes(notes){
     if (el) el.classList.add('in-chord');
   });
 }
+
+/* -------- MIDI INPUT -------- */
+(function initMidi(){
+  if (!navigator.requestMIDIAccess) return;
+  navigator.requestMIDIAccess().then(access => {
+    function onMidiMessage(e){
+      const [status, note, velocity] = e.data;
+      const type = status & 0xf0;
+      // Note-on with velocity > 0
+      if (type !== 0x90 || velocity === 0) return;
+      // Route to the active sub-tab's piano handler
+      const sub = (typeof composeSubTab !== 'undefined') ? composeSubTab : 'chords';
+      if (sub === 'chords' || sub === 'progression') {
+        if (typeof onPianoKey === 'function') onPianoKey(note);
+      } else if (sub === 'bass') {
+        if (typeof onBassPianoKey === 'function') onBassPianoKey(note);
+      } else if (sub === 'sampler') {
+        if (typeof onSamplerPianoKey === 'function') onSamplerPianoKey(note);
+      } else if (sub === 'melody') {
+        // Flash on melody keys column if visible
+        const melHost = document.getElementById('melKeysCol');
+        if (melHost) flashKeyIn(melHost, note);
+      }
+    }
+    function connectAll(inputs){
+      inputs.forEach(input => { input.onmidimessage = onMidiMessage; });
+    }
+    connectAll(access.inputs.values());
+    access.onstatechange = () => connectAll(access.inputs.values());
+  }).catch(() => {});
+})();
 function flashKey(midi){
   const el = document.querySelector(`#piano [data-midi="${midi}"]`);
   if (!el) return;
@@ -5624,7 +5673,7 @@ function onPianoKey(midi){
     else { next = [...cur, midi].sort((a,b)=>a-b); }
     c.notes = next; c.customNotes = next; c.type = 'Custom';
     applyChordDetection(c);
-    playRhodesNote(midi, 0.6);
+    playInstrumentNote(midi, 0.6);
     flashKey(midi);
     renderProgressionRow();
     _chordEditRefreshUI(_popTargetIdx);
@@ -5638,7 +5687,7 @@ function onPianoKey(midi){
     if (idx >= 0) state.composeCustomNotes.splice(idx, 1);
     else if (state.composeCustomNotes.length < 7) state.composeCustomNotes.push(midi);
     updateCustomSelection();
-    playRhodesNote(midi, 0.6);
+    playInstrumentNote(midi, 0.6);
     if (state.composeCustomNotes.length > 0) {
       _pendingChord = { root: state.composeCustomNotes[0], type: 'Custom', notes: [...state.composeCustomNotes], duration: 1, inversion: 0 };
       const info = document.getElementById('pendingChordInfo');
@@ -5651,7 +5700,7 @@ function onPianoKey(midi){
   const inv = state.composeSelectedInversion || 0;
   let notes = chordNotes(midi, type);
   notes = invertChordNotes(notes, inv);
-  notes.forEach((n,i) => { playRhodesNote(n, 1.0, ensureComposeCtx().currentTime + i*0.01); flashKey(n); });
+  notes.forEach((n,i) => { playInstrumentNote(n, 1.0, ensureComposeCtx().currentTime + i*0.01); flashKey(n); });
   highlightChordNotes(notes);
   // Stage as pending chord — user must click + Add Chord to commit
   _pendingChord = { root: midi, type, notes, duration: 1, inversion: inv };
@@ -6201,7 +6250,7 @@ function openChordEditPop(idx, anchor){
     composeWorking.chords.splice(idx + 1, 0, copy);
     renderProgressionRow();
     touchActive();
-    if (compose.playing) rescheduleFromNow('chord-duplicate');
+    if (compose.playing) { compose.chords = composeWorking.chords.map(x => ({...x})); rescheduleTimelineFromNow(); }
     closePops();
     // Re-open editor on the new copy so the user can immediately tweak it.
     setTimeout(() => {
@@ -6284,10 +6333,15 @@ function stopCompose(){
   compose.activeSynth = [];
   compose.activeDrums = [];
   compose.boundaries = [];
-  $('#composePlay').textContent = '▶';
+  const _cpBtn = document.getElementById('composePlay');
+  if (_cpBtn) { _cpBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; _cpBtn.classList.remove('playing'); }
+  const _tmEl = document.getElementById('transportMode');
+  if (_tmEl) _tmEl.textContent = 'Stopped';
   $$('.prog-chord.playing').forEach(e => e.classList.remove('playing'));
   updatePlayhead(-1);
   setNowPlayingCompose(null, null, false);
+  _launcherActive = {};
+  try { typeof renderLauncher === 'function' && renderLauncher(); } catch {}
   const d = compose.onDone; compose.onDone = null;
   if (d) d();
 }
@@ -6658,7 +6712,10 @@ function composePlayProgression(prog, onDone, opts = {}){
   compose.startT = kickoff;
   scheduleIteration(kickoff);
   startPlayhead();
-  $('#composePlay').textContent = '■';
+  const _cpBtn2 = document.getElementById('composePlay');
+  if (_cpBtn2) { _cpBtn2.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg>'; _cpBtn2.classList.add('playing'); }
+  const _tmEl2 = document.getElementById('transportMode');
+  if (_tmEl2) _tmEl2.textContent = 'Compose';
   // Content-aware Now Playing: report what's actually playing
   const hasChords = !prog._silent && (prog.chords || composeWorking.chords)?.some(c => !c._silent);
   const parts = {
@@ -6735,6 +6792,8 @@ $('#composePlay').onclick = () => {
   if (compose.playing){ stopCompose(); return; }
   composePlayProgression({ chords: composeWorking.chords });
 };
+const _globalStopBtn = document.getElementById('globalStop');
+if (_globalStopBtn) _globalStopBtn.onclick = () => stopCompose();
 const _composeLoopBtn = $('#composeLoop');
 if (_composeLoopBtn) _composeLoopBtn.onclick = () => {
   composeLooping = !composeLooping;
@@ -6826,6 +6885,15 @@ function renderInstrumentGrid(){
     };
   });
   refreshSamplerPanelState();
+  // Wire chords ADSR button
+  const _chordsEnvBtn = document.getElementById('chordsEnvBtn');
+  if (_chordsEnvBtn) {
+    _chordsEnvBtn.onclick = () => {
+      const slot = currentInstrument || 'rhodes';
+      const iname = (INSTRUMENTS.find(x => x.id === slot) || {}).name || slot;
+      openAdsrPop(_chordsEnvBtn, slot, 'Envelope · ' + iname);
+    };
+  }
 }
 function refreshSamplerPanelState(){
   // Sampler has its own sub-tab now; no need to dim based on instrument.
@@ -6843,9 +6911,6 @@ function switchComposeSubTab(name){
   composeSubTab = name;
   $$('.compose-subtabs .subtab').forEach(b => b.classList.toggle('active', b.dataset.sub === name));
   $$('.compose-sub-pane').forEach(p => { p.style.display = (p.dataset.sub === name) ? '' : 'none'; p.classList.toggle('active', p.dataset.sub === name); });
-  // Progression row (sticky) is contextual per sub-tab.
-  const chordWrap = $('#chordProgWrap');
-  if (chordWrap) chordWrap.style.display = (name === 'chords' || name === 'progression') ? '' : 'none';
   if (name === 'progression') renderCompositionsUI();
   if (name === 'bass') renderBassUI();
   if (name === 'sampler') renderSamplerUI();
@@ -6853,6 +6918,21 @@ function switchComposeSubTab(name){
   if (name === 'melody') renderMelodyUI();
 }
 $$('.compose-subtabs .subtab').forEach(b => { b.onclick = () => switchComposeSubTab(b.dataset.sub); });
+
+function switchInstView(tabsId, view){
+  const tabs = document.getElementById(tabsId);
+  if (!tabs) return;
+  const pane = tabs.closest('.compose-sub-pane');
+  if (!pane) return;
+  pane.querySelectorAll('.inst-view-tab').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  pane.querySelectorAll('.inst-view-panel').forEach(p => p.classList.toggle('active', p.dataset.view === view));
+}
+['chordsViewTabs','samplerViewTabs','bassViewTabs'].forEach(tabsId => {
+  const el = document.getElementById(tabsId);
+  if (el) el.querySelectorAll('.inst-view-tab').forEach(btn => {
+    btn.onclick = () => switchInstView(tabsId, btn.dataset.view);
+  });
+});
 
 // --- Live Loops: per-track loop length — each sub-tab has its own select ---
 function _wireLoopSel(id, key){
@@ -6921,8 +7001,6 @@ function renderBassVoiceGrid(){
   });
 }
 function _syncBassFollowUI(){
-  const own = document.getElementById('bassOwnWrap');
-  if (own) own.style.display = bassState.followRoot ? 'none' : '';
   const addRow = document.getElementById('bassAddNoteRow');
   if (addRow) addRow.style.display = bassState.followRoot ? 'none' : 'flex';
 }
@@ -7050,6 +7128,15 @@ function renderBassUI(){
     };
   }
   _syncBassFollowUI();
+  // Wire bass ADSR button
+  const _bassEnvBtnEl = document.getElementById('bassEnvBtn');
+  if (_bassEnvBtnEl) {
+    _bassEnvBtnEl.onclick = () => {
+      const slot = bassState.voice || 'electric';
+      const vname = (BASS_VOICES.find(x => x.id === slot) || {}).name || slot;
+      openAdsrPop(_bassEnvBtnEl, slot, 'Envelope · ' + vname);
+    };
+  }
 }
 const _bassOct = document.getElementById('bassOctave');
 if (_bassOct) {
@@ -7086,11 +7173,15 @@ if (_bassG) {
 // Track the last piano-tap (used as a generic "last note" hint elsewhere).
 let _lastPianoMidi = 60;
 let _pendingChord = null;
-const _bassClearBtn = document.getElementById('bassClear');
-if (_bassClearBtn) _bassClearBtn.onclick = () => {
+function _doClearBass(){
   bassState.ownProgression = []; renderBassProgRow();
+  touchActive();
   if (compose.playing){ compose.global.bassOwnProg = []; rescheduleTimelineFromNow(); }
-};
+}
+const _bassClearBtn = document.getElementById('bassClear');
+if (_bassClearBtn) _bassClearBtn.onclick = _doClearBass;
+const _bassClearKbdBtn = document.getElementById('bassClearKbd');
+if (_bassClearKbdBtn) _bassClearKbdBtn.onclick = _doClearBass;
 const _saveBassBtn = document.getElementById('saveBassProgression');
 if (_saveBassBtn) _saveBassBtn.onclick = () => {
   const song = getActive(); if (!song){ showToast('Pick a song first'); return; }
@@ -7101,6 +7192,18 @@ if (_saveBassBtn) _saveBassBtn.onclick = () => {
   $('#bassProgName').value = '';
   touchActive(); save(); renderBassProgressionsList();
   showToast('Bass progression saved');
+};
+
+const _saveSamplerBtn = document.getElementById('saveSamplerProgression');
+if (_saveSamplerBtn) _saveSamplerBtn.onclick = () => {
+  const song = getActive(); if (!song){ showToast('Pick a song first'); return; }
+  if (!samplerState.ownProgression.length){ showToast('Add notes first'); return; }
+  const name = ($('#samplerProgName').value || '').trim() || `Sampler ${(song.samplerProgressions||[]).length+1}`;
+  song.samplerProgressions = song.samplerProgressions || [];
+  song.samplerProgressions.push({ id: uid(), name, notes: samplerState.ownProgression.map(n => ({...n})), createdAt: Date.now() });
+  $('#samplerProgName').value = '';
+  touchActive(); save(); renderSamplerProgressionsList();
+  showToast('Sampler pattern saved');
 };
 
 /* -------- SAMPLER UI (Voice / Mode / Keyboard / Own Progression) -------- */
@@ -7213,8 +7316,6 @@ function onSamplerPianoKey(midi){
   }
 }
 function _syncSamplerFollowUI(){
-  const wrap = document.getElementById('samplerOwnWrap');
-  if (wrap) wrap.style.display = samplerState.followRoot ? 'none' : '';
   const addBtn = document.getElementById('addSamplerNoteBtn');
   if (addBtn) addBtn.disabled = samplerState.followRoot || !_pendingSamplerNote;
   const restBtn = document.getElementById('addSamplerRestBtn');
@@ -7223,6 +7324,7 @@ function _syncSamplerFollowUI(){
 function renderSamplerUI(){
   renderSamplerVoiceGrid();
   renderSamplerProgRow();
+  renderSamplerProgressionsList();
   buildPianoInto($('#samplerPiano'), (midi) => onSamplerPianoKey(midi));
   _syncSamplerFollowUI();
   // Wire follow-root checkbox
@@ -7240,12 +7342,51 @@ function renderSamplerUI(){
     };
   }
 }
-const _samplerClearBtn = document.getElementById('samplerClear');
-if (_samplerClearBtn) _samplerClearBtn.onclick = () => {
+function renderSamplerProgressionsList(){
+  const song = getActive();
+  const list = $('#samplerProgressionsList'); if (!list) return;
+  const sps = song?.samplerProgressions || [];
+  if (!sps.length){ list.innerHTML = `<div class="empty-state">No saved sampler patterns yet.</div>`; return; }
+  list.innerHTML = sps.map(sp => {
+    const preview = sp.notes.map(n => n.rest ? 'R' : NOTE_NAMES[n.root%12]).join(' → ');
+    return `<div class="progression-card" data-id="${sp.id}">
+      <span class="name">${esc(sp.name)}</span>
+      <span class="chords-preview">${preview}</span>
+      <button class="chord-type-btn" data-act="load">Load</button>
+      <button class="chord-type-btn" data-act="del">×</button>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.progression-card').forEach(card => {
+    const sp = sps.find(x => x.id === card.dataset.id);
+    card.querySelector('[data-act=load]').onclick = () => {
+      samplerState.ownProgression = sp.notes.map(n => ({...n}));
+      samplerState.followRoot = false;
+      samplerState.enabled = true;
+      renderSamplerUI();
+      if (compose.playing){
+        compose.global.samplerMode = 'own';
+        compose.global.samplerOwnProg = samplerState.ownProgression.map(n => ({...n}));
+        rescheduleTimelineFromNow();
+      }
+      touchActive();
+      showToast(`Loaded "${sp.name}"`);
+    };
+    card.querySelector('[data-act=del]').onclick = async () => {
+      if (!(await confirmDialog('Delete sampler pattern?', sp.name))) return;
+      song.samplerProgressions = (song.samplerProgressions||[]).filter(x => x.id !== sp.id);
+      touchActive(); save(); renderSamplerProgressionsList();
+    };
+  });
+}
+function _doClearSampler(){
   samplerState.ownProgression = []; renderSamplerProgRow();
   touchActive();
   if (compose.playing){ compose.global.samplerOwnProg = []; rescheduleTimelineFromNow(); }
-};
+}
+const _samplerClearBtn = document.getElementById('samplerClear');
+if (_samplerClearBtn) _samplerClearBtn.onclick = _doClearSampler;
+const _samplerClearKbdBtn = document.getElementById('samplerClearKbd');
+if (_samplerClearKbdBtn) _samplerClearKbdBtn.onclick = _doClearSampler;
 
 /* -------- COMPOSITIONS (PROGRESSION sub-tab) -------- */
 function populateCompSelects(){
@@ -7317,10 +7458,42 @@ function updateCopyFromItems(){
   }
   itemSel.innerHTML = items.length ? items.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('') : `<option value="">— none available —</option>`;
 }
+function renderActiveProgressionsSummary(){
+  const el = document.getElementById('activeProgressionsSummary');
+  if (!el) return;
+  const song = getActive();
+  const parts = [];
+  // Chords
+  if (composeWorking.chords.length){
+    const labels = composeWorking.chords.map(c => buildChordLabel(c)).join(', ');
+    parts.push(`<div style="display:flex;align-items:center;gap:8px;"><span style="color:#8cd3ff;font-weight:600;min-width:60px;">Chords</span><span>${esc(labels.slice(0,80))}</span></div>`);
+  } else {
+    parts.push(`<div style="color:var(--grey);">Chords: none</div>`);
+  }
+  // Bass
+  if (!bassState.followRoot && bassState.ownProgression.length){
+    const labels = bassState.ownProgression.map(n => noteName(n.root)).join(', ');
+    parts.push(`<div style="display:flex;align-items:center;gap:8px;"><span style="color:#ffcf70;font-weight:600;min-width:60px;">Bass</span><span>${esc(labels.slice(0,80))}</span></div>`);
+  } else if (bassState.followRoot){
+    parts.push(`<div style="color:var(--grey);">Bass: follows chords</div>`);
+  } else {
+    parts.push(`<div style="color:var(--grey);">Bass: none</div>`);
+  }
+  // Beat
+  const beatKey = document.querySelector('#beatGrid .beat-card.active')?.dataset.beat || 'None';
+  parts.push(`<div style="display:flex;align-items:center;gap:8px;"><span style="color:#ff8b8b;font-weight:600;min-width:60px;">Beat</span><span>${esc(beatDisplayName(beatKey))}</span></div>`);
+  // Sampler
+  if (!samplerState.followRoot && samplerState.ownProgression.length){
+    const labels = samplerState.ownProgression.map(n => noteName(n.root)).join(', ');
+    parts.push(`<div style="display:flex;align-items:center;gap:8px;"><span style="color:#c8b4fa;font-weight:600;min-width:60px;">Sampler</span><span>${esc(labels.slice(0,80))}</span></div>`);
+  }
+  el.innerHTML = parts.join('');
+}
 function renderCompositionsUI(){
   populateCompSelects();
   renderCompositionsList();
   populateCopyFrom();
+  renderActiveProgressionsSummary();
 }
 // Bind progression-sub-tab handlers
 const _compChordsSel = document.getElementById('compChordsSel');
@@ -7394,12 +7567,41 @@ if (_compPlayBtn) _compPlayBtn.onclick = () => {
 const _compSaveBtn = document.getElementById('compSave');
 if (_compSaveBtn) _compSaveBtn.onclick = () => {
   const song = getActive(); if (!song){ showToast('Pick a song'); return; }
-  const f = currentCompositionFromForm();
-  if (!f.chordsProgId && !f.bassProgId && f.beat === 'None' && !f.audioRecId){ showToast('Pick at least one element first'); return; }
+  // Save current working state as a composition (no need to save progressions first)
+  const name = ($('#compName')?.value || '').trim() || `Composition ${(song.compositions||[]).length + 1}`;
+  const sectionLink = $('#compLink')?.value || null;
+  const beatKey = document.querySelector('#beatGrid .beat-card.active')?.dataset.beat || 'None';
+  // Snapshot current chords as a temporary progression if not already saved
+  let chordsProgId = null;
+  if (composeWorking.chords.length){
+    const existing = (song.progressions||[]).find(p =>
+      JSON.stringify(p.chords.map(c=>c.root)) === JSON.stringify(composeWorking.chords.map(c=>c.root))
+    );
+    if (existing){
+      chordsProgId = existing.id;
+    } else {
+      const newProg = { id: uid(), name: name + ' Chords', chords: composeWorking.chords.map(c=>({...c})),
+        beat: beatKey, tempo: parseInt($('#composeTempo')?.value||'100'), time: $('#composeTime')?.value||'4/4',
+        transpose: parseInt($('#composeTranspose')?.value||'0'), instrument: currentInstrument, createdAt: Date.now() };
+      song.progressions = song.progressions || [];
+      song.progressions.push(newProg);
+      chordsProgId = newProg.id;
+    }
+  }
+  let bassProgId = null;
+  if (!bassState.followRoot && bassState.ownProgression.length){
+    const newBp = { id: uid(), name: name + ' Bass', notes: bassState.ownProgression.map(n=>({...n})),
+      voice: bassState.voice, createdAt: Date.now() };
+    song.bassProgressions = song.bassProgressions || [];
+    song.bassProgressions.push(newBp);
+    bassProgId = newBp.id;
+  }
   song.compositions = song.compositions || [];
-  song.compositions.push({ id: uid(), ...f, name: f.name || `Composition ${(song.compositions.length||0)+1}`, createdAt: Date.now() });
+  song.compositions.push({ id: uid(), name, chordsProgId, bassProgId, beat: beatKey,
+    audioRecId: null, sectionLink, createdAt: Date.now() });
   touchActive(); save(); renderCompositionsList(); renderLyricsStructured(); renderPreview();
-  showToast('Composition saved');
+  const _cn = document.getElementById('compName'); if (_cn) _cn.value = '';
+  showToast('Composition saved: ' + name);
 };
 const _copyFromSong = document.getElementById('copyFromSong');
 const _copyFromKind = document.getElementById('copyFromKind');
@@ -7722,6 +7924,12 @@ function renderBeatGrid(){
       if (compose.playing){
         compose.global.beat = el.dataset.beat;
         rescheduleFromNow('beat');
+      } else if (el.dataset.beat !== 'None') {
+        // Selecting a beat starts playback automatically
+        const _beatChords = composeWorking.chords.length
+          ? composeWorking.chords
+          : [{ root: 60, type: 'Unison', notes: [], duration: 1, _silent: true }];
+        composePlayProgression({ chords: _beatChords });
       }
     };
   });
@@ -7916,6 +8124,18 @@ function _seqSyncLivePreview(){
   if (compose && compose.playing && compose.global && compose.global.beat === '__seq_preview__'){
     // Reschedule so per-drum delay / swing / step edits take effect immediately.
     try { rescheduleFromNow('beat'); } catch {}
+  } else if (compose && compose.playing && compose.global && compose.global.beat !== '__seq_preview__'){
+    // Switch running playback to sequencer preview
+    compose.global.beat = '__seq_preview__';
+    try { rescheduleFromNow('beat'); } catch {}
+    _seqStartPlayhead();
+  } else if (!compose || !compose.playing) {
+    // Not playing yet — start playback with seq preview
+    const _seqChords = composeWorking.chords.length
+      ? composeWorking.chords
+      : [{ root: 60, type: 'Unison', notes: [], duration: 1, _silent: true }];
+    composePlayProgression({ chords: _seqChords, beat: '__seq_preview__' });
+    _seqStartPlayhead();
   }
 }
 
@@ -9052,17 +9272,8 @@ $('#newSongBtn').onclick = () => {
   samplerState.followRoot = false; samplerState.ownProgression = [];
   if (typeof melodyState !== 'undefined'){ melodyState.notes = []; melodyState.selectedId = null; }
   const s = newSong(); state.songs.unshift(s); state.activeId = s.id; save();
-  renderAll(); $('#songTitle').focus(); $('#songTitle').select();
+  renderAll();
 };
-$('#deleteBtn').onclick = async () => {
-  const s = getActive(); if (!s) return;
-  if (!(await confirmDialog('Delete song?', `"${s.title||'Untitled Song'}" and all linked takes will be removed.`))) return;
-  stopAllPlayback();
-  state.songs = state.songs.filter(x => x.id !== s.id);
-  state.activeId = state.songs[0]?.id || null;
-  save(); renderAll(); showToast('Song deleted');
-};
-$('#exportBtn').onclick = exportSong;
 const _undoBtn = document.getElementById('undoBtn');
 const _redoBtn = document.getElementById('redoBtn');
 if (_undoBtn) _undoBtn.onclick = () => undo();
@@ -9294,13 +9505,63 @@ async function runBackup(){
 
 $('#backupBtn').onclick = runBackup;
 
+/* -------- LIBRARY DATA EXPORT / IMPORT -------- */
+$('#libExportBtn').onclick = () => {
+  const includeBeats = true;
+  const payload = {
+    _version: 1,
+    songs: state.songs,
+    tags: state.tags || [],
+    userBeats: includeBeats ? (state.userBeats || []) : [],
+    exportedAt: new Date().toISOString(),
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `OKComposer-Library-${formatDDMMYYYY(Date.now())}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  showToast('Library exported');
+};
+
+$('#libImportBtn').onclick = () => { $('#libImportFile').click(); };
+
+$('#libImportFile').onchange = async (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  e.target.value = '';
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if (!data.songs || !Array.isArray(data.songs)) throw new Error('Invalid library file');
+    const confirmed = await confirmDialog(
+      'Import library?',
+      `This will merge ${data.songs.length} song(s) into your library. Existing songs are kept. User beats will be ${data.userBeats?.length ? 'merged' : 'unchanged'}.`
+    );
+    if (!confirmed) return;
+    const existingIds = new Set(state.songs.map(s => s.id));
+    data.songs.forEach(s => { if (!existingIds.has(s.id)) state.songs.push(s); });
+    if (data.tags?.length) {
+      const existingTagIds = new Set((state.tags||[]).map(t => t.id));
+      data.tags.forEach(t => { if (!existingTagIds.has(t.id)) state.tags.push(t); });
+    }
+    if (data.userBeats?.length) {
+      const existingBeatIds = new Set((state.userBeats||[]).map(b => b.id));
+      data.userBeats.forEach(b => { if (!existingBeatIds.has(b.id)) state.userBeats.push(b); });
+    }
+    save(); renderAll();
+    showToast(`Imported ${data.songs.length} song(s)`);
+  } catch (err) {
+    showToast('Import failed: ' + err.message);
+  }
+};
+
 $('#searchInput').oninput = () => { state.search = $('#searchInput').value; renderLibrary(); };
 
 $('#songTitle').oninput = () => { const s=getActive(); if(!s) return; s.title = $('#songTitle').value; touchActive(); save(); renderLibrary(); };
 $('#songKey').onchange = () => { const s=getActive(); if(!s) return; s.key = $('#songKey').value; touchActive(); save(); renderProgressionRow(); };
 $('#songTempo').oninput = () => { const s=getActive(); if(!s) return; s.tempo = parseInt($('#songTempo').value,10) || 120; touchActive(); save(); $('#composeTempo').value = s.tempo; };
 $('#songTime').onchange = () => { const s=getActive(); if(!s) return; s.time = $('#songTime').value; touchActive(); save(); $('#composeTime').value = s.time; };
-$('#songStatus').onchange = () => { const s=getActive(); if(!s) return; s.status = $('#songStatus').value; touchActive(); save(); renderLibrary(); };
+{ const _ssSel = document.getElementById('songStatus'); if (_ssSel) _ssSel.onchange = () => { const s=getActive(); if(!s) return; s.status = _ssSel.value; touchActive(); save(); renderLibrary(); }; }
 
 $('#lyricsEditor').oninput = () => { const s=getActive(); if(!s) return; s.lyrics = $('#lyricsEditor').value; touchActive(); save(); updateWordCount(); renderLibrary(); renderLyricsStructured(); renderPreview(); renderRecordings(); renderCompose(); };
 $('#notesEditor').oninput = () => { const s=getActive(); if(!s) return; s.notes = $('#notesEditor').value; touchActive(); save(); };
@@ -9349,7 +9610,7 @@ $('#recBtn').onclick = () => {
   else startRecording();
 };
 
-$('#npStop').onclick = stopAllPlayback;
+{ const _npStop = document.getElementById('npStop'); if (_npStop) _npStop.onclick = stopAllPlayback; }
 $('#storageBadge').onclick = () => $('#storageModal').classList.add('show');
 $('#storageUseLocal').onclick = () => { state.storage='local'; localStorage.setItem('okimawake.storageMode','local'); updateStorageBadge(); $('#storageModal').classList.remove('show'); };
 $('#storageConnect').onclick = async () => { $('#storageModal').classList.remove('show'); await connectFolder(); };
@@ -9508,6 +9769,7 @@ document.addEventListener('keydown', (e) => {
 
 /* -------- LAUNCHER -------- */
 let launcherEditMode = false;
+let _launcherActive = {}; // { rowKey: slotIdx } — which slot is currently playing per row
 
 const LAUNCHER_ROWS = [
   { key: 'chords',  label: 'Chords',  colorClass: 'row-chords'  },
@@ -9533,15 +9795,28 @@ function getLauncherSlots(song){
 
 function getLauncherOptions(song, rowKey){
   if (!song) return [];
-  if (rowKey === 'chords')  return (song.progressions || []).map(p => ({ id: p.id, label: p.name }));
-  if (rowKey === 'bass')    return (song.bassProgressions || []).map(p => ({ id: p.id, label: p.name }));
+  // Compositions that have the relevant part
+  const comps = (song.compositions || []);
+  if (rowKey === 'chords'){
+    const direct = (song.progressions || []).map(p => ({ id: p.id, label: p.name }));
+    const fromComp = comps.filter(c => c.chordsProgId).map(c => ({ id: 'comp:' + c.id, label: c.name + ' (comp)' }));
+    return [...direct, ...fromComp];
+  }
+  if (rowKey === 'bass'){
+    const direct = (song.bassProgressions || []).map(p => ({ id: p.id, label: p.name }));
+    const fromComp = comps.filter(c => c.bassProgId).map(c => ({ id: 'comp:' + c.id, label: c.name + ' (comp)' }));
+    return [...direct, ...fromComp];
+  }
+  if (rowKey === 'sampler') return (song.samplerProgressions || []).map(p => ({ id: p.id, label: p.name }));
   if (rowKey === 'audio')   return (song.recordings || []).map(r => ({ id: r.id, label: r.name || 'Take' }));
   if (rowKey === 'beats'){
     const factory = getFactoryBeatKeys().filter(k => k !== 'None' && k !== 'Audio Loop');
     const user    = getUserBeatKeys();
+    const fromComp = comps.filter(c => c.beat && c.beat !== 'None').map(c => ({ id: 'comp:' + c.id, label: c.name + ' (comp)' }));
     return [
       ...factory.map(k => ({ id: k, label: k })),
       ...user.map(k => { const u = getUserBeat(k); return { id: k, label: u ? u.name : k }; }),
+      ...fromComp,
     ];
   }
   return [];
@@ -9555,6 +9830,22 @@ function getLauncherItemLabel(song, rowKey, id){
 
 function triggerLauncherSlot(rowKey, id){
   const song = getActive();
+  // Handle composition-sourced IDs (comp:uuid)
+  if (id && id.startsWith('comp:')) {
+    const compId = id.slice(5);
+    const comp = (song?.compositions || []).find(c => c.id === compId);
+    if (!comp){ showToast('Composition not found'); return; }
+    if (rowKey === 'chords' && comp.chordsProgId){
+      return triggerLauncherSlot('chords', comp.chordsProgId);
+    } else if (rowKey === 'bass' && comp.bassProgId){
+      return triggerLauncherSlot('bass', comp.bassProgId);
+    } else if (rowKey === 'beats' && comp.beat && comp.beat !== 'None'){
+      return triggerLauncherSlot('beats', comp.beat);
+    } else {
+      showToast('Composition has no ' + rowKey + ' part');
+      return;
+    }
+  }
   if (rowKey === 'chords'){
     if (!song) return;
     const p = (song.progressions || []).find(x => x.id === id);
@@ -9683,7 +9974,8 @@ function renderLauncher(){
     const btns = rowSlots.slice(0, 8).map((id, i) => {
       const label    = song ? getLauncherItemLabel(song, row.key, id) : null;
       const assigned = !!label;
-      const btnClass = `launcher-btn${assigned ? ' assigned ' + row.colorClass : ''}`;
+      const isPlaying = compose.playing && _launcherActive[row.key] === i && !!id;
+      const btnClass = `launcher-btn${assigned ? ' assigned ' + row.colorClass : ''}${isPlaying ? ' playing' : ''}`;
       const nameText = label ? esc(label) : (launcherEditMode ? '+' : '—');
       return `<button class="${btnClass}" data-row="${row.key}" data-slot="${i}" title="${label ? esc(label) : 'Unassigned'}">
         <span class="lbtn-num">${i + 1}</span>
@@ -9710,7 +10002,14 @@ function renderLauncher(){
         if (!id){ showToast('Nothing assigned — press Edit to configure'); return; }
         btn.classList.add('flash');
         setTimeout(() => btn.classList.remove('flash'), 300);
+        _launcherActive[rowKey] = slotIdx;
         triggerLauncherSlot(rowKey, id);
+        // Auto-start playback
+        if (!compose.playing) {
+          const _ch = composeWorking.chords.length ? composeWorking.chords : [{ root: 60, type: 'Unison', notes: [], duration: 1, _silent: true }];
+          composePlayProgression({ chords: _ch });
+        }
+        renderLauncher();
       }
     };
   });
