@@ -38,7 +38,7 @@
 
   .app {
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 1fr;
     grid-template-rows: 64px 1fr;
     height: 100vh; width: 100vw;
   }
@@ -117,6 +117,16 @@
   aside {
     background: var(--ink); border-right: 1px solid var(--line);
     display: flex; flex-direction: column; overflow: hidden;
+    position: fixed;
+    top: 64px; left: 0; bottom: 0;
+    width: 300px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 200;
+  }
+  aside.mobile-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.65);
   }
   .library-header { padding: 16px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
   .library-title { display: flex; justify-content: space-between; align-items: center; }
@@ -963,9 +973,9 @@
   .tag-pick:hover { transform: scale(1.04); }
   .tag-pick.selected { border-color: var(--white); }
 
-  /* ── Mobile hamburger button (hidden on desktop) ── */
+  /* ── Burger menu button ── */
   #mobileMenuBtn {
-    display: none;
+    display: flex;
     align-items: center; justify-content: center;
     width: 36px; height: 36px;
     border: 1px solid var(--line); border-radius: 2px;
@@ -1068,21 +1078,8 @@
 
   /* ── Mobile layout ── */
   @media (max-width: 768px) {
-    #mobileMenuBtn { display: flex; }
     .tagline { display: none; }
-    .app { grid-template-columns: 1fr; }
-    aside {
-      position: fixed;
-      top: 64px; left: 0; bottom: 0;
-      width: min(85vw, 320px);
-      transform: translateX(-100%);
-      transition: transform 0.25s ease;
-      z-index: 200;
-    }
-    aside.mobile-open {
-      transform: translateX(0);
-      box-shadow: 4px 0 24px rgba(0,0,0,0.65);
-    }
+    aside { width: min(85vw, 320px); }
   }
 </style>
 </head>
@@ -1090,6 +1087,11 @@
 
 <div class="app">
   <header>
+    <button id="mobileMenuBtn" aria-label="Open library">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
     <div class="logo">
       <span class="logo-text">OK:Composer</span>
     </div>
@@ -1132,11 +1134,6 @@
       <span class="dot"></span><span id="storageLabel">Local</span>
     </div>
     <div class="tagline">Songwriter's Studio</div>
-    <button id="mobileMenuBtn" aria-label="Open library">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-      </svg>
-    </button>
   </header>
 
   <aside>
@@ -1144,11 +1141,11 @@
       <div class="library-title">
         <h2>Library</h2>
         <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button class="btn-new" id="newSongBtn">+ New</button>
           <button class="btn-new secondary" id="libImportBtn" title="Import library data from JSON">⤑ Import</button>
           <button class="btn-new secondary" id="libExportBtn" title="Export library data as JSON">⤓ Export</button>
           <input type="file" id="libImportFile" accept=".json" style="display:none;" />
           <button class="btn-new secondary" id="backupBtn" title="Backup audio &amp; MIDI">⤓ Backup</button>
-          <button class="btn-new" id="newSongBtn">+ New</button>
         </div>
       </div>
       <input class="search" id="searchInput" type="text" placeholder="Search library…" />
