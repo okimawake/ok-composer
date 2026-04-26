@@ -65,8 +65,9 @@
     background: var(--panel); color: var(--grey-2); cursor: pointer;
     transition: all 0.15s; flex-shrink: 0;
   }
-  .transport-play-btn:hover { background: var(--red); border-color: var(--red); color: var(--white); }
+  .transport-play-btn:hover { color: var(--white); border-color: var(--grey); }
   .transport-play-btn.playing { background: var(--red); border-color: var(--red); color: var(--white); }
+  .transport-play-btn.playing:hover { background: var(--red); border-color: var(--red); }
   .transport-stop-btn:hover { color: var(--white); border-color: var(--grey); }
   .transport-mode { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--grey-2); min-width: 60px; white-space: nowrap; }
 
@@ -955,7 +956,8 @@
   .preview-step .step-num { font-size: 10px; color: var(--grey-2); letter-spacing: 0.2em; flex-shrink: 0; }
   .preview-step .step-name { font-weight: 700; min-width: 140px; flex-shrink: 0; }
   .preview-step select.step-section-sel,
-  .preview-step select.step-beat-sel {
+  .preview-step select.step-beat-sel,
+  .preview-step select.step-comp-sel {
     background: var(--panel); color: var(--white); border: 1px solid var(--line); border-radius: 2px;
     padding: 4px 8px; font-size: 11px;
   }
@@ -1118,12 +1120,6 @@
     .tagline { display: none; }
     aside { width: min(85vw, 320px); }
   }
-  /* ── Mobile burger-open: collapse header, tabs slide to top ── */
-  @media (max-width: 768px) {
-    body.menu-open header { height: 0; overflow: hidden; padding: 0; border: none; min-height: 0; }
-    body.menu-open .app { grid-template-rows: 0 1fr; }
-    body.menu-open aside { top: 0; }
-  }
 </style>
 </head>
 <body>
@@ -1182,10 +1178,7 @@
         <h2>Library</h2>
         <div style="display:flex; gap:6px; flex-wrap:wrap;">
           <button class="btn-new" id="newSongBtn">+ New</button>
-          <button class="btn-new secondary" id="libImportBtn" title="Import library data from JSON">⤑ Import</button>
-          <button class="btn-new secondary" id="libExportBtn" title="Export library data as JSON">⤓ Export</button>
-          <input type="file" id="libImportFile" accept=".json" style="display:none;" />
-          <button class="btn-new secondary" id="backupBtn" title="Backup audio &amp; MIDI">⤓ Backup</button>
+          <button class="btn-new secondary" id="backupBtn" title="Options">Options</button>
         </div>
       </div>
       <input class="search" id="searchInput" type="text" placeholder="Search library…" />
@@ -1208,17 +1201,17 @@
     <div class="song-workspace" id="songWorkspace">
 
       <div class="tabs">
-        <button class="tab active" data-tab="lyrics">Lyrics</button>
+        <button class="tab active" data-tab="compose">Compose</button>
         <button class="tab" data-tab="studio">Audio</button>
-        <button class="tab" data-tab="compose">Compose</button>
         <button class="tab" data-tab="mixer">Mixer</button>
-        <button class="tab" data-tab="notes">Notes</button>
-        <button class="tab" data-tab="preview">Arranger</button>
         <button class="tab" data-tab="launcher">Launcher</button>
+        <button class="tab" data-tab="preview">Arranger</button>
+        <button class="tab" data-tab="lyrics">Lyrics</button>
+        <button class="tab" data-tab="notes">Notes</button>
       </div>
 
       <div class="tab-content">
-        <div class="tab-pane active" data-pane="lyrics">
+        <div class="tab-pane" data-pane="lyrics">
           <div class="lyrics-toolbar">
             <button class="chip" data-insert="[Verse]">+ Verse</button>
             <button class="chip" data-insert="[Chorus]">+ Chorus</button>
@@ -1265,7 +1258,7 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
           </div>
         </div>
 
-        <div class="tab-pane" data-pane="compose">
+        <div class="tab-pane active" data-pane="compose">
           <div class="compose" id="composePane">
             <div class="compose-sticky" id="composeSticky">
               <div class="compose-subtabs" id="composeSubtabs">
@@ -1630,6 +1623,12 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                       <option value="32">1/32</option>
                     </select>
                   </div>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
+                      <input type="checkbox" id="melSnap" checked style="cursor:pointer;" />
+                      Snap
+                    </label>
+                  </div>
                   <div>
                     <label title="How tightly notes snap to grid">Quantise amt</label>
                     <input type="range" id="melQAmt" min="0" max="100" step="1" value="100" style="width:120px;" />
@@ -1663,6 +1662,10 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 <div class="seq-toolbar" style="margin-top:10px;border-top:1px solid var(--line);padding-top:12px;">
                   <div>
                     <button class="chord-type-btn" id="melClear" title="Remove all notes">Clear</button>
+                  </div>
+                  <div style="display:flex;gap:6px;">
+                    <button class="transport-play-btn" id="melPlay" style="padding:4px 14px;font-size:13px;">▶ Play</button>
+                    <button class="chord-type-btn" id="melStop" style="padding:4px 12px;">Stop</button>
                   </div>
                   <div style="flex:1;"></div>
                   <div style="font-size:11px;color:var(--grey-2);">Click grid to add · drag to move · drag right edge to resize</div>
@@ -1797,17 +1800,32 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
 
 <div class="modal-overlay" id="backupModal">
   <div class="modal">
-    <h3>Backup audio &amp; MIDI</h3>
-    <p>Choose an audio format for the exported recordings. Your original files are never modified.</p>
+    <h3>Options</h3>
+    <p style="font-size:12px;font-weight:700;color:var(--white);margin:0 0 6px;">Backup audio &amp; MIDI</p>
+    <p style="font-size:11px;color:var(--grey-2);margin:0 0 10px;">Download a zip of all your songs with audio recordings, MIDI files, and lyrics.</p>
     <div class="backup-format-grid">
       <label class="backup-fmt"><input type="radio" name="bkFmt" value="wav" checked /> <span><strong>WAV</strong> — lossless, universally readable</span></label>
       <label class="backup-fmt"><input type="radio" name="bkFmt" value="mp3" /> <span><strong>MP3</strong> — smaller, widely compatible</span></label>
       <label class="backup-fmt"><input type="radio" name="bkFmt" value="flac" /> <span><strong>FLAC</strong> — lossless compressed</span></label>
     </div>
     <p class="backup-note" id="backupNote" style="font-size:11px; color: var(--grey-2);">MP3 and FLAC use in-browser encoders; if the encoder isn't available for the chosen format, WAV is used as a safe fallback.</p>
-    <div class="modal-actions">
-      <button class="btn" id="backupCancel">Cancel</button>
+    <div class="modal-actions" style="margin-bottom:0;">
+      <button class="btn" id="backupCancel">Close</button>
       <button class="btn primary" id="backupOk">Back it up</button>
+    </div>
+    <div style="border-top:1px solid var(--line);margin-top:18px;padding-top:16px;">
+      <p style="font-size:12px;font-weight:700;color:var(--white);margin:0 0 6px;">Library transfer</p>
+      <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+        <button class="btn" id="libExportBtn">Export library</button>
+        <button class="btn" id="libImportBtn">Import library</button>
+        <input type="file" id="libImportFile" accept=".json" style="display:none;" />
+      </div>
+      <p style="font-size:11px;color:var(--grey-2);margin:0;line-height:1.5;"><strong style="color:var(--grey);">Export</strong> saves all songs, progressions, and settings as a JSON file you can keep as a snapshot or transfer to another device.<br><strong style="color:var(--grey);">Import</strong> loads a previously exported JSON and replaces the current library.</p>
+    </div>
+    <div style="border-top:1px solid var(--line);margin-top:18px;padding-top:16px;">
+      <p style="font-size:12px;font-weight:700;color:var(--white);margin:0 0 6px;">Danger zone</p>
+      <button class="btn" id="deleteLibraryBtn" style="border-color:var(--red);color:var(--red);">Delete entire library</button>
+      <p style="font-size:11px;color:var(--grey-2);margin:6px 0 0;line-height:1.5;">Permanently removes all songs, recordings, and data from this device. Cannot be undone.</p>
     </div>
   </div>
 </div>
@@ -2141,15 +2159,19 @@ function chordWidth(v){ return Math.max(58, Math.min(320, 70 * v + 20)); }
 /* Available instruments for the compose pane.
    Each defines a function play(ctx, midi, dur, when, gain) that returns { nodes } so the engine can track for immediate stop. */
 const INSTRUMENTS = [
-  { id: 'rhodes',   name: 'Rhodes EP' },
-  { id: 'ep',       name: 'Electric Piano' },
-  { id: 'acoustic', name: 'Acoustic Piano' },
-  { id: 'organ',    name: 'Organ' },
-  { id: 'pad',      name: 'Warm Pad' },
-  { id: 'bass',     name: 'Synth Bass' },
-  { id: 'pluck',    name: 'Plucked String' },
-  { id: 'mallet',   name: 'Mallet' },
-  { id: 'sampler',  name: 'Sampler (file)' },
+  { id: 'rhodes',    name: 'Rhodes EP' },
+  { id: 'ep',        name: 'Electric Piano' },
+  { id: 'acoustic',  name: 'Acoustic Piano' },
+  { id: 'organ',     name: 'Organ' },
+  { id: 'pad',       name: 'Warm Pad' },
+  { id: 'bass',      name: 'Synth Bass' },
+  { id: 'pluck',     name: 'Plucked String' },
+  { id: 'mallet',    name: 'Mallet' },
+  { id: 'flute',     name: 'Flute' },
+  { id: 'strings',   name: 'Strings' },
+  { id: 'vibraphone',name: 'Vibraphone' },
+  { id: 'guitar',    name: 'Guitar' },
+  { id: 'brass',     name: 'Brass' },
 ];
 // Per-instrument sampler state (only meaningful for 'sampler')
 const SAMPLER_VOICES = [
@@ -2228,7 +2250,7 @@ function _defaultAdsr(slot){
   // Generic chord-instrument default
   return { a: 0.005, d: 0.15, s: 0.85, r: 0.18 };
 }
-const ADSR_SLOTS_CHORD = ['rhodes','ep','acoustic','organ','pad','bass','pluck','mallet'];
+const ADSR_SLOTS_CHORD = ['rhodes','ep','acoustic','organ','pad','bass','pluck','mallet','flute','strings','vibraphone','guitar','brass'];
 const ADSR_SLOTS_BASS  = ['electric','upright','synth','sub','808','slap','muted','acid','fretless','rubber','picked'];
 const adsrState = {};
 [...ADSR_SLOTS_CHORD, ...ADSR_SLOTS_BASS, 'sampler','kick','snare','hat','flute']
@@ -2330,7 +2352,7 @@ const state = {
   activeId: null,
   search: '',
   tagFilter: null,
-  tab: 'lyrics',
+  tab: 'compose',
   lyricsMode: 'edit',
   tags: [],                 // [{id,name,color}]
   storage: 'local',         // 'local' | 'fs'
@@ -3298,6 +3320,7 @@ function renderWorkspace(){
   renderPreview();
   try { typeof renderLauncher === 'function' && renderLauncher(); } catch {}
   try { if (typeof renderMixer === 'function' && state.tab === 'mixer') renderMixer(); } catch {}
+  try { if (typeof renderPiano === 'function' && state.tab === 'compose') { ensureComposeCtx(); renderPiano(); } } catch {}
   try { if (typeof refreshTrackLoopUI === 'function') refreshTrackLoopUI(); } catch {}
   updateUndoRedoButtons();
 }
@@ -3501,7 +3524,8 @@ async function playAllSections(startIndex = 0){
     const sec = step.section;
     const rec = (s.recordings||[]).find(r => r.sectionLink === sec.name);
     const prog = (s.progressions||[]).find(p => p.sectionLink === sec.name);
-    const comp = (s.compositions||[]).find(c => c.sectionLink === sec.name);
+    const explicitComp = step.comp && step.comp !== '—' ? (s.compositions||[]).find(c => c.id === step.comp) : null;
+    const comp = explicitComp || (s.compositions||[]).find(c => c.sectionLink === sec.name);
     const beatOverride = step.beat && step.beat !== '—' ? step.beat : null;
     if (comp){
       const patched = beatOverride ? { ...comp, beat: beatOverride } : comp;
@@ -3556,7 +3580,7 @@ function buildArrangerOrder(song, sections){
     const sec = sections.find(s => s.name === step.section);
     if (!sec) return;
     const n = Math.max(1, parseInt(step.repeat, 10) || 1);
-    for (let k = 0; k < n; k++) out.push({ section: sec, beat: step.beat || null, repeat: n });
+    for (let k = 0; k < n; k++) out.push({ section: sec, beat: step.beat || null, comp: step.comp || null, repeat: n });
   });
   // If arranger refs nothing valid, fallback to sections
   if (!out.length){
@@ -5457,6 +5481,93 @@ function playFluteNote(midi, dur, when, gain){
   nodes.push(fund, h2, lfo, noise);
   return nodes;
 }
+function playStringsNote(midi, dur = 1.0, when = 0, gain = 0.3){
+  const ctx = ensureComposeCtx(); const t0 = when || ctx.currentTime;
+  const f = 440 * Math.pow(2, (midi - 69) / 12);
+  const nodes = [];
+  [-6, 0, 6].forEach(det => {
+    const osc = ctx.createOscillator(); osc.type = 'sawtooth';
+    osc.frequency.value = f; osc.detune.value = det;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2200; lp.Q.value = 0.4;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(gain * 0.28, t0 + 0.18);
+    g.gain.setValueAtTime(gain * 0.25, t0 + Math.max(0.2, dur - 0.15));
+    g.gain.exponentialRampToValueAtTime(0.0005, t0 + dur + 0.12);
+    osc.connect(lp).connect(g).connect(getBus('chords'));
+    osc.start(t0); osc.stop(t0 + dur + 0.18);
+    nodes.push(osc);
+  });
+  return nodes;
+}
+function playVibraphoneNote(midi, dur = 1.0, when = 0, gain = 0.3){
+  const ctx = ensureComposeCtx(); const t0 = when || ctx.currentTime;
+  const f = 440 * Math.pow(2, (midi - 69) / 12);
+  const nodes = [];
+  const lfo = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 4.5;
+  const lfoG = ctx.createGain(); lfoG.gain.value = 0.06;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(gain, t0);
+  g.gain.exponentialRampToValueAtTime(gain * 0.4, t0 + Math.min(dur * 0.5, 0.7));
+  g.gain.exponentialRampToValueAtTime(0.0005, t0 + dur + 0.05);
+  lfo.connect(lfoG); lfoG.connect(g.gain);
+  [[1, 'sine', 1.0], [4, 'sine', 0.12]].forEach(([r, ty, a]) => {
+    const osc = ctx.createOscillator(); osc.type = ty; osc.frequency.value = f * r;
+    const og = ctx.createGain(); og.gain.value = a;
+    osc.connect(og).connect(g);
+    osc.start(t0); osc.stop(t0 + dur + 0.1);
+    nodes.push(osc);
+  });
+  g.connect(getBus('chords'));
+  lfo.start(t0); lfo.stop(t0 + dur + 0.1); nodes.push(lfo);
+  return nodes;
+}
+function playGuitarNote(midi, dur = 1.0, when = 0, gain = 0.3){
+  const ctx = ensureComposeCtx(); const t0 = when || ctx.currentTime;
+  const f = 440 * Math.pow(2, (midi - 69) / 12);
+  const nodes = [];
+  const atkDur = 0.04;
+  const nbuf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * atkDur), ctx.sampleRate);
+  const nd = nbuf.getChannelData(0);
+  for (let i = 0; i < nd.length; i++) nd[i] = (Math.random() * 2 - 1);
+  const noise = ctx.createBufferSource(); noise.buffer = nbuf;
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 10;
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(gain * 0.45, t0);
+  ng.gain.exponentialRampToValueAtTime(0.0001, t0 + atkDur);
+  const decayEnd = t0 + Math.min(dur, 2.2);
+  const osc = ctx.createOscillator(); osc.type = 'triangle'; osc.frequency.value = f;
+  const osc2 = ctx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = f * 2;
+  const o2g = ctx.createGain(); o2g.gain.value = 0.18;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(gain, t0);
+  g.gain.exponentialRampToValueAtTime(gain * 0.3, t0 + 0.12);
+  g.gain.exponentialRampToValueAtTime(0.0005, decayEnd);
+  noise.connect(bp).connect(ng).connect(getBus('chords'));
+  osc.connect(g); osc2.connect(o2g).connect(g); g.connect(getBus('chords'));
+  noise.start(t0); osc.start(t0); osc2.start(t0);
+  osc.stop(decayEnd + 0.05); osc2.stop(decayEnd + 0.05);
+  nodes.push(noise, osc, osc2);
+  return nodes;
+}
+function playBrassNote(midi, dur = 1.0, when = 0, gain = 0.3){
+  const ctx = ensureComposeCtx(); const t0 = when || ctx.currentTime;
+  const f = 440 * Math.pow(2, (midi - 69) / 12);
+  const nodes = [];
+  const osc = ctx.createOscillator(); osc.type = 'sawtooth'; osc.frequency.value = f * 0.97;
+  osc.frequency.exponentialRampToValueAtTime(f, t0 + 0.04);
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f * 3; bp.Q.value = 2;
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3000;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(gain * 0.85, t0 + 0.03);
+  g.gain.setValueAtTime(gain * 0.7, t0 + Math.max(0.04, dur - 0.08));
+  g.gain.exponentialRampToValueAtTime(0.0005, t0 + dur + 0.06);
+  osc.connect(bp).connect(lp).connect(g).connect(getBus('chords'));
+  osc.start(t0); osc.stop(t0 + dur + 0.1);
+  nodes.push(osc);
+  return nodes;
+}
 function playSamplerNote(midi, dur, when, gain){
   const ctx = ensureComposeCtx(); const t0 = when || ctx.currentTime;
   const nodes = [];
@@ -5740,15 +5851,20 @@ function playBassVoiceNote(midi, dur, when, gain){
 }
 
 const INSTRUMENT_FNS = {
-  rhodes:   (m,d,w,g) => playRhodesNote(m,d,w,g),
-  ep:       (m,d,w,g) => playEPNote(m,d,w,g),
-  acoustic: (m,d,w,g) => playAcousticNote(m,d,w,g),
-  organ:    (m,d,w,g) => playOrganNote(m,d,w,g),
-  pad:      (m,d,w,g) => playPadNote(m,d,w,g),
-  bass:     (m,d,w,g) => playBassNote(m,d,w,g),
-  pluck:    (m,d,w,g) => playPluckNote(m,d,w,g),
-  mallet:   (m,d,w,g) => playMalletNote(m,d,w,g),
-  sampler:  (m,d,w,g) => playSamplerNote(m,d,w,g),
+  rhodes:    (m,d,w,g) => playRhodesNote(m,d,w,g),
+  ep:        (m,d,w,g) => playEPNote(m,d,w,g),
+  acoustic:  (m,d,w,g) => playAcousticNote(m,d,w,g),
+  organ:     (m,d,w,g) => playOrganNote(m,d,w,g),
+  pad:       (m,d,w,g) => playPadNote(m,d,w,g),
+  bass:      (m,d,w,g) => playBassNote(m,d,w,g),
+  pluck:     (m,d,w,g) => playPluckNote(m,d,w,g),
+  mallet:    (m,d,w,g) => playMalletNote(m,d,w,g),
+  flute:     (m,d,w,g) => playFluteNote(m,d,w,g),
+  strings:   (m,d,w,g) => playStringsNote(m,d,w,g),
+  vibraphone:(m,d,w,g) => playVibraphoneNote(m,d,w,g),
+  guitar:    (m,d,w,g) => playGuitarNote(m,d,w,g),
+  brass:     (m,d,w,g) => playBrassNote(m,d,w,g),
+  sampler:   (m,d,w,g) => playSamplerNote(m,d,w,g), // kept for legacy saves
 };
 let currentInstrument = 'rhodes';
 function playInstrumentNote(midi, dur, when, gain){
@@ -6654,6 +6770,7 @@ const trackLoopLens = {
 };
 let composePlaying = false;   // kept for legacy callers
 let composeLooping = true;
+let _lastTransportMode = 'compose'; // 'compose' | 'melody'
 
 function stopCompose(){
   composePlaying = false;
@@ -6792,7 +6909,7 @@ function scheduleIteration(iterStart){
       const cRhythm = c.rhythmOverride || compose.global.chordsRhythm || 'None';
       scheduleWithRhythm(cRhythm, t, dur, barDur, (hitT, hitDur) => {
         notes.forEach((n, ii) => {
-          const ns = playInstrumentNote(n, hitDur * 0.95, hitT + ii * 0.008, 0.28);
+          const ns = playInstrumentNote(n, hitDur, hitT + ii * 0.008, 0.28);
           _tagAndPushSynth(ns, hitT + ii * 0.008);
         });
       });
@@ -6802,7 +6919,7 @@ function scheduleIteration(iterStart){
       const root = c.root + (compose.global.transpose || 0) + extraTranspose;
       const bRhythm = compose.global.bassRhythm || 'None';
       scheduleWithRhythm(bRhythm, t, dur, barDur, (hitT, hitDur) => {
-        const bns = playBassVoiceNote(root, hitDur * 0.9, hitT, (compose.global.bassGain || 0.9) * 0.35);
+        const bns = playBassVoiceNote(root, hitDur, hitT, (compose.global.bassGain || 0.9) * 0.35);
         _tagAndPushSynth(bns, hitT);
       });
     }
@@ -6811,7 +6928,7 @@ function scheduleIteration(iterStart){
       const root = c.root + (compose.global.transpose || 0) + extraTranspose;
       const sRhythm = compose.global.samplerRhythm || 'None';
       scheduleWithRhythm(sRhythm, t, dur, barDur, (hitT, hitDur) => {
-        const sns = playSamplerNote(root, hitDur * 0.95, hitT, 0.9);
+        const sns = playSamplerNote(root, hitDur, hitT, 0.9);
         _tagAndPushSynth(sns, hitT);
       });
     }
@@ -6832,12 +6949,51 @@ function scheduleIteration(iterStart){
   const bassTotal    = bassCycle;
   const samplerTotal = samplerCycle;
   const iterDur = Math.max(chordCycle, bassTotal, samplerTotal);
-  // If bass/sampler extend past the chord progression, continue drums with the last chord's beat to fill the gap
-  if (iterDur > chordTotal + 0.001 && compose.chords.length){
-    const lastC = compose.chords[compose.chords.length - 1];
-    const effBeat = lastC.beatOverride || compose.global.beat;
-    const effTime = lastC.timeOverride || compose.global.time;
-    scheduleDrumsInRange(effBeat, effTime, t, t, iterStart + iterDur, compose.chords.length - 1);
+  // Chord cycling: if the iteration is longer than one chord cycle, loop chords (and their drums/bass-follow) to fill
+  if (iterDur > chordCycle + 0.001 && compose.chords.length){
+    let cycleBase = iterStart + chordCycle;
+    while (cycleBase < iterStart + iterDur - 0.001){
+      let ct = cycleBase;
+      for (let i = 0; i < compose.chords.length; i++){
+        const c = compose.chords[i];
+        if (ct >= iterStart + iterDur - 0.001) break;
+        const effBeat = c.beatOverride || compose.global.beat;
+        const effTime = c.timeOverride || compose.global.time;
+        const dur = computeChordDur(c, compose.global);
+        const playDur = Math.min(dur, iterStart + iterDur - ct);
+        const extraTranspose = (c.chordTransposeSemis || 0);
+        if (!c._silent && !c.rest){
+          const notes = (c.notes || chordNotes(c.root, c.type, c.customNotes))
+            .map(n => n + (compose.global.transpose || 0) + extraTranspose);
+          const cRhythm = c.rhythmOverride || compose.global.chordsRhythm || 'None';
+          scheduleWithRhythm(cRhythm, ct, playDur, barDur, (hitT, hitDur) => {
+            notes.forEach((n, ii) => {
+              const ns = playInstrumentNote(n, hitDur, hitT + ii * 0.008, 0.28);
+              _tagAndPushSynth(ns, hitT + ii * 0.008);
+            });
+          });
+        }
+        if (compose.global.bassEnabled && compose.global.bassMode === 'follow' && !c._silent && !c.rest){
+          const root = c.root + (compose.global.transpose || 0) + extraTranspose;
+          const bRhythm = compose.global.bassRhythm || 'None';
+          scheduleWithRhythm(bRhythm, ct, playDur, barDur, (hitT, hitDur) => {
+            const bns = playBassVoiceNote(root, hitDur, hitT, (compose.global.bassGain || 0.9) * 0.35);
+            _tagAndPushSynth(bns, hitT);
+          });
+        }
+        if (compose.global.samplerEnabled && compose.global.samplerMode === 'follow' && !c._silent && !c.rest && samplerState.buffer){
+          const root = c.root + (compose.global.transpose || 0) + extraTranspose;
+          const sRhythm = compose.global.samplerRhythm || 'None';
+          scheduleWithRhythm(sRhythm, ct, playDur, barDur, (hitT, hitDur) => {
+            const sns = playSamplerNote(root, hitDur, hitT, 0.9);
+            _tagAndPushSynth(sns, hitT);
+          });
+        }
+        scheduleDrumsInRange(effBeat, effTime, ct, ct, ct + playDur, i);
+        ct += dur;
+      }
+      cycleBase += chordCycle;
+    }
   }
   // Bass own-progression: cycle independently within iterDur at bassCycle length (Live Loops)
   if (compose.global.bassEnabled && compose.global.bassMode === 'own' && bassOwn.length){
@@ -6852,7 +7008,7 @@ function scheduleIteration(iterStart){
         const playDur = Math.min(bDur, iterStart + iterDur - bt, cycleBase + cycle - bt);
         const bnRhythm = bn.rhythmOverride || compose.global.bassRhythm || 'None';
         scheduleWithRhythm(bnRhythm, bt, playDur, barDur, (hitT, hitDur) => {
-          const bns = playBassVoiceNote(bn.root + (compose.global.transpose || 0), hitDur * 0.95, hitT, (compose.global.bassGain || 0.9) * 0.4);
+          const bns = playBassVoiceNote(bn.root + (compose.global.transpose || 0), hitDur, hitT, (compose.global.bassGain || 0.9) * 0.4);
           _tagAndPushSynth(bns, hitT);
         });
         bt += bDur;
@@ -6873,7 +7029,7 @@ function scheduleIteration(iterStart){
         const playDur = Math.min(sDur, iterStart + iterDur - st, cycleBase + cycle - st);
         const snRhythm = sn.rhythmOverride || compose.global.samplerRhythm || 'None';
         scheduleWithRhythm(snRhythm, st, playDur, barDur, (hitT, hitDur) => {
-          const sns = playSamplerNote(sn.root + (compose.global.transpose || 0), hitDur * 0.95, hitT, 0.9);
+          const sns = playSamplerNote(sn.root + (compose.global.transpose || 0), hitDur, hitT, 0.9);
           _tagAndPushSynth(sns, hitT);
         });
         st += sDur;
@@ -6961,7 +7117,7 @@ function rescheduleTimelineFromNow(){
         const cRhythm = c.rhythmOverride || compose.global.chordsRhythm || 'None';
         scheduleWithRhythm(cRhythm, t, dur, rBarDur, (hitT, hitDur) => {
           notes.forEach((n, ii) => {
-            const ns = playInstrumentNote(n, hitDur * 0.95, hitT + ii * 0.008, 0.28);
+            const ns = playInstrumentNote(n, hitDur, hitT + ii * 0.008, 0.28);
             _tagAndPushSynth(ns, hitT + ii * 0.008);
           });
         });
@@ -6972,7 +7128,7 @@ function rescheduleTimelineFromNow(){
         const root = c.root + (compose.global.transpose || 0) + extraTranspose;
         const bRhythm = compose.global.bassRhythm || 'None';
         scheduleWithRhythm(bRhythm, t, dur, rBarDur, (hitT, hitDur) => {
-          const bns = playBassVoiceNote(root, hitDur * 0.9, hitT, (compose.global.bassGain || 0.9) * 0.35);
+          const bns = playBassVoiceNote(root, hitDur, hitT, (compose.global.bassGain || 0.9) * 0.35);
           _tagAndPushSynth(bns, hitT);
         });
       }
@@ -6981,7 +7137,7 @@ function rescheduleTimelineFromNow(){
         const root = c.root + (compose.global.transpose || 0) + extraTranspose;
         const sRhythm = compose.global.samplerRhythm || 'None';
         scheduleWithRhythm(sRhythm, t, dur, rBarDur, (hitT, hitDur) => {
-          const sns = playSamplerNote(root, hitDur * 0.95, hitT, 0.9);
+          const sns = playSamplerNote(root, hitDur, hitT, 0.9);
           _tagAndPushSynth(sns, hitT);
         });
       }
@@ -6994,12 +7150,68 @@ function rescheduleTimelineFromNow(){
   const bassOwn    = compose.global.bassOwnProg    || [];
   const samplerOwn = compose.global.samplerOwnProg || [];
   const barDur = (60 / (compose.global.tempo || 100)) * (parseInt((compose.global.time||'4/4').split('/')[0],10) || 4);
+  const chordNatTotal = iterEndChords - iterStart;
+  const chordCycleRS = (trackLoopLens && trackLoopLens.chords != null) ? trackLoopLens.chords * barDur : chordNatTotal;
   // Compute what the iteration end SHOULD be with the new tempo (match scheduleIteration logic)
   const chordTotalRemaining = iterEndChords - iterStart;
   const bassTotal = (compose.global.bassEnabled && compose.global.bassMode === 'own')
     ? bassOwn.reduce((s, bn) => s + Math.max(0.04, (bn.duration || 1) * barDur), 0) : 0;
   const samplerTotal = (compose.global.samplerEnabled && compose.global.samplerMode === 'own' && samplerState.buffer)
     ? samplerOwn.reduce((s, sn) => s + Math.max(0.04, (sn.duration || 1) * barDur), 0) : 0;
+  // Chord cycling: if other tracks extend the iteration, repeat chords (only schedule future hits)
+  {
+    const rIterDur = Math.max(chordCycleRS, bassTotal, samplerTotal);
+    if (rIterDur > chordCycleRS + 0.001 && compose.chords.length){
+      let cycleBase = iterStart + chordCycleRS;
+      while (cycleBase < iterStart + rIterDur - 0.001){
+        let ct = cycleBase;
+        for (let i = 0; i < compose.chords.length; i++){
+          const c = compose.chords[i];
+          if (ct >= iterStart + rIterDur - 0.001) break;
+          const effBeat = c.beatOverride || compose.global.beat;
+          const effTime = c.timeOverride || compose.global.time;
+          const dur = computeChordDur(c, compose.global);
+          const playDur = Math.min(dur, iterStart + rIterDur - ct);
+          const extraTranspose = (c.chordTransposeSemis || 0);
+          if (ct + playDur > now + 0.005){
+            if (!c._silent && !c.rest){
+              const notes = (c.notes || chordNotes(c.root, c.type, c.customNotes))
+                .map(n => n + (compose.global.transpose || 0) + extraTranspose);
+              const cRhythm = c.rhythmOverride || compose.global.chordsRhythm || 'None';
+              scheduleWithRhythm(cRhythm, ct, playDur, barDur, (hitT, hitDur) => {
+                if (hitT + hitDur <= now) return;
+                notes.forEach((n, ii) => {
+                  const ns = playInstrumentNote(n, hitDur, hitT + ii * 0.008, 0.28);
+                  _tagAndPushSynth(ns, hitT + ii * 0.008);
+                });
+              });
+            }
+            if (compose.global.bassEnabled && compose.global.bassMode === 'follow' && !c._silent && !c.rest){
+              const root = c.root + (compose.global.transpose || 0) + extraTranspose;
+              const bRhythm = compose.global.bassRhythm || 'None';
+              scheduleWithRhythm(bRhythm, ct, playDur, barDur, (hitT, hitDur) => {
+                if (hitT + hitDur <= now) return;
+                const bns = playBassVoiceNote(root, hitDur, hitT, (compose.global.bassGain || 0.9) * 0.35);
+                _tagAndPushSynth(bns, hitT);
+              });
+            }
+            if (compose.global.samplerEnabled && compose.global.samplerMode === 'follow' && !c._silent && !c.rest && samplerState.buffer){
+              const root = c.root + (compose.global.transpose || 0) + extraTranspose;
+              const sRhythm = compose.global.samplerRhythm || 'None';
+              scheduleWithRhythm(sRhythm, ct, playDur, barDur, (hitT, hitDur) => {
+                if (hitT + hitDur <= now) return;
+                const sns = playSamplerNote(root, hitDur, hitT, 0.9);
+                _tagAndPushSynth(sns, hitT);
+              });
+            }
+            scheduleDrumsInRange(effBeat, effTime, ct, Math.max(ct, now), ct + playDur, i);
+          }
+          ct += dur;
+        }
+        cycleBase += chordCycleRS;
+      }
+    }
+  }
   // Note: we only have the REMAINING chord total here; but bass/sampler are laid out from iteration start.
   // Lay out bass/sampler from iteration start and only schedule future notes.
   if (compose.global.bassEnabled && compose.global.bassMode === 'own' && bassOwn.length){
@@ -7015,7 +7227,7 @@ function rescheduleTimelineFromNow(){
         const startAt = Math.max(bt, now);
         const playDur = Math.min(noteEnd, iterEnd) - startAt;
         if (playDur > 0.01){
-          const bns = playBassVoiceNote(bn.root + (compose.global.transpose || 0), playDur * 0.95, startAt, (compose.global.bassGain || 0.9) * 0.4);
+          const bns = playBassVoiceNote(bn.root + (compose.global.transpose || 0), playDur, startAt, (compose.global.bassGain || 0.9) * 0.4);
           _tagAndPushSynth(bns, startAt);
         }
       }
@@ -7072,6 +7284,7 @@ function composePlayProgression(prog, onDone, opts = {}){
     chords = [{ root: 60, type: 'Unison', notes: [], duration: 1, _silent: true }];
   }
 
+  _lastTransportMode = 'compose';
   compose.playing = true; composePlaying = true;
   compose.chords = chords.map(c => ({...c}));
   compose.global = {
@@ -7107,7 +7320,7 @@ function composePlayProgression(prog, onDone, opts = {}){
   scheduleIteration(kickoff);
   startPlayhead();
   const _cpBtn2 = document.getElementById('composePlay');
-  if (_cpBtn2) { _cpBtn2.classList.add('playing'); }
+  if (_cpBtn2) { _cpBtn2.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14"/></svg>'; _cpBtn2.classList.add('playing'); }
   const _tmEl2 = document.getElementById('transportMode');
   if (_tmEl2) _tmEl2.textContent = 'Compose';
   // Content-aware Now Playing: report what's actually playing
@@ -7184,6 +7397,12 @@ function rescheduleFromNow(changedField){
 
 $('#composePlay').onclick = () => {
   if (compose.playing){ stopCompose(); return; }
+  if (typeof melodyState !== 'undefined' && melodyState.playing){ melStop(); return; }
+  const _activeSub = document.querySelector('.compose-subtabs .subtab.active')?.dataset.sub;
+  if (typeof melPlay === 'function' && typeof melodyState !== 'undefined' &&
+      (_lastTransportMode === 'melody' || _activeSub === 'melody') && melodyState.notes.length){
+    melPlay(); return;
+  }
   composePlayProgression({ chords: composeWorking.chords });
 };
 const _globalStopBtn = document.getElementById('globalStop');
@@ -7253,9 +7472,8 @@ $('#composeTranspose').oninput = () => {
 /* Instrument selector — rendered as a beat-card grid */
 function renderInstrumentGrid(){
   const host = $('#instrumentGrid'); if (!host) return;
-  host.innerHTML = INSTRUMENTS.filter(i => i.id !== 'bass').map(i => {
-    const sub = i.id === 'sampler' ? 'load a file' : 'synth';
-    return `<div class="beat-card ${i.id===currentInstrument?'active':''}" data-instr="${i.id}">${esc(i.name)}<small>${sub}</small><button class="env-btn" data-env-slot="${i.id}" title="Envelope (ADSR)">✎</button></div>`;
+  host.innerHTML = INSTRUMENTS.filter(i => i.id !== 'bass' && i.id !== 'sampler').map(i => {
+    return `<div class="beat-card ${i.id===currentInstrument?'active':''}" data-instr="${i.id}">${esc(i.name)}<small>synth</small><button class="env-btn" data-env-slot="${i.id}" title="Envelope (ADSR)">✎</button></div>`;
   }).join('');
   host.querySelectorAll('.beat-card').forEach(el => {
     el.onclick = (e) => {
@@ -8308,7 +8526,12 @@ function renderRhythmGrid(hostId, stepsId, instrument, getKey, setKey){
       host.querySelectorAll('.beat-card').forEach(x => x.classList.remove('active'));
       el.classList.add('active');
       setKey(el.dataset.rhy);
-      if (compose.playing) rescheduleFromNow('rhythm');
+      if (compose.playing){
+        compose.global.chordsRhythm = chordsRhythm;
+        compose.global.bassRhythm = bassState.rhythm;
+        compose.global.samplerRhythm = samplerState.rhythm;
+        rescheduleTimelineFromNow();
+      }
     };
   });
 
@@ -8763,16 +8986,19 @@ document.addEventListener('click', (e) => {
 });
 
 /* -------- MELODY EDITOR (piano-roll) -------- */
-// 8 sound choices — one is a flute
 const MELODY_SOUNDS = [
-  { id: 'flute',    name: 'Flute',    fn: playFluteNote },
-  { id: 'rhodes',   name: 'Rhodes',   fn: playRhodesNote },
-  { id: 'acoustic', name: 'Piano',    fn: playAcousticNote },
-  { id: 'pluck',    name: 'Pluck',    fn: playPluckNote },
-  { id: 'mallet',   name: 'Mallet',   fn: playMalletNote },
-  { id: 'pad',      name: 'Pad',      fn: playPadNote },
-  { id: 'organ',    name: 'Organ',    fn: playOrganNote },
-  { id: 'ep',       name: 'EP Keys',  fn: playEPNote },
+  { id: 'rhodes',     name: 'Rhodes EP',       fn: playRhodesNote },
+  { id: 'ep',         name: 'Electric Piano',  fn: playEPNote },
+  { id: 'acoustic',   name: 'Acoustic Piano',  fn: playAcousticNote },
+  { id: 'organ',      name: 'Organ',           fn: playOrganNote },
+  { id: 'pad',        name: 'Warm Pad',        fn: playPadNote },
+  { id: 'pluck',      name: 'Plucked String',  fn: playPluckNote },
+  { id: 'mallet',     name: 'Mallet',          fn: playMalletNote },
+  { id: 'flute',      name: 'Flute',           fn: playFluteNote },
+  { id: 'strings',    name: 'Strings',         fn: playStringsNote },
+  { id: 'vibraphone', name: 'Vibraphone',      fn: playVibraphoneNote },
+  { id: 'guitar',     name: 'Guitar',          fn: playGuitarNote },
+  { id: 'brass',      name: 'Brass',           fn: playBrassNote },
 ];
 function getMelodySoundFn(id){
   const m = MELODY_SOUNDS.find(s => s.id === id);
@@ -8784,6 +9010,7 @@ const melodyState = {
   bars: 2,
   grid: 16,      // 16 = 1/16 note
   qAmt: 100,     // 0..100, quantise strength when Apply is pressed
+  snap: true,    // snap to grid when dragging/placing notes
   notes: [],     // { id, pitch (midi), start (in grid cells), length (in grid cells), velocity (1..127) }
   selectedId: null,
   loop: true,
@@ -8860,6 +9087,10 @@ function renderMelodyUI(){
 
   const qBtn = $('#melQuantise');
   if (qBtn && !qBtn.dataset.init){ qBtn.dataset.init = '1'; qBtn.onclick = () => { melApplyQuantise(); }; }
+
+  const snapCb = $('#melSnap');
+  if (snapCb && !snapCb.dataset.init){ snapCb.dataset.init = '1'; snapCb.onchange = () => { melodyState.snap = snapCb.checked; }; }
+  if (snapCb) snapCb.checked = melodyState.snap;
 
   const playBtn = $('#melPlay');
   if (playBtn && !playBtn.dataset.init){ playBtn.dataset.init = '1'; playBtn.onclick = () => melPlay(); }
@@ -9060,6 +9291,14 @@ function _melAttachInteractions(host){
     const localY = e.clientY - rect.top;
     if (noteEl){
       const id = noteEl.dataset.id;
+      if (e.detail === 2){
+        // Double-click: delete the note
+        melodyState.notes = melodyState.notes.filter(n => n.id !== id);
+        if (melodyState.selectedId === id) melodyState.selectedId = null;
+        renderMelodyRoll(); updateMelSelPanel();
+        e.preventDefault();
+        return;
+      }
       const n = melodyState.notes.find(x => x.id === id);
       if (!n) return;
       melodyState.selectedId = id;
@@ -9070,16 +9309,23 @@ function _melAttachInteractions(host){
       const startStart = n.start;
       const startLen   = n.length;
       const startPitch = n.pitch;
+      let lastPreviewPitch = startPitch;
       const onMove = (ev) => {
         const dx = ev.clientX - startMouseX;
         const dy = ev.clientY - startMouseY;
         if (resizing){
           n.length = Math.max(0.25, startLen + dx / MEL_CELL_WIDTH);
+          if (melodyState.snap) n.length = Math.max(1, Math.round(n.length));
           if (n.start + n.length > melTotalCells()) n.length = melTotalCells() - n.start;
         } else {
-          n.start = Math.max(0, Math.min(melTotalCells() - n.length, startStart + dx / MEL_CELL_WIDTH));
+          const rawStart = Math.max(0, Math.min(melTotalCells() - n.length, startStart + dx / MEL_CELL_WIDTH));
+          n.start = melodyState.snap ? Math.round(rawStart) : rawStart;
           const dPitch = -Math.round(dy / MEL_ROW_HEIGHT);
           n.pitch = Math.max(MEL_PITCH_LOW, Math.min(MEL_PITCH_HIGH, startPitch + dPitch));
+          if (n.pitch !== lastPreviewPitch){
+            lastPreviewPitch = n.pitch;
+            try { getMelodySoundFn(melodyState.sound)(n.pitch, 0.15, undefined, 0.2); } catch {}
+          }
         }
         renderMelodyRoll();
         updateMelSelPanel();
@@ -9091,7 +9337,7 @@ function _melAttachInteractions(host){
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
       e.preventDefault();
-    } else {
+    } else if (!e.target.closest('.mel-note')) {
       // Empty click → add note
       const cellsPerBar = melGridCellsPerBar();
       let rawStart = localX / MEL_CELL_WIDTH;
@@ -9207,6 +9453,7 @@ function melPlay(){
   } else {
     t0 = ctx.currentTime + 0.05;
   }
+  _lastTransportMode = 'melody';
   melodyState.nodesActive = [];
   melodyState.playing = true;
   melodyState.playStartT = t0;
@@ -9225,13 +9472,25 @@ function melPlay(){
   };
   stepAndReschedule(t0);
   _melStartPlayhead();
-  const btn = $('#melPlay'); if (btn) btn.textContent = '■';
+  const btn = $('#melPlay'); if (btn){ btn.textContent = '■'; btn.classList.add('playing'); }
+  const _cpBtnM = document.getElementById('composePlay');
+  if (_cpBtnM) { _cpBtnM.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14"/></svg>'; _cpBtnM.classList.add('playing'); }
+  const _tmElM = document.getElementById('transportMode');
+  if (_tmElM) _tmElM.textContent = 'Melody';
 }
 
 function melStop(){
   melodyState.playing = false;
   _melStopPlayhead();
-  const btn = $('#melPlay'); if (btn) btn.textContent = '▶ Play';
+  const btn = $('#melPlay'); if (btn){ btn.textContent = '▶ Play'; btn.classList.remove('playing'); }
+  const _cpBtnMs = document.getElementById('composePlay');
+  const _tmElMs = document.getElementById('transportMode');
+  if (compose.playing){
+    if (_tmElMs) _tmElMs.textContent = 'Compose';
+  } else {
+    if (_cpBtnMs) { _cpBtnMs.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; _cpBtnMs.classList.remove('playing'); }
+    if (_tmElMs) _tmElMs.textContent = 'Stopped';
+  }
   clearTimeout(melodyState.playTimer);
   clearTimeout(melodyState.iterTimer);
   melodyState.playTimer = null;
@@ -9419,7 +9678,7 @@ let previewAbort = null;
 function ensureArranger(s, sections){
   // If no arranger yet, seed from lyric sections
   if (!Array.isArray(s.arranger) || !s.arranger.length){
-    s.arranger = sections.map(sec => ({ id: uid(), section: sec.name, beat: '—', repeat: 1 }));
+    s.arranger = sections.map(sec => ({ id: uid(), section: sec.name, beat: '—', comp: '—', repeat: 1 }));
     return true;
   }
   // Drop rows whose section no longer exists? Keep — user may be editing lyrics.
@@ -9428,7 +9687,7 @@ function ensureArranger(s, sections){
   const added = [];
   sections.forEach(sec => {
     if (!referenced.has(sec.name)){
-      added.push({ id: uid(), section: sec.name, beat: '—', repeat: 1 });
+      added.push({ id: uid(), section: sec.name, beat: '—', comp: '—', repeat: 1 });
     }
   });
   if (added.length){ s.arranger.push(...added); return true; }
@@ -9453,21 +9712,27 @@ function renderPreview(){
   if (ensureArranger(s, sections)){ save(); }
   const sectionNames = sections.map(sec => sec.name);
   const beatKeys = getAllBeatKeys();
+  const comps = s.compositions || [];
   const arranger = s.arranger || [];
   list.innerHTML = arranger.map((row, i) => {
     const sec = sections.find(x => x.name === row.section) || { name: row.section, body: '' };
     const rec = (s.recordings||[]).find(r => r.sectionLink === sec.name);
     const prog = (s.progressions||[]).find(p => p.sectionLink === sec.name);
-    const comp = (s.compositions||[]).find(c => c.sectionLink === sec.name);
-    const src = comp ? `◈ ${esc(comp.name)}` : rec ? `♪ ${esc(rec.name)}` : prog ? `♬ ${esc(prog.name)}` : '— no audio linked —';
+    const linkedComp = (s.compositions||[]).find(c => c.sectionLink === sec.name);
+    const src = linkedComp ? `◈ ${esc(linkedComp.name)}` : rec ? `♪ ${esc(rec.name)}` : prog ? `♬ ${esc(prog.name)}` : '— no audio linked —';
     const sectionOpts = sectionNames.map(n => `<option value="${esc(n)}"${n===row.section?' selected':''}>${esc(n)}</option>`).join('');
     const beatOpts = [`<option value="—"${row.beat==='—'?' selected':''}>— use default</option>`]
       .concat(beatKeys.map(b => `<option value="${esc(b)}"${row.beat===b?' selected':''}>${esc(beatDisplayName(b))}</option>`)).join('');
+    const rowComp = row.comp || '—';
+    const compOpts = [`<option value="—"${rowComp==='—'?' selected':''}>— use linked —</option>`]
+      .concat(comps.map(c => `<option value="${esc(c.id)}"${rowComp===c.id?' selected':''}>${esc(c.name)}</option>`)).join('');
     const rep = Math.max(1, parseInt(row.repeat,10) || 1);
     return `<div class="preview-step" data-id="${row.id}" data-idx="${i}" draggable="true" title="Click row to play from here">
       <span class="step-grip" title="Drag to reorder">⋮⋮</span>
       <span class="step-num">${String(i+1).padStart(2,'0')}</span>
       <select class="step-section-sel" title="Section">${sectionOpts}</select>
+      <span class="step-chip-label">comp</span>
+      <select class="step-comp-sel" title="Override composition for this row">${compOpts}</select>
       <span class="step-chip-label">beat</span>
       <select class="step-beat-sel" title="Override beat for this row">${beatOpts}</select>
       <span class="step-chip-label">×</span>
@@ -9500,6 +9765,12 @@ function renderPreview(){
       const row = getRow(); if (!row) return;
       row.section = ev.target.value;
       touchActive(); save(); renderPreview();
+    };
+    el.querySelector('.step-comp-sel').onchange = (ev) => {
+      ev.stopPropagation();
+      const row = getRow(); if (!row) return;
+      row.comp = ev.target.value;
+      touchActive(); save();
     };
     el.querySelector('.step-beat-sel').onchange = (ev) => {
       ev.stopPropagation();
@@ -9568,14 +9839,14 @@ if (_arrangerAddBtn) _arrangerAddBtn.onclick = () => {
   const sections = parseSections(s.lyrics);
   if (!sections.length){ showToast('Add sections to your lyrics first'); return; }
   s.arranger = s.arranger || [];
-  s.arranger.push({ id: uid(), section: sections[0].name, beat: '—', repeat: 1 });
+  s.arranger.push({ id: uid(), section: sections[0].name, beat: '—', comp: '—', repeat: 1 });
   touchActive(); save(); renderPreview();
 };
 const _arrangerResetBtn = document.getElementById('arrangerReset');
 if (_arrangerResetBtn) _arrangerResetBtn.onclick = () => {
   const s = getActive(); if (!s) return;
   const sections = parseSections(s.lyrics);
-  s.arranger = sections.map(sec => ({ id: uid(), section: sec.name, beat: '—', repeat: 1 }));
+  s.arranger = sections.map(sec => ({ id: uid(), section: sec.name, beat: '—', comp: '—', repeat: 1 }));
   touchActive(); save(); renderPreview();
   showToast('Arranger reset from lyric sections');
 };
@@ -9821,22 +10092,24 @@ if (_undoBtn) _undoBtn.onclick = () => undo();
 if (_redoBtn) _redoBtn.onclick = () => redo();
 
 /* -------- BACKUP (all songs, user-picked format) -------- */
-function askBackupFormat(){
-  return new Promise(resolve => {
-    const m = $('#backupModal');
-    m.classList.add('show');
-    const close = (val) => {
-      m.classList.remove('show');
-      $('#backupOk').onclick = null;
-      $('#backupCancel').onclick = null;
-      resolve(val);
-    };
-    $('#backupCancel').onclick = () => close(null);
-    $('#backupOk').onclick = () => {
-      const sel = document.querySelector('input[name="bkFmt"]:checked');
-      close(sel ? sel.value : 'wav');
-    };
-  });
+function openOptionsModal(){
+  const m = $('#backupModal');
+  m.classList.add('show');
+  const closeModal = () => {
+    m.classList.remove('show');
+    $('#backupOk').onclick = null;
+    $('#backupCancel').onclick = null;
+    m.removeEventListener('click', onOverlayClick);
+  };
+  const onOverlayClick = (e) => { if (e.target === m) closeModal(); };
+  m.addEventListener('click', onOverlayClick);
+  $('#backupCancel').onclick = () => closeModal();
+  $('#backupOk').onclick = () => {
+    const sel = document.querySelector('input[name="bkFmt"]:checked');
+    const fmt = sel ? sel.value : 'wav';
+    closeModal();
+    _doBackup(fmt);
+  };
 }
 
 // Encode an AudioBuffer into a 16-bit PCM WAV Blob.
@@ -9986,8 +10259,7 @@ function buildNotesText(song){
   return lines.join('\n');
 }
 
-async function runBackup(){
-  const fmt = await askBackupFormat();
+async function _doBackup(fmt){
   if (!fmt) return;
   if (!state.songs.length){ showToast('Nothing to back up'); return; }
   if (!window.JSZip){ showToast('ZIP library not loaded'); return; }
@@ -10044,7 +10316,26 @@ async function runBackup(){
   showToast(`Backup complete — ${state.songs.length} song${state.songs.length===1?'':'s'}`);
 }
 
-$('#backupBtn').onclick = runBackup;
+$('#backupBtn').onclick = () => openOptionsModal();
+
+$('#deleteLibraryBtn').onclick = async () => {
+  const m = $('#backupModal');
+  m.classList.remove('show');
+  if (!(await confirmDialog('Delete entire library?', 'All songs, recordings, and data on this device will be permanently removed. This cannot be undone.'))) {
+    m.classList.add('show');
+    return;
+  }
+  stopAllPlayback();
+  state.songs = [];
+  state.activeId = null;
+  state.tags = [];
+  state.userBeats = [];
+  state.userRhythms = [];
+  save();
+  renderLibrary();
+  renderWorkspace();
+  showToast('Library deleted');
+};
 
 /* -------- LIBRARY DATA EXPORT / IMPORT -------- */
 $('#libExportBtn').onclick = () => {
@@ -10615,11 +10906,10 @@ async function boot(){
   const btn      = document.getElementById('mobileMenuBtn');
   const sidebar  = document.querySelector('aside');
   const backdrop = document.getElementById('mobileBackdrop');
-  function close(){ sidebar.classList.remove('mobile-open'); backdrop.classList.remove('show'); document.body.classList.remove('menu-open'); }
+  function close(){ sidebar.classList.remove('mobile-open'); backdrop.classList.remove('show'); }
   btn.addEventListener('click', () => {
     const open = sidebar.classList.toggle('mobile-open');
     backdrop.classList.toggle('show', open);
-    document.body.classList.toggle('menu-open', open);
   });
   backdrop.addEventListener('click', close);
   /* close drawer when user taps a song in the list */
