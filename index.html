@@ -537,6 +537,12 @@
   .beat-grid { display: flex; flex-direction: column; gap: 10px; }
   .beat-grid-inner { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
   @media (max-width: 900px) { .beat-grid-inner { grid-template-columns: repeat(2, 1fr); } }
+  .rhythm-grid-inner { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  @media (max-width: 900px) { .rhythm-grid-inner { grid-template-columns: repeat(2, 1fr); } }
+  .rhythm-step-row { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 0 2px; }
+  .rhythm-step { width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 2px; background: var(--panel); cursor: pointer; transition: all 80ms; flex-shrink: 0; }
+  .rhythm-step.on { background: var(--red); border-color: var(--red); }
+  .rhythm-step:hover { border-color: var(--grey); }
   /* Compact grid used by Instruments / Bass voices — same card size as beats */
   .compact-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
   @media (max-width: 1100px) { .compact-grid { grid-template-columns: repeat(4, 1fr); } }
@@ -750,6 +756,10 @@
   .beat-card.active { background: var(--red); border-color: var(--red); color: var(--white); }
   .preview-sticky { padding-bottom: 14px; }
   .studio-sticky { padding-bottom: 18px; }
+  .studio-view-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+  .studio-view-tab { padding: 8px 18px; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; color: var(--grey-2); border-bottom: 2px solid transparent; }
+  .studio-view-tab.active { color: var(--white); border-bottom-color: var(--red); }
+  .studio-view-tab:hover:not(.active) { color: var(--grey); }
 
   /* Secondary backup button */
   .btn-new.secondary { background: var(--panel-2); color: var(--grey-2); }
@@ -874,6 +884,33 @@
   .fx-knob { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: ns-resize; touch-action: none; min-width: 44px; }
   .fx-knob-label { font-size: 7px; color: #555; letter-spacing: 0.1em; text-transform: uppercase; }
   .fx-knob-val { font-size: 8px; color: #666; font-variant-numeric: tabular-nums; }
+
+  /* Mixer knob popup overlay */
+  .mixer-knob-pop {
+    position: fixed; inset: 0; z-index: 9100;
+    background: rgba(0,0,0,0.78);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mixer-knob-pop-box {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 5px;
+    padding: 16px; min-width: 180px; max-width: 92vw;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .mixer-knob-pop-title {
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--white);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .mixer-knob-pop-close {
+    background: none; border: none; color: #666; font-size: 16px;
+    cursor: pointer; line-height: 1; padding: 0 2px;
+  }
+  .mixer-knob-pop-knobs { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; padding: 4px 0; }
+  .mixer-knob-pop .fx-knob,
+  .mixer-knob-pop .ch-send-knob { min-width: 64px; touch-action: none; cursor: ns-resize; }
+  .mixer-knob-pop .fx-knob-label,
+  .mixer-knob-pop .ch-knob-label { font-size: 9px; }
+  .mixer-knob-pop .fx-knob-val,
+  .mixer-knob-pop .ch-knob-val { font-size: 10px; color: #888; }
 
   /* PREVIEW */
   .preview-pane { padding: 0 28px 28px; overflow-y: auto; position: relative; }
@@ -1081,6 +1118,12 @@
     .tagline { display: none; }
     aside { width: min(85vw, 320px); }
   }
+  /* ── Mobile burger-open: collapse header, tabs slide to top ── */
+  @media (max-width: 768px) {
+    body.menu-open header { height: 0; overflow: hidden; padding: 0; border: none; min-height: 0; }
+    body.menu-open .app { grid-template-rows: 0 1fr; }
+    body.menu-open aside { top: 0; }
+  }
 </style>
 </head>
 <body>
@@ -1098,11 +1141,8 @@
     <div class="header-center" id="headerCenter">
       <!-- Global transport -->
       <div class="global-transport">
-        <button id="composePlay" class="transport-play-btn" title="Play">
+        <button id="composePlay" class="transport-play-btn" title="Play / Stop">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <button id="globalStop" class="transport-stop-btn" title="Stop">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16"/></svg>
         </button>
         <span class="transport-mode" id="transportMode">Stopped</span>
         <div style="width:1px;height:20px;background:var(--line);margin:0 2px;flex-shrink:0;"></div>
@@ -1201,19 +1241,26 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
 
         <div class="tab-pane" data-pane="studio">
           <div class="studio">
-            <div class="studio-sticky">
-              <div class="recorder">
-                <div class="vu-meter"><canvas class="vu-canvas" id="vuCanvas"></canvas></div>
-                <div class="record-controls">
-                  <div class="rec-timer" id="recTimer">00:00.0</div>
-                  <button class="rec-btn" id="recBtn" title="Start / stop recording"></button>
-                  <div class="rec-status" id="recStatus">Ready</div>
+            <div class="studio-view-tabs">
+              <button class="studio-view-tab active" data-studio-view="recorder">Recorder</button>
+              <button class="studio-view-tab" data-studio-view="takes">Takes</button>
+            </div>
+            <div id="studioRecorderPanel">
+              <div class="studio-sticky">
+                <div class="recorder">
+                  <div class="vu-meter"><canvas class="vu-canvas" id="vuCanvas"></canvas></div>
+                  <div class="record-controls">
+                    <div class="rec-timer" id="recTimer">00:00.0</div>
+                    <button class="rec-btn" id="recBtn" title="Start / stop recording"></button>
+                    <div class="rec-status" id="recStatus">Ready</div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="recordings-section">
-              <h3>Takes</h3>
-              <div class="recording-list" id="recordingList"></div>
+            <div id="studioTakesPanel" style="display:none;">
+              <div class="recordings-section">
+                <div class="recording-list" id="recordingList"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -1243,6 +1290,7 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 <button class="inst-view-tab active" data-view="keyboard">Keyboard</button>
                 <button class="inst-view-tab" data-view="progression">Progression</button>
                 <button class="inst-view-tab" data-view="instrument">Instrument</button>
+                <button class="inst-view-tab" data-view="rhythm">Rhythm</button>
                 <button class="inst-view-tab" data-view="saved">Saved</button>
               </div>
 
@@ -1286,6 +1334,18 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 </div>
               </div>
 
+              <div class="inst-view-panel" data-view="rhythm" id="chordsRhythmPanel">
+                <div class="beat-grid" id="chordsRhythmGrid"></div>
+                <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px;">
+                  <div style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--grey);margin-bottom:6px;">Custom Pattern</div>
+                  <div class="rhythm-step-row" id="chordsRhythmSteps"></div>
+                  <div style="display:flex;gap:6px;margin-top:8px;align-items:center;">
+                    <input type="text" id="chordsRhythmName" placeholder="Pattern name…" class="search" style="flex:1;" />
+                    <button class="chord-type-btn" id="chordsRhythmSave">Save to User</button>
+                  </div>
+                </div>
+              </div>
+
               <div class="inst-view-panel" data-view="saved">
                 <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
                   <input type="text" id="progName" placeholder="Name this progression…" class="search" style="flex:1;" />
@@ -1301,6 +1361,7 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 <button class="inst-view-tab active" data-view="keyboard">Keyboard</button>
                 <button class="inst-view-tab" data-view="progression">Progression</button>
                 <button class="inst-view-tab" data-view="sampler">Sampler</button>
+                <button class="inst-view-tab" data-view="rhythm">Rhythm</button>
                 <button class="inst-view-tab" data-view="saved">Saved</button>
               </div>
 
@@ -1341,6 +1402,18 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 <div style="margin-top:10px;"><div class="meta-field"><label>Loop bars</label><select id="samplerLoopLen" style="width:76px;"><option value="">Natural</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></div></div>
               </div>
 
+              <div class="inst-view-panel" data-view="rhythm" id="samplerRhythmPanel">
+                <div class="beat-grid" id="samplerRhythmGrid"></div>
+                <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px;">
+                  <div style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--grey);margin-bottom:6px;">Custom Pattern</div>
+                  <div class="rhythm-step-row" id="samplerRhythmSteps"></div>
+                  <div style="display:flex;gap:6px;margin-top:8px;align-items:center;">
+                    <input type="text" id="samplerRhythmName" placeholder="Pattern name…" class="search" style="flex:1;" />
+                    <button class="chord-type-btn" id="samplerRhythmSave">Save to User</button>
+                  </div>
+                </div>
+              </div>
+
               <div class="inst-view-panel" data-view="saved">
                 <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
                   <input type="text" id="samplerProgName" placeholder="Name this sampler pattern…" class="search" style="flex:1;" />
@@ -1356,6 +1429,7 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 <button class="inst-view-tab active" data-view="keyboard">Keyboard</button>
                 <button class="inst-view-tab" data-view="progression">Progression</button>
                 <button class="inst-view-tab" data-view="voice">Instrument</button>
+                <button class="inst-view-tab" data-view="rhythm">Rhythm</button>
                 <button class="inst-view-tab" data-view="saved">Saved</button>
               </div>
 
@@ -1390,6 +1464,18 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 <div style="margin-top:10px;"><div class="meta-field"><label>Loop bars</label><select id="bassLoopLen" style="width:76px;"><option value="">Natural</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></div></div>
               </div>
 
+              <div class="inst-view-panel" data-view="rhythm" id="bassRhythmPanel">
+                <div class="beat-grid" id="bassRhythmGrid"></div>
+                <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px;">
+                  <div style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--grey);margin-bottom:6px;">Custom Pattern</div>
+                  <div class="rhythm-step-row" id="bassRhythmSteps"></div>
+                  <div style="display:flex;gap:6px;margin-top:8px;align-items:center;">
+                    <input type="text" id="bassRhythmName" placeholder="Pattern name…" class="search" style="flex:1;" />
+                    <button class="chord-type-btn" id="bassRhythmSave">Save to User</button>
+                  </div>
+                </div>
+              </div>
+
               <div class="inst-view-panel" data-view="saved">
                 <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
                   <input type="text" id="bassProgName" placeholder="Name this bass line…" class="search" style="flex:1;" />
@@ -1401,10 +1487,7 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
 
             <!-- BEAT sub-pane -->
             <div class="compose-sub-pane" data-sub="beat" style="display:none;">
-              <details class="compose-section" open>
-                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
-                  <h4 style="margin:0;">Beat</h4>
-                </summary>
+              <div class="compose-section">
                 <div class="drum-fx-panel" id="beatDrumFxPanel">
                   <div class="drum-fx-header" id="beatDrumFxHeader">
                     <span class="dfx-arrow">▶</span>
@@ -1433,8 +1516,7 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                   </div>
                 </div>
                 <div class="beat-grid" id="beatGrid"></div>
-                <div style="margin-top:10px;"><div class="meta-field"><label>Loop bars</label><select id="beatLoopLen" style="width:76px;"><option value="">Natural</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></div></div>
-              </details>
+              </div>
               <div class="compose-section" id="audioLoopPanel" style="display:none;">
                 <h4>Audio Loop</h4>
                 <div class="sampler-controls">
@@ -1497,6 +1579,7 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                       <button data-sub="dotted">Dotted</button>
                       <button data-sub="triplet">Triplet</button>
                     </div>
+                    <button class="chord-type-btn" id="seqApplyAll" title="Apply subdivision to all steps when enabled" style="margin-left:8px;">Apply to All</button>
                   </div>
                   <div>
                     <label>Swing</label>
@@ -1574,18 +1657,12 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                     <label>Velocity</label>
                     <input type="range" id="melSelVel" min="1" max="127" step="1" value="100" style="width:120px;" />
                     <input type="number" id="melSelVelN" min="1" max="127" style="width:56px;" />
-                    <button class="chord-type-btn" id="melSelDel" title="Delete note">🗑</button>
                   </div>
                 </div>
 
                 <div class="seq-toolbar" style="margin-top:10px;border-top:1px solid var(--line);padding-top:12px;">
                   <div>
                     <button class="chord-type-btn" id="melClear" title="Remove all notes">Clear</button>
-                  </div>
-                  <div>
-                    <label title="Loop length in bars (overrides Bars for playback cycle)">Loop bars</label>
-                    <input type="number" id="melLoopBars" min="0" step="0.25" value="0" style="width:64px;" />
-                    <span style="font-size:10px;color:var(--grey-2);">0 = auto</span>
                   </div>
                   <div style="flex:1;"></div>
                   <div style="font-size:11px;color:var(--grey-2);">Click grid to add · drag to move · drag right edge to resize</div>
@@ -1787,6 +1864,10 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
   <div class="pop-title" id="noteEditTitle">Note</div>
   <div class="ed-sec-title">Length</div>
   <div class="pop-grid" id="noteEditLenGrid"></div>
+  <div class="pop-field" style="margin-top:8px;">
+    <label>Rhythm</label>
+    <select id="noteEditRhythm"></select>
+  </div>
   <div class="pop-actions">
     <button class="chord-type-btn" id="noteEditDuplicate">⎘ Duplicate</button>
     <button class="chord-type-btn" id="noteEditRemove">× Remove</button>
@@ -1867,6 +1948,10 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
     <label>Transpose</label>
     <input type="range" id="chordCfgTranspose" min="-36" max="36" step="1" value="0" />
     <span id="chordCfgTransposeVal" class="pop-valuetag">0 st</span>
+  </div>
+  <div class="pop-field">
+    <label>Rhythm</label>
+    <select id="chordCfgRhythm"></select>
   </div>
   <div class="pop-actions">
     <button class="chord-type-btn" id="chordCfgReset">Reset to default</button>
@@ -2082,6 +2167,7 @@ const samplerState = {
   voice: 'sampler',          // future-proofed for more voices
   followRoot: false,         // false: own progression by default
   ownProgression: [],        // [{ root, duration }]
+  rhythm: 'None',
 };
 // Audio-loop state (for Beat = Audio Loop)
 const audioLoopState = {
@@ -2112,7 +2198,9 @@ const bassState = {
   octave: -2,            // octaves below chord root
   gain: 0.9,
   ownProgression: [],    // [{ root, duration }]
+  rhythm: 'None',
 };
+let chordsRhythm = 'None';
 
 const DEFAULT_TAG_PALETTE = ['#e10600','#2ecc71','#3498db','#f39c12','#9b59b6','#e67e22','#1abc9c','#95a5a6'];
 
@@ -2252,6 +2340,7 @@ const state = {
   composeCustomNotes: [],
   composeActiveProgressionId: null,
   userBeats: [],            // [{ id, name, pattern: { k, s, h, steps, subdivision, swing, swingK, swingS, swingH, delayK, delayS, delayH }, createdAt }]
+  userRhythms: [],          // [{ id, name, steps: number[] }]  steps: active step indices 0-15
 };
 
 /* -------- BEAT KEY / PATTERN HELPERS -------- */
@@ -2322,6 +2411,50 @@ function getAllBeatKeys(){
 }
 function getFactoryBeatKeys(){ return Object.keys(BEAT_PATTERNS); }
 function getUserBeatKeys(){ return (state.userBeats || []).map(b => 'user:' + b.id); }
+
+/* -------- RHYTHM PATTERNS --------
+   steps: array of active step indices (0-15) in a 16-step bar grid.
+   Empty steps = None (single hit per chord at t=0).
+*/
+const FACTORY_RHYTHMS = [
+  { id:'None',       name:'None',       steps:[] },
+  { id:'half',       name:'Half',       steps:[0,8] },
+  { id:'quarters',   name:'Quarters',   steps:[0,4,8,12] },
+  { id:'eighths',    name:'Eighths',    steps:[0,2,4,6,8,10,12,14] },
+  { id:'dotted-q',   name:'Dotted Q.',  steps:[0,6,12] },
+  { id:'backbeat',   name:'Backbeat',   steps:[4,12] },
+  { id:'offbeats',   name:'Offbeats',   steps:[2,6,10,14] },
+  { id:'syncopated', name:'Syncopated', steps:[0,2,6,8,12] },
+  { id:'clave32',    name:'Clave 3-2',  steps:[0,6,8,12,14] },
+  { id:'clave23',    name:'Clave 2-3',  steps:[0,4,6,10,14] },
+  { id:'bossa',      name:'Bossa',      steps:[0,4,6,10,12] },
+  { id:'tresillo',   name:'Tresillo',   steps:[0,6,10] },
+  { id:'habanera',   name:'Habanera',   steps:[0,6,8,12] },
+  { id:'charleston', name:'Charleston', steps:[0,6] },
+  { id:'waltz',      name:'Waltz',      steps:[0,5,11] },
+  { id:'funk',       name:'Funk',       steps:[0,2,4,8,10,14] },
+  { id:'reggae',     name:'Reggae',     steps:[4,8,12] },
+  { id:'shuffle',    name:'Shuffle',    steps:[0,3,6,8,11,14] },
+  { id:'bomba',      name:'Bomba',      steps:[0,4,8,10,14] },
+  { id:'bolero',     name:'Bolero',     steps:[0,4,8] },
+];
+function isUserRhythmKey(key){ return typeof key === 'string' && key.startsWith('urhy:'); }
+function getUserRhythm(key){
+  if (!isUserRhythmKey(key)) return null;
+  const id = key.slice(5);
+  return (state.userRhythms || []).find(r => r.id === id) || null;
+}
+function getFactoryRhythm(id){ return FACTORY_RHYTHMS.find(r => r.id === id) || null; }
+function getRhythmPattern(key){
+  if (!key || key === 'None') return FACTORY_RHYTHMS[0];
+  if (isUserRhythmKey(key)) return getUserRhythm(key);
+  return getFactoryRhythm(key) || FACTORY_RHYTHMS[0];
+}
+function rhythmDisplayName(key){
+  if (!key || key === 'None') return 'None';
+  if (isUserRhythmKey(key)){ const u = getUserRhythm(key); return u ? u.name : 'Missing'; }
+  const f = getFactoryRhythm(key); return f ? f.name : key;
+}
 
 /* -------- UTILS -------- */
 const $  = s => document.querySelector(s);
@@ -2713,6 +2846,7 @@ async function saveToLocal(){
       activeId: state.activeId,
       tags: state.tags,
       userBeats: state.userBeats,
+      userRhythms: state.userRhythms,
       adsrState: (typeof adsrState !== 'undefined') ? adsrState : undefined,
       trackLoopLens: (typeof trackLoopLens !== 'undefined') ? trackLoopLens : undefined,
     }));
@@ -2801,6 +2935,7 @@ function loadLocal(){
     state.activeId = d.activeId || null;
     state.tags = d.tags || [];
     state.userBeats = d.userBeats || [];
+    state.userRhythms = d.userRhythms || [];
     if (d.adsrState && typeof adsrState !== 'undefined'){
       Object.keys(d.adsrState).forEach(k => {
         if (d.adsrState[k]) adsrState[k] = Object.assign({}, adsrState[k] || _defaultAdsr(k), d.adsrState[k]);
@@ -3472,6 +3607,18 @@ function _musicMicConstraints(){
   };
 }
 async function _getMusicMicStream(){
+  // On iOS, calling getUserMedia without an active AudioContext causes the OS to
+  // switch the audio session to earpiece (phone-call) mode, killing speaker volume.
+  // Playing a silent buffer through the existing context first keeps the session
+  // in playback/loudspeaker mode.
+  try {
+    const ctx = ensureComposeCtx();
+    if (ctx.state === 'suspended') await ctx.resume();
+    const buf = ctx.createBuffer(1, 1, ctx.sampleRate);
+    const src = ctx.createBufferSource();
+    src.buffer = buf; src.connect(ctx.destination);
+    src.start(); src.stop(ctx.currentTime + 0.001);
+  } catch {}
   // Try the strict music-friendly constraints first; fall back to defaults if
   // the browser rejects them (e.g. older Safari / restricted devices).
   try {
@@ -3614,6 +3761,9 @@ async function saveRecording(blob, duration){
   touchActive(); save();
   renderRecordings(); renderLibrary(); renderLyricsStructured(); renderPreview();
   showToast('Take saved');
+  // Auto-switch to Takes view so the user can see the new take immediately.
+  const _takesBtn = document.querySelector('.studio-view-tab[data-studio-view="takes"]');
+  if (_takesBtn) _takesBtn.click();
 }
 
 function renderRecordings(){
@@ -4622,6 +4772,156 @@ function _mkKnobSVG(value){
   const valPath=vs>1?`<path d="M${px(s)} ${py(s)} A${r} ${r} 0 ${vA} 1 ${px(ve)} ${py(ve)}" stroke="var(--red)" stroke-width="3" fill="none" stroke-linecap="round"/>`:'';
   return `<svg viewBox="0 0 40 40" width="28" height="28"><circle cx="20" cy="20" r="16" fill="#111" stroke="#282828" stroke-width="1.5"/><path d="${bgPath}" stroke="#282828" stroke-width="3" fill="none" stroke-linecap="round"/>${valPath}<line x1="${cx}" y1="${cy}" x2="${px(ve)}" y2="${py(ve)}" stroke="#777" stroke-width="1.5" stroke-linecap="round"/></svg>`;
 }
+function _mkKnobSVGBig(value){
+  const cx=20,cy=20,r=13,s=135,sw=270;
+  const rad = d => d*Math.PI/180;
+  const px = d => (cx+r*Math.cos(rad(d))).toFixed(2);
+  const py = d => (cy+r*Math.sin(rad(d))).toFixed(2);
+  const bgE=s+sw, bgA=sw>180?1:0;
+  const bgPath=`M${px(s)} ${py(s)} A${r} ${r} 0 ${bgA} 1 ${px(bgE)} ${py(bgE)}`;
+  const v=Math.max(0,Math.min(1,value)), vs=sw*v, ve=s+vs, vA=vs>180?1:0;
+  const valPath=vs>1?`<path d="M${px(s)} ${py(s)} A${r} ${r} 0 ${vA} 1 ${px(ve)} ${py(ve)}" stroke="var(--red)" stroke-width="3" fill="none" stroke-linecap="round"/>`:'';
+  return `<svg viewBox="0 0 40 40" width="56" height="56"><circle cx="20" cy="20" r="16" fill="#111" stroke="#282828" stroke-width="1.5"/><path d="${bgPath}" stroke="#282828" stroke-width="3" fill="none" stroke-linecap="round"/>${valPath}<line x1="${cx}" y1="${cy}" x2="${px(ve)}" y2="${py(ve)}" stroke="#777" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+}
+
+function _openMixerKnobPopup(knobEl){
+  const isSend = knobEl.classList.contains('ch-send-knob');
+  let title = '';
+  let knobsData = [];
+
+  if (isSend){
+    const strip = knobEl.closest('.ch-strip');
+    if (!strip) return;
+    const ch = strip.dataset.ch;
+    const isMaster = (ch === '_master');
+    title = strip.querySelector('.ch-label')?.textContent?.trim() || ch;
+    const labels = { rev:'Rev', del:'Dly', cho:'Cho', dist:'Dst' };
+    ['rev','del','cho','dist'].forEach(ctrl => {
+      const mx = getMixer();
+      const src = isMaster ? mx.master : mx[ch];
+      const val = src ? (src[ctrl+'Send'] || 0) : 0;
+      knobsData.push({ kind:'send', ctrl, ch, isMaster, label:labels[ctrl], val, min:0, max:1, fmt:'%', def:0 });
+    });
+  } else {
+    const card = knobEl.closest('.mixer-fx-card');
+    if (!card) return;
+    const fxName = card.dataset.fx;
+    const masterCard = card.dataset.masterCard;
+    if (fxName){
+      title = FX_LABELS[fxName] || fxName;
+      const params = FX_PARAMS[fxName] || [];
+      const mx = getMixer();
+      if (!mx.fx) mx.fx = _defaultFx();
+      const st = mx.fx[fxName] || {};
+      params.forEach(p => {
+        const val = (st[p.key] != null) ? st[p.key] : p.default;
+        knobsData.push({ kind:'fx', fxName, key:p.key, label:p.label, val, min:p.min, max:p.max, fmt:p.fmt||'', def:p.default });
+      });
+    } else if (masterCard === 'reverb'){
+      title = 'Reverb';
+      const mm = getMixer().master;
+      [{ key:'revDecay', label:'Decay', min:0.5, max:8, fmt:'s', def:2.5 },
+       { key:'revDamping', label:'Damp', min:0, max:1, fmt:'%', def:0.5 },
+       { key:'revWidth', label:'Width', min:0, max:1, fmt:'%', def:1 }].forEach(p => {
+        knobsData.push({ kind:'master', key:p.key, label:p.label, val:(mm[p.key]!=null?mm[p.key]:p.def), min:p.min, max:p.max, fmt:p.fmt, def:p.def });
+      });
+    } else if (masterCard === 'delay'){
+      title = 'Delay';
+      const mm = getMixer().master;
+      [{ key:'delayTime', label:'Time', min:0.02, max:1.5, fmt:'ms', def:0.38 },
+       { key:'delayFb', label:'Feedb', min:0, max:0.95, fmt:'%', def:0.4 }].forEach(p => {
+        knobsData.push({ kind:'master', key:p.key, label:p.label, val:(mm[p.key]!=null?mm[p.key]:p.def), min:p.min, max:p.max, fmt:p.fmt, def:p.def });
+      });
+    } else return;
+  }
+  if (!knobsData.length) return;
+
+  document.querySelector('.mixer-knob-pop')?.remove();
+  const pop = document.createElement('div');
+  pop.className = 'mixer-knob-pop';
+
+  function _bigKnobHtml(kd, idx){
+    const norm = Math.max(0, Math.min(1, (kd.val - kd.min) / (kd.max - kd.min)));
+    const cls = kd.kind === 'send' ? 'ch-send-knob' : 'fx-knob';
+    const lblCls = kd.kind === 'send' ? 'ch-knob-label' : 'fx-knob-label';
+    const valCls = kd.kind === 'send' ? 'ch-knob-val' : 'fx-knob-val';
+    return `<div class="${cls} pop-knob" data-pidx="${idx}" data-val="${kd.val}" data-min="${kd.min}" data-max="${kd.max}" data-fmt="${kd.fmt||''}" data-def="${kd.def}" style="touch-action:none;">${_mkKnobSVGBig(norm)}<div class="${lblCls}">${esc(kd.label)}</div><div class="${valCls}">${_fmtFx(kd.val,kd.fmt||null)}</div></div>`;
+  }
+
+  pop.innerHTML = `<div class="mixer-knob-pop-box"><div class="mixer-knob-pop-title"><span>${esc(title)}</span><button class="mixer-knob-pop-close" aria-label="Close">&#x2715;</button></div><div class="mixer-knob-pop-knobs">${knobsData.map((kd,i)=>_bigKnobHtml(kd,i)).join('')}</div></div>`;
+  document.body.appendChild(pop);
+
+  pop.querySelector('.mixer-knob-pop-close').onclick = () => pop.remove();
+  pop.addEventListener('pointerdown', e => { if (e.target === pop) pop.remove(); });
+
+  function _setKnobState(kd, v){
+    const mx = getMixer();
+    if (kd.kind === 'send'){
+      const t = kd.isMaster ? mx.master : mx[kd.ch];
+      if (!t) return;
+      if (kd.ctrl==='rev') t.revSend=v; else if (kd.ctrl==='del') t.delSend=v;
+      else if (kd.ctrl==='cho') t.choSend=v; else if (kd.ctrl==='dist') t.distSend=v;
+    } else if (kd.kind === 'fx'){
+      if (!mx.fx) mx.fx=_defaultFx();
+      if (!mx.fx[kd.fxName]) mx.fx[kd.fxName]=_defaultFx()[kd.fxName];
+      mx.fx[kd.fxName][kd.key] = v;
+    } else if (kd.kind === 'master'){
+      mx.master[kd.key] = v;
+    }
+    applyMixerToNodes(); touchActive();
+    _syncSmallKnob(kd, v);
+  }
+
+  function _syncSmallKnob(kd, v){
+    const norm = Math.max(0, Math.min(1, (v-kd.min)/(kd.max-kd.min)));
+    if (kd.kind === 'send'){
+      const strip = document.querySelector(`.ch-strip[data-ch="${kd.ch}"]`);
+      const sk = strip?.querySelector(`.ch-send-knob[data-ctrl="${kd.ctrl}"]`);
+      if (sk){ sk.dataset.value=v; const sv=sk.querySelector('svg'); if(sv) sv.outerHTML=_mkKnobSVG(norm); const vEl=sk.querySelector('.ch-knob-val'); if(vEl) vEl.textContent=(v*100).toFixed(0)+'%'; }
+    } else if (kd.kind === 'fx'){
+      const card2 = document.querySelector(`.mixer-fx-card[data-fx="${kd.fxName}"]`);
+      const sk = card2?.querySelector(`.fx-knob[data-key="${kd.key}"]`);
+      if (sk){ sk.dataset.val=v; const sv=sk.querySelector('svg'); if(sv) sv.outerHTML=_mkKnobSVG(norm); const vEl=sk.querySelector('.fx-knob-val'); if(vEl) vEl.textContent=_fmtFx(v,kd.fmt||null); }
+    } else if (kd.kind === 'master'){
+      document.querySelectorAll('[data-master-card] .fx-knob').forEach(sk => {
+        if (sk.dataset.key===kd.key){ sk.dataset.val=v; const sv=sk.querySelector('svg'); if(sv) sv.outerHTML=_mkKnobSVG(norm); const vEl=sk.querySelector('.fx-knob-val'); if(vEl) vEl.textContent=_fmtFx(v,kd.fmt||null); }
+      });
+    }
+  }
+
+  pop.querySelectorAll('.pop-knob').forEach((knob, i) => {
+    const kd = knobsData[i];
+    let drag=false, sy=0, sv=0;
+    knob.addEventListener('pointerdown', e => {
+      e.preventDefault(); knob.setPointerCapture(e.pointerId);
+      drag=true; sy=e.clientY; sv=parseFloat(knob.dataset.val)||kd.min;
+    });
+    knob.addEventListener('pointermove', e => {
+      if (!drag) return;
+      const range = kd.max - kd.min;
+      const v = Math.max(kd.min, Math.min(kd.max, sv + (sy - e.clientY) / 100 * range));
+      const norm = Math.max(0,Math.min(1,(v-kd.min)/range));
+      knob.dataset.val = v;
+      const svg = knob.querySelector('svg');
+      if (svg) svg.outerHTML = _mkKnobSVGBig(norm);
+      const valEl = knob.querySelector('.fx-knob-val') || knob.querySelector('.ch-knob-val');
+      if (valEl) valEl.textContent = _fmtFx(v, kd.fmt||null);
+      _setKnobState(kd, v);
+    });
+    knob.addEventListener('pointerup', () => { drag=false; });
+    knob.addEventListener('lostpointercapture', () => { drag=false; });
+    knob.addEventListener('dblclick', () => {
+      const v = kd.def;
+      const norm = Math.max(0,Math.min(1,(v-kd.min)/(kd.max-kd.min)));
+      knob.dataset.val = v;
+      const svg = knob.querySelector('svg');
+      if (svg) svg.outerHTML = _mkKnobSVGBig(norm);
+      const valEl = knob.querySelector('.fx-knob-val') || knob.querySelector('.ch-knob-val');
+      if (valEl) valEl.textContent = _fmtFx(v, kd.fmt||null);
+      _setKnobState(kd, v);
+    });
+  });
+}
 
 function _fmtFx(v, unit){
   if (unit === '%') return (v * 100).toFixed(0) + '%';
@@ -4715,10 +5015,10 @@ function renderMixer(){
 
     strip.querySelectorAll('.ch-send-knob').forEach(knob => {
       const ctrl = knob.dataset.ctrl;
-      let drag=false, sy=0, sv=0;
+      let drag=false, sy=0, sx=0, sv=0;
       knob.addEventListener('pointerdown', e => {
         e.preventDefault(); knob.setPointerCapture(e.pointerId);
-        drag=true; sy=e.clientY; sv=parseFloat(knob.dataset.value)||0;
+        drag=true; sy=e.clientY; sx=e.clientX; sv=parseFloat(knob.dataset.value)||0;
       });
       knob.addEventListener('pointermove', e => {
         if (!drag) return;
@@ -4736,7 +5036,10 @@ function renderMixer(){
         if (ctrl === 'dist') target.distSend = v;
         applyMixerToNodes(); touchActive();
       });
-      knob.addEventListener('pointerup', () => { drag=false; });
+      knob.addEventListener('pointerup', e => {
+        if (drag && Math.abs(e.clientY-sy) < 6 && Math.abs(e.clientX-sx) < 6) _openMixerKnobPopup(knob);
+        drag=false;
+      });
       knob.addEventListener('lostpointercapture', () => { drag=false; });
       knob.addEventListener('dblclick', () => {
         knob.dataset.value = 0;
@@ -4829,10 +5132,10 @@ function renderMixer(){
     const min = parseFloat(knob.dataset.min);
     const max = parseFloat(knob.dataset.max);
     const fmt = knob.dataset.fmt || null;
-    let drag=false, sy=0, sv=0;
+    let drag=false, sy=0, sx=0, sv=0;
     knob.addEventListener('pointerdown', e => {
       e.preventDefault(); knob.setPointerCapture(e.pointerId);
-      drag=true; sy=e.clientY; sv=parseFloat(knob.dataset.val)||min;
+      drag=true; sy=e.clientY; sx=e.clientX; sv=parseFloat(knob.dataset.val)||min;
     });
     knob.addEventListener('pointermove', e => {
       if (!drag) return;
@@ -4844,7 +5147,10 @@ function renderMixer(){
       if (valEl) valEl.textContent = _fmtFx(v, fmt);
       onchange(v);
     });
-    knob.addEventListener('pointerup', () => { drag=false; });
+    knob.addEventListener('pointerup', e => {
+      if (drag && Math.abs(e.clientY-sy) < 6 && Math.abs(e.clientX-sx) < 6) _openMixerKnobPopup(knob);
+      drag=false;
+    });
     knob.addEventListener('lostpointercapture', () => { drag=false; });
     knob.addEventListener('dblclick', () => {
       const defVal = parseFloat(knob.dataset.def) || min;
@@ -5219,8 +5525,8 @@ function playBassUpright(midi, dur, when, gain){
   thuG.gain.exponentialRampToValueAtTime(gain*0.2, t0+0.004);
   thuG.gain.exponentialRampToValueAtTime(0.0005, t0+0.09);
   const g = ctx.createGain();
-  _bassEnv(g, gain, t0, dur);
-  const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value = 450;
+  _bassEnv(g, gain * 2.2, t0, dur);
+  const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value = 500;
   osc.connect(g); thu.connect(thuG); thuG.connect(getBus('bass')); g.connect(lp).connect(getBus('bass'));
   osc.start(t0); thu.start(t0); osc.stop(t0+dur+0.1); thu.stop(t0+0.1);
   nodes.push(osc, thu); return nodes;
@@ -5320,7 +5626,7 @@ function playBassMuted(midi, dur, when, gain){
   const g = ctx.createGain();
   const shortDur = Math.min(dur, 0.22);
   g.gain.setValueAtTime(0.0001, t0);
-  g.gain.exponentialRampToValueAtTime(gain * 0.95, t0 + 0.003);
+  g.gain.exponentialRampToValueAtTime(gain * 2.8, t0 + 0.003);
   g.gain.exponentialRampToValueAtTime(0.001, t0 + shortDur);
   const lp = ctx.createBiquadFilter(); lp.type = 'lowpass';
   lp.frequency.value = 380;
@@ -5360,7 +5666,7 @@ function playBassFretless(midi, dur, when, gain){
   const harm = ctx.createOscillator(); harm.type = 'triangle'; harm.frequency.value = f * 2;
   const harmG = ctx.createGain(); harmG.gain.value = 0.15;
   const g = ctx.createGain();
-  _bassEnv(g, gain * 0.95, t0, dur);
+  _bassEnv(g, gain * 1.6, t0, dur);
   const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.Q.value = 1.5;
   osc.connect(g); harm.connect(harmG); harmG.connect(g);
   g.connect(lp).connect(getBus('bass'));
@@ -5380,7 +5686,7 @@ function playBassRubber(midi, dur, when, gain){
   clickG.gain.exponentialRampToValueAtTime(0.0005, t0 + 0.025);
   const shortDur = Math.min(dur, 0.18);
   const g = ctx.createGain();
-  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(gain * 1.0, t0 + 0.005);
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(gain * 2.2, t0 + 0.005);
   g.gain.exponentialRampToValueAtTime(0.001, t0 + shortDur);
   const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 320;
   osc.connect(g); click.connect(clickG); clickG.connect(g);
@@ -5449,9 +5755,10 @@ function playInstrumentNote(midi, dur, when, gain){
   const fn = INSTRUMENT_FNS[currentInstrument] || INSTRUMENT_FNS.rhodes;
   const ctx = ensureComposeCtx();
   const t0 = when || ctx.currentTime;
+  const g = gain ?? 0.3;
   const prev = _adsrCtx;
-  _adsrCtx = { slot: currentInstrument || 'rhodes', peak: gain || 0.3, t0, dur: dur || 1.0 };
-  try { return fn(midi, dur, when, gain); }
+  _adsrCtx = { slot: currentInstrument || 'rhodes', peak: g, t0, dur: dur || 1.0 };
+  try { return fn(midi, dur, when, g); }
   finally { _adsrCtx = prev; }
 }
 
@@ -5756,6 +6063,20 @@ function openNoteEditPop(opts){
     });
   };
   renderLenGrid();
+
+  // Rhythm override
+  const noteRhySel = $('#noteEditRhythm');
+  if (noteRhySel){
+    const allRhyKeys = [...FACTORY_RHYTHMS.map(r=>r.id), ...(state.userRhythms||[]).map(r=>'urhy:'+r.id)];
+    noteRhySel.innerHTML = `<option value="">(default)</option>` +
+      allRhyKeys.map(k => `<option value="${esc(k)}">${esc(rhythmDisplayName(k))}</option>`).join('');
+    noteRhySel.value = n.rhythmOverride || '';
+    noteRhySel.onchange = () => {
+      n.rhythmOverride = noteRhySel.value || null;
+      onChange && onChange();
+    };
+  }
+
   $('#noteEditDuplicate').onclick = (e) => {
     e.stopPropagation();
     const copy = JSON.parse(JSON.stringify(n));
@@ -5853,7 +6174,7 @@ function renderProgressionRow(){
     const label = buildChordLabel(c);
     const roman = romanNumeral(c, keyStr);
     const dur = c.duration ?? 1;
-    const hasOv = !!(c.beatOverride || c.timeOverride || c.chordTransposeSemis);
+    const hasOv = !!(c.beatOverride || c.timeOverride || c.chordTransposeSemis || c.rhythmOverride);
     const w = chordWidth(dur);
     const romanSpan = roman ? `<span class="roman">${esc(roman)}</span>` : '';
     return `<div class="prog-chord ${hasOv?'has-override':''}" data-idx="${i}" style="width:${w}px;">
@@ -6037,11 +6358,26 @@ function openChordCfgPop(idx, anchor){
     if (compose.playing) rescheduleFromNow('transpose');
   };
 
+  // Rhythm override
+  const rhythmSel = $('#chordCfgRhythm');
+  if (rhythmSel){
+    const allRhyKeys = [...FACTORY_RHYTHMS.map(r=>r.id), ...(state.userRhythms||[]).map(r=>'urhy:'+r.id)];
+    rhythmSel.innerHTML = `<option value="">(default)</option>` +
+      allRhyKeys.map(k => `<option value="${esc(k)}">${esc(rhythmDisplayName(k))}</option>`).join('');
+    rhythmSel.value = c.rhythmOverride || '';
+    rhythmSel.onchange = () => {
+      composeWorking.chords[idx].rhythmOverride = rhythmSel.value || null;
+      renderProgressionRow();
+      if (compose.playing) rescheduleFromNow('rhythm');
+    };
+  }
+
   $('#chordCfgReset').onclick = (e) => {
     e.stopPropagation();
     composeWorking.chords[idx].beatOverride = null;
     composeWorking.chords[idx].timeOverride = null;
     composeWorking.chords[idx].chordTransposeSemis = 0;
+    composeWorking.chords[idx].rhythmOverride = null;
     renderProgressionRow();
     if (compose.playing) rescheduleFromNow('reset');
     closePops();
@@ -6411,12 +6747,40 @@ function scheduleDrumsInRange(beat, time, barOrigin, windowStart, windowEnd, bou
   }
 }
 
+/* Apply a rhythm pattern to a chord time window.
+   playFn(hitTime, hitDur) is called for each hit. */
+function scheduleWithRhythm(rhythmKey, chordT, chordDur, barDur, playFn){
+  const pattern = getRhythmPattern(rhythmKey);
+  const steps = pattern ? pattern.steps : [];
+  if (!steps.length){
+    playFn(chordT, chordDur);
+    return;
+  }
+  const maxBars = Math.ceil(chordDur / barDur) + 1;
+  for (let bar = 0; bar < maxBars; bar++){
+    const barStart = chordT + bar * barDur;
+    if (barStart >= chordT + chordDur - 0.001) break;
+    for (let si = 0; si < steps.length; si++){
+      const hitT = barStart + (steps[si] / 16) * barDur;
+      if (hitT < chordT - 0.0001) continue;
+      if (hitT >= chordT + chordDur - 0.001) break;
+      const nextT = si + 1 < steps.length
+        ? barStart + (steps[si + 1] / 16) * barDur
+        : barStart + barDur + (steps[0] / 16) * barDur;
+      const hitDur = Math.max(0.05, Math.min(nextT - hitT, chordT + chordDur - hitT));
+      playFn(hitT, hitDur);
+    }
+  }
+}
+
 function scheduleIteration(iterStart){
   const bounds = [];
   let t = iterStart;
   // Bass + sampler progressions (own, if any) are laid out against the full iteration timeline
   const bassOwn    = compose.global.bassOwnProg    || [];
   const samplerOwn = compose.global.samplerOwnProg || [];
+  // Pre-compute barDur for rhythm scheduling (also used later for own-progression loops)
+  const barDur = (60 / (compose.global.tempo || 100)) * (parseInt((compose.global.time||'4/4').split('/')[0],10) || 4);
   compose.chords.forEach((c, i) => {
     const effBeat = c.beatOverride || compose.global.beat;
     const effTime = c.timeOverride || compose.global.time;
@@ -6425,22 +6789,31 @@ function scheduleIteration(iterStart){
     if (!c._silent && !c.rest){
       const notes = (c.notes || chordNotes(c.root, c.type, c.customNotes))
         .map(n => n + (compose.global.transpose || 0) + extraTranspose);
-      notes.forEach((n, ii) => {
-        const ns = playInstrumentNote(n, dur * 0.95, t + ii * 0.008, 0.28);
-        _tagAndPushSynth(ns, t + ii * 0.008);
+      const cRhythm = c.rhythmOverride || compose.global.chordsRhythm || 'None';
+      scheduleWithRhythm(cRhythm, t, dur, barDur, (hitT, hitDur) => {
+        notes.forEach((n, ii) => {
+          const ns = playInstrumentNote(n, hitDur * 0.95, hitT + ii * 0.008, 0.28);
+          _tagAndPushSynth(ns, hitT + ii * 0.008);
+        });
       });
     }
     // Bass follow-root: play root of each chord
     if (compose.global.bassEnabled && compose.global.bassMode === 'follow' && !c._silent && !c.rest){
       const root = c.root + (compose.global.transpose || 0) + extraTranspose;
-      const bns = playBassVoiceNote(root, dur * 0.9, t, (compose.global.bassGain || 0.9) * 0.35);
-      _tagAndPushSynth(bns, t);
+      const bRhythm = compose.global.bassRhythm || 'None';
+      scheduleWithRhythm(bRhythm, t, dur, barDur, (hitT, hitDur) => {
+        const bns = playBassVoiceNote(root, hitDur * 0.9, hitT, (compose.global.bassGain || 0.9) * 0.35);
+        _tagAndPushSynth(bns, hitT);
+      });
     }
     // Sampler follow-root: trigger sample at the chord root
     if (compose.global.samplerEnabled && compose.global.samplerMode === 'follow' && !c._silent && !c.rest && samplerState.buffer){
       const root = c.root + (compose.global.transpose || 0) + extraTranspose;
-      const sns = playSamplerNote(root, dur * 0.95, t, 0.9);
-      _tagAndPushSynth(sns, t);
+      const sRhythm = compose.global.samplerRhythm || 'None';
+      scheduleWithRhythm(sRhythm, t, dur, barDur, (hitT, hitDur) => {
+        const sns = playSamplerNote(root, hitDur * 0.95, hitT, 0.9);
+        _tagAndPushSynth(sns, hitT);
+      });
     }
     scheduleDrumsInRange(effBeat, effTime, t, t, t + dur, i);
     bounds.push({ idx: i, startT: t, endT: t + dur, chord: c });
@@ -6448,7 +6821,6 @@ function scheduleIteration(iterStart){
   });
   // Iteration duration covers the longest of: chords, bass own progression, sampler own progression
   const chordTotal = t - iterStart;
-  const barDur = (60 / (compose.global.tempo || 100)) * (parseInt((compose.global.time||'4/4').split('/')[0],10) || 4);
   // If track-level loop length is set, use it; otherwise use natural length
   const bassNat = (compose.global.bassEnabled && compose.global.bassMode === 'own')
     ? bassOwn.reduce((s, bn) => s + Math.max(0.04, (bn.duration || 1) * barDur), 0) : 0;
@@ -6478,8 +6850,11 @@ function scheduleIteration(iterStart){
         if (bt - cycleBase >= cycle - 0.001) break;
         if (bt >= iterStart + iterDur - 0.001) break;
         const playDur = Math.min(bDur, iterStart + iterDur - bt, cycleBase + cycle - bt);
-        const bns = playBassVoiceNote(bn.root + (compose.global.transpose || 0), playDur * 0.95, bt, (compose.global.bassGain || 0.9) * 0.4);
-        _tagAndPushSynth(bns, bt);
+        const bnRhythm = bn.rhythmOverride || compose.global.bassRhythm || 'None';
+        scheduleWithRhythm(bnRhythm, bt, playDur, barDur, (hitT, hitDur) => {
+          const bns = playBassVoiceNote(bn.root + (compose.global.transpose || 0), hitDur * 0.95, hitT, (compose.global.bassGain || 0.9) * 0.4);
+          _tagAndPushSynth(bns, hitT);
+        });
         bt += bDur;
       }
       cycleBase += cycle;
@@ -6496,8 +6871,11 @@ function scheduleIteration(iterStart){
         if (st - cycleBase >= cycle - 0.001) break;
         if (st >= iterStart + iterDur - 0.001) break;
         const playDur = Math.min(sDur, iterStart + iterDur - st, cycleBase + cycle - st);
-        const sns = playSamplerNote(sn.root + (compose.global.transpose || 0), playDur * 0.95, st, 0.9);
-        _tagAndPushSynth(sns, st);
+        const snRhythm = sn.rhythmOverride || compose.global.samplerRhythm || 'None';
+        scheduleWithRhythm(snRhythm, st, playDur, barDur, (hitT, hitDur) => {
+          const sns = playSamplerNote(sn.root + (compose.global.transpose || 0), hitDur * 0.95, hitT, 0.9);
+          _tagAndPushSynth(sns, hitT);
+        });
         st += sDur;
       }
       cycleBase += cycle;
@@ -6569,32 +6947,48 @@ function rescheduleTimelineFromNow(){
     const extraTranspose = (c.chordTransposeSemis || 0);
     const notes = (!c._silent && !c.rest) ? (c.notes || chordNotes(c.root, c.type, c.customNotes))
       .map(n => n + (compose.global.transpose || 0) + extraTranspose) : [];
-    // Only schedule notes for future boundaries (not the currently-playing one — already sounding)
-    if (i > curr.idx){
-      notes.forEach((n, ii) => {
-        const ns = playInstrumentNote(n, dur * 0.95, t + ii * 0.008, 0.28);
-        _tagAndPushSynth(ns, t + ii * 0.008);
-      });
+    if (i === curr.idx){
+      // Current boundary: preserve the original end time so subsequent chords
+      // don't shift. Only reschedule drums (notes are already sounding).
+      scheduleDrumsInRange(effBeat, effTime, curr.startT, now, curr.endT, i);
+      newBounds.push({ idx: i, startT: curr.startT, endT: curr.endT, chord: c });
+      t = curr.endT;
+      iterEndChords = t;
+    } else {
+      // Future boundary: schedule notes + drums starting at t.
+      const rBarDur = (60 / (compose.global.tempo || 100)) * (parseInt((compose.global.time||'4/4').split('/')[0],10) || 4);
+      if (notes.length){
+        const cRhythm = c.rhythmOverride || compose.global.chordsRhythm || 'None';
+        scheduleWithRhythm(cRhythm, t, dur, rBarDur, (hitT, hitDur) => {
+          notes.forEach((n, ii) => {
+            const ns = playInstrumentNote(n, hitDur * 0.95, hitT + ii * 0.008, 0.28);
+            _tagAndPushSynth(ns, hitT + ii * 0.008);
+          });
+        });
+      }
       scheduleDrumsInRange(effBeat, effTime, t, t, t + dur, i);
       // Bass follow-root for future chord
       if (compose.global.bassEnabled && compose.global.bassMode === 'follow' && !c._silent && !c.rest){
         const root = c.root + (compose.global.transpose || 0) + extraTranspose;
-        const bns = playBassVoiceNote(root, dur * 0.9, t, (compose.global.bassGain || 0.9) * 0.35);
-        _tagAndPushSynth(bns, t);
+        const bRhythm = compose.global.bassRhythm || 'None';
+        scheduleWithRhythm(bRhythm, t, dur, rBarDur, (hitT, hitDur) => {
+          const bns = playBassVoiceNote(root, hitDur * 0.9, hitT, (compose.global.bassGain || 0.9) * 0.35);
+          _tagAndPushSynth(bns, hitT);
+        });
       }
       // Sampler follow-root for future chord
       if (compose.global.samplerEnabled && compose.global.samplerMode === 'follow' && !c._silent && !c.rest && samplerState.buffer){
         const root = c.root + (compose.global.transpose || 0) + extraTranspose;
-        const sns = playSamplerNote(root, dur * 0.95, t, 0.9);
-        _tagAndPushSynth(sns, t);
+        const sRhythm = compose.global.samplerRhythm || 'None';
+        scheduleWithRhythm(sRhythm, t, dur, rBarDur, (hitT, hitDur) => {
+          const sns = playSamplerNote(root, hitDur * 0.95, hitT, 0.9);
+          _tagAndPushSynth(sns, hitT);
+        });
       }
-    } else {
-      // Current boundary: schedule drums from now → its new end if beat changed
-      scheduleDrumsInRange(effBeat, effTime, t, t, t + dur, i);
+      newBounds.push({ idx: i, startT: t, endT: t + dur, chord: c });
+      t += dur;
+      iterEndChords = t;
     }
-    newBounds.push({ idx: i, startT: t, endT: t + dur, chord: c });
-    t += dur;
-    iterEndChords = t;
   }
   // Reschedule bass own-progression from now forward (the notes that would have played in the remaining iteration)
   const bassOwn    = compose.global.bassOwnProg    || [];
@@ -6695,6 +7089,9 @@ function composePlayProgression(prog, onDone, opts = {}){
     samplerEnabled: prog.samplerEnabled ?? samplerState.enabled,
     samplerMode:    prog.samplerMode    ?? (samplerState.followRoot ? 'follow' : 'own'),
     samplerOwnProg: prog.samplerOwnProg ?? samplerState.ownProgression.map(n => ({...n})),
+    chordsRhythm:   prog.chordsRhythm   ?? chordsRhythm,
+    bassRhythm:     prog.bassRhythm     ?? bassState.rhythm,
+    samplerRhythm:  prog.samplerRhythm  ?? samplerState.rhythm,
   };
   // Keep runtime bassState in sync so voice fn reads right octave
   bassState.voice  = compose.global.bassVoice;
@@ -6710,7 +7107,7 @@ function composePlayProgression(prog, onDone, opts = {}){
   scheduleIteration(kickoff);
   startPlayhead();
   const _cpBtn2 = document.getElementById('composePlay');
-  if (_cpBtn2) { _cpBtn2.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg>'; _cpBtn2.classList.add('playing'); }
+  if (_cpBtn2) { _cpBtn2.classList.add('playing'); }
   const _tmEl2 = document.getElementById('transportMode');
   if (_tmEl2) _tmEl2.textContent = 'Compose';
   // Content-aware Now Playing: report what's actually playing
@@ -6927,7 +7324,16 @@ function switchInstView(tabsId, view){
 ['chordsViewTabs','samplerViewTabs','bassViewTabs'].forEach(tabsId => {
   const el = document.getElementById(tabsId);
   if (el) el.querySelectorAll('.inst-view-tab').forEach(btn => {
-    btn.onclick = () => switchInstView(tabsId, btn.dataset.view);
+    btn.onclick = () => {
+      switchInstView(tabsId, btn.dataset.view);
+      if (btn.dataset.view === 'rhythm'){
+        const inst = tabsId === 'chordsViewTabs' ? 'chords' : tabsId === 'bassViewTabs' ? 'bass' : 'sampler';
+        const getKey = inst === 'chords' ? () => chordsRhythm : inst === 'bass' ? () => bassState.rhythm : () => samplerState.rhythm;
+        const setKey = inst === 'chords' ? k => { chordsRhythm = k; } : inst === 'bass' ? k => { bassState.rhythm = k; } : k => { samplerState.rhythm = k; };
+        renderRhythmGrid(inst+'RhythmGrid', inst+'RhythmSteps', inst, getKey, setKey);
+        _wireRhythmSave(inst+'RhythmSave', inst+'RhythmName', inst+'RhythmSteps', inst);
+      }
+    };
   });
 });
 
@@ -6951,12 +7357,11 @@ function refreshTrackLoopUI(){
   _wireLoopSel('chordLoopLen', 'chords');
   _wireLoopSel('bassLoopLen', 'bass');
   _wireLoopSel('samplerLoopLen', 'sampler');
-  _wireLoopSel('beatLoopLen', 'beat');
+  // beatLoopLen is rendered dynamically inside renderBeatGrid()
 }
 _wireLoopSel('chordLoopLen', 'chords');
 _wireLoopSel('bassLoopLen', 'bass');
 _wireLoopSel('samplerLoopLen', 'sampler');
-_wireLoopSel('beatLoopLen', 'beat');
 
 /* -------- BASS UI -------- */
 function renderBassVoiceGrid(){
@@ -7844,6 +8249,107 @@ document.querySelectorAll('.drum-env-btn').forEach(b => {
     }
   });
 })();
+/* -------- RHYTHM GRID -------- */
+const _rhythmGridViews = {};  // instrument → 'factory' | 'user'
+const _rhythmCustomSteps = {};  // instrument → Set of active step indices
+
+function renderRhythmGrid(hostId, stepsId, instrument, getKey, setKey){
+  const host = document.getElementById(hostId);
+  if (!host) return;
+  const view = _rhythmGridViews[instrument] || 'factory';
+  const activeKey = getKey() || 'None';
+  const activeIsUser = isUserRhythmKey(activeKey);
+
+  const factoryCards = FACTORY_RHYTHMS.map(r => {
+    const isActive = r.id === activeKey;
+    const sub = r.steps.length ? r.steps.length + ' hits' : 'default';
+    return `<div class="beat-card ${isActive?'active':''}" data-rhy="${r.id}">${esc(r.name)}<small>${sub}</small></div>`;
+  }).join('');
+
+  const user = state.userRhythms || [];
+  const userCards = user.length
+    ? user.map(r => {
+        const key = 'urhy:' + r.id;
+        const isActive = key === activeKey;
+        return `<div class="beat-card user-beat ${isActive?'active':''}" data-rhy="${key}">
+          <span class="user-beat-del" data-rdel="${esc(key)}" title="Delete">×</span>
+          ${esc(r.name)}<small>${r.steps.length} hits</small>
+        </div>`;
+      }).join('')
+    : `<div class="beat-empty">No user patterns yet. Create one below.</div>`;
+
+  const fLabel = `Factory${!activeIsUser ? ' ●' : ''}`;
+  const uLabel = `User${activeIsUser ? ' ●' : ''}`;
+
+  host.innerHTML = `
+    <div class="beat-view-tabs">
+      <button class="beat-view-tab ${view==='factory'?'active':''}" data-rview="factory">${fLabel}</button>
+      <button class="beat-view-tab ${view==='user'?'active':''}" data-rview="user">${uLabel}</button>
+    </div>
+    <div class="rhythm-grid-inner" ${view!=='factory'?'style="display:none;"':''}>${factoryCards}</div>
+    <div class="rhythm-grid-inner" ${view!=='user'?'style="display:none;"':''}>${userCards}</div>
+  `;
+
+  host.querySelectorAll('.beat-view-tab').forEach(btn => {
+    btn.onclick = () => { _rhythmGridViews[instrument] = btn.dataset.rview; renderRhythmGrid(hostId, stepsId, instrument, getKey, setKey); };
+  });
+  host.querySelectorAll('.beat-card[data-rhy]').forEach(el => {
+    el.onclick = (e) => {
+      if (e.target.dataset.rdel) {
+        const key = e.target.dataset.rdel;
+        const u = getUserRhythm(key);
+        if (!u || !confirm(`Delete "${u.name}"?`)) return;
+        state.userRhythms = (state.userRhythms || []).filter(r => r.id !== u.id);
+        save();
+        if (getKey() === key) setKey('None');
+        renderRhythmGrid(hostId, stepsId, instrument, getKey, setKey);
+        return;
+      }
+      host.querySelectorAll('.beat-card').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      setKey(el.dataset.rhy);
+      if (compose.playing) rescheduleFromNow('rhythm');
+    };
+  });
+
+  // Step editor
+  const stepsCont = document.getElementById(stepsId);
+  if (!stepsCont) return;
+  if (!_rhythmCustomSteps[instrument]) _rhythmCustomSteps[instrument] = new Set();
+  const activeSet = _rhythmCustomSteps[instrument];
+  stepsCont.innerHTML = Array.from({length:16},(_,i) =>
+    `<div class="rhythm-step ${activeSet.has(i)?'on':''}" data-step="${i}"></div>`
+  ).join('');
+  stepsCont.querySelectorAll('.rhythm-step').forEach(el => {
+    el.onclick = () => {
+      const s = parseInt(el.dataset.step);
+      if (activeSet.has(s)) activeSet.delete(s); else activeSet.add(s);
+      el.classList.toggle('on', activeSet.has(s));
+    };
+  });
+}
+
+function _wireRhythmSave(saveId, nameId, stepsId, instrument){
+  const btn = document.getElementById(saveId);
+  if (!btn) return;
+  btn.onclick = () => {
+    const nameEl = document.getElementById(nameId);
+    const name = (nameEl?.value || '').trim() || ('Pattern ' + ((state.userRhythms||[]).length + 1));
+    const steps = Array.from(_rhythmCustomSteps[instrument] || []).sort((a,b)=>a-b);
+    const id = uid();
+    state.userRhythms = state.userRhythms || [];
+    state.userRhythms.push({ id, name, steps });
+    save();
+    if (nameEl) nameEl.value = '';
+    showToast(`Rhythm "${name}" saved`);
+    const gridId = instrument + 'RhythmGrid';
+    const stId = instrument + 'RhythmSteps';
+    const getKey = instrument === 'chords' ? () => chordsRhythm : () => (instrument === 'bass' ? bassState.rhythm : samplerState.rhythm);
+    const setKey = instrument === 'chords' ? k => { chordsRhythm = k; } : instrument === 'bass' ? k => { bassState.rhythm = k; } : k => { samplerState.rhythm = k; };
+    renderRhythmGrid(gridId, stId, instrument, getKey, setKey);
+  };
+}
+
 let beatGridView = 'factory';  // 'factory' | 'user'
 function renderBeatGrid(){
   const host = $('#beatGrid');
@@ -7878,14 +8384,18 @@ function renderBeatGrid(){
     : `<div class="beat-empty">No user beats yet. Create one in the Sequencer sub-tab.</div>`;
   const fLabel = `Factory${!activeIsUser ? ' ●' : ''}`;
   const uLabel = `User${activeIsUser ? ' ●' : ''}`;
+  const loopVal = trackLoopLens.beat != null ? String(trackLoopLens.beat) : '';
   host.innerHTML = `
-    <div class="beat-view-tabs">
+    <div class="beat-view-tabs" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <button class="beat-view-tab ${beatGridView==='factory'?'active':''}" data-view="factory">${fLabel}</button>
       <button class="beat-view-tab ${beatGridView==='user'?'active':''}" data-view="user">${uLabel}</button>
+      <div class="meta-field" style="margin-left:8px;"><label>Loop bars</label><select id="beatLoopLen" style="width:76px;"><option value="">Natural</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></div>
     </div>
     <div class="beat-grid-inner" ${beatGridView!=='factory'?'style="display:none;"':''}>${factoryCards}</div>
     <div class="beat-grid-inner" ${beatGridView!=='user'?'style="display:none;"':''}>${userBlock}</div>
   `;
+  const _bll = host.querySelector('#beatLoopLen');
+  if (_bll){ _bll.value = loopVal; _wireLoopSel('beatLoopLen', 'beat'); }
   host.querySelectorAll('.beat-view-tab').forEach(btn => {
     btn.onclick = (e) => { e.stopPropagation(); beatGridView = btn.dataset.view; renderBeatGrid(); };
   });
@@ -7952,6 +8462,9 @@ const sequencerState = {
     swingK: true, swingS: true, swingH: true,
     delayK: 0, delayS: 0, delayH: 0,
   },
+  // 'pending' subdivision mode used for step-painting (when applyAll is off)
+  pendingSubdiv: 'straight',
+  applyAll: false,
 };
 
 // Clamp step indices when the subdivision changes (some steps may fall outside
@@ -8009,15 +8522,40 @@ function renderSequencerUI(){
     `<optgroup label="Factory">${fOpts}</optgroup>` +
     (user.length ? `<optgroup label="User">${uOpts}</optgroup>` : '');
 
-  // Subdivision pills
+  // Subdivision pills — if Apply to All is on, clicking changes the whole pattern;
+  // if off, clicking selects the pending paint mode for the next step click.
   document.querySelectorAll('#seqSubdiv button').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.sub === p.subdivision);
+    const isActive = sequencerState.applyAll
+      ? btn.dataset.sub === p.subdivision
+      : btn.dataset.sub === sequencerState.pendingSubdiv;
+    btn.classList.toggle('active', isActive);
     btn.onclick = () => {
-      _seqSetSubdivision(btn.dataset.sub);
+      sequencerState.pendingSubdiv = btn.dataset.sub;
+      if (sequencerState.applyAll){
+        _seqSetSubdivision(btn.dataset.sub);
+        _seqSyncLivePreview();
+      }
       renderSequencerUI();
-      _seqSyncLivePreview();
     };
   });
+  // Apply to All toggle
+  const _applyAllBtn = document.getElementById('seqApplyAll');
+  if (_applyAllBtn){
+    _applyAllBtn.classList.toggle('active', sequencerState.applyAll);
+    _applyAllBtn.style.background = sequencerState.applyAll ? 'var(--red)' : '';
+    _applyAllBtn.style.color = sequencerState.applyAll ? 'var(--white)' : '';
+    if (!_applyAllBtn.dataset.init){
+      _applyAllBtn.dataset.init = '1';
+      _applyAllBtn.onclick = () => {
+        sequencerState.applyAll = !sequencerState.applyAll;
+        if (sequencerState.applyAll){
+          _seqSetSubdivision(sequencerState.pendingSubdiv);
+          _seqSyncLivePreview();
+        }
+        renderSequencerUI();
+      };
+    }
+  }
 
   // Swing slider + toggles
   const swingEl = document.getElementById('seqSwing');
@@ -8288,6 +8826,7 @@ function renderMelodyUI(){
     barsSel.dataset.init = '1';
     barsSel.onchange = () => {
       melodyState.bars = parseInt(barsSel.value,10) || 2;
+      melodyState.cycleBars = melodyState.bars; // keep loop length in sync
       // Trim notes past the new range
       const tot = melTotalCells();
       melodyState.notes = melodyState.notes.filter(n => n.start < tot);
@@ -8296,6 +8835,8 @@ function renderMelodyUI(){
     };
   }
   if (barsSel) barsSel.value = String(melodyState.bars);
+  // Keep cycleBars in sync with bars on every render
+  melodyState.cycleBars = melodyState.bars;
 
   const gridSel = $('#melGrid');
   if (gridSel && !gridSel.dataset.init){
@@ -8560,9 +9101,12 @@ function _melAttachInteractions(host){
       const pitch = Math.max(MEL_PITCH_LOW, Math.min(MEL_PITCH_HIGH, MEL_PITCH_HIGH - pitchIdx));
       const defaultLen = Math.max(1, Math.round(cellsPerBar / 8)); // ~ a beat/2
       const note = { id: _melNextId(), pitch, start, length: Math.min(defaultLen, melTotalCells() - start), velocity: 100 };
+      const wasEmpty = melodyState.notes.length === 0;
       melodyState.notes.push(note);
       melodyState.selectedId = note.id;
       renderMelodyRoll(); updateMelSelPanel();
+      // Auto-start playback on the first note
+      if (wasEmpty && typeof melPlay === 'function') { try { melPlay(); } catch {} }
       // Preview
       try { getMelodySoundFn(melodyState.sound)(pitch, 0.5, undefined, 0.35); } catch {}
       e.preventDefault();
@@ -9590,6 +10134,17 @@ $$('.tab').forEach(t => {
     if (state.tab === 'launcher'){ renderLauncher(); }
   };
 });
+/* Studio Recorder/Takes toggle */
+$$('.studio-view-tab').forEach(btn => {
+  btn.onclick = () => {
+    $$('.studio-view-tab').forEach(x => x.classList.remove('active'));
+    btn.classList.add('active');
+    const v = btn.dataset.studioView;
+    $('#studioRecorderPanel').style.display = v === 'recorder' ? '' : 'none';
+    $('#studioTakesPanel').style.display    = v === 'takes'    ? '' : 'none';
+  };
+});
+
 $$('.mode-btn').forEach(b => {
   b.onclick = () => {
     $$('.mode-btn').forEach(x => x.classList.remove('active'));
@@ -10060,10 +10615,11 @@ async function boot(){
   const btn      = document.getElementById('mobileMenuBtn');
   const sidebar  = document.querySelector('aside');
   const backdrop = document.getElementById('mobileBackdrop');
-  function close(){ sidebar.classList.remove('mobile-open'); backdrop.classList.remove('show'); }
+  function close(){ sidebar.classList.remove('mobile-open'); backdrop.classList.remove('show'); document.body.classList.remove('menu-open'); }
   btn.addEventListener('click', () => {
     const open = sidebar.classList.toggle('mobile-open');
     backdrop.classList.toggle('show', open);
+    document.body.classList.toggle('menu-open', open);
   });
   backdrop.addEventListener('click', close);
   /* close drawer when user taps a song in the list */
