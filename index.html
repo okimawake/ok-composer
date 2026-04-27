@@ -377,8 +377,8 @@
 
   .compose-sticky {
     position: sticky; top: 0; z-index: 50;
-    background: var(--black); padding-bottom: 10px;
-    display: flex; flex-direction: column; gap: 12px;
+    background: var(--black); padding-bottom: 0;
+    display: flex; flex-direction: column; gap: 0;
     box-shadow: 0 8px 14px -10px rgba(0,0,0,0.8);
   }
   .compose-progression-wrap {
@@ -561,7 +561,7 @@
   /* Instrument sub-pane tab switcher (Keyboard / Type / Progression / etc.) */
   .inst-view-tabs {
     display: flex; gap: 5px; flex-wrap: wrap;
-    padding: 10px 14px 2px; border-bottom: 1px solid var(--line);
+    padding: 6px 14px 2px; border-bottom: 1px solid var(--line);
     margin-bottom: 0; background: var(--ink);
   }
   .inst-view-tab {
@@ -572,7 +572,7 @@
   }
   .inst-view-tab.active { border-color: var(--red); color: var(--white); }
   .inst-view-tab:hover:not(.active) { color: var(--grey-2); border-color: var(--grey); }
-  .inst-view-panel { display: none; padding: 14px; }
+  .inst-view-panel { display: none; padding: 10px 14px; }
   .inst-view-panel.active { display: block; }
   .beat-empty { padding: 14px; border: 1px dashed var(--line); border-radius: 2px; font-size: 11px; color: var(--grey-2); text-align: center; }
   .beat-card {
@@ -717,17 +717,17 @@
     position: sticky; top: 0; z-index: 50; background: var(--black);
     padding-top: 16px;
   }
-  .compose-sticky { padding-bottom: 4px; }
+  .compose-sticky { padding-bottom: 0; }
 
   /* Compose sub-tabs */
-  .compose-subtabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+  .compose-subtabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); margin-bottom: 0; }
   .compose-subtabs .subtab {
-    background: transparent; color: var(--grey-2); border: 1px solid transparent; border-bottom: none;
-    padding: 6px 14px; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
-    cursor: pointer; border-radius: 2px 2px 0 0;
+    background: transparent; color: var(--grey-2); border: none; border-bottom: 2px solid transparent;
+    padding: 8px 14px; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    cursor: pointer; font-weight: 700;
   }
-  .compose-subtabs .subtab:hover { color: var(--white); }
-  .compose-subtabs .subtab.active { color: var(--white); border-color: var(--line); border-bottom-color: var(--black); background: var(--ink); margin-bottom: -1px; }
+  .compose-subtabs .subtab:hover { color: var(--grey); }
+  .compose-subtabs .subtab.active { color: var(--white); border-bottom-color: var(--red); }
 
   /* Greyed-out panel state (for inactive sampler / audio-loop) */
   .compose-section.dimmed { opacity: 0.45; pointer-events: none; filter: grayscale(0.5); }
@@ -844,6 +844,14 @@
     transition: background 80ms, border-color 80ms, color 80ms;
   }
   .ch-mute.active { background: var(--red); border-color: var(--red); color: #fff; }
+  /* Solo button */
+  .ch-solo {
+    width: 28px; height: 16px; font-size: 9px; font-weight: 700;
+    letter-spacing: 0.08em; border-radius: 2px; cursor: pointer;
+    background: #1a1a1a; border: 1px solid #2e2e2e; color: #444;
+    transition: background 80ms, border-color 80ms, color 80ms; margin-top: 2px;
+  }
+  .ch-solo.active { background: #c8a000; border-color: #c8a000; color: #000; }
 
   /* Separator before master strip */
   .ch-strip.ch-master {
@@ -979,6 +987,26 @@
   /* NOTES */
   .notes-editor { flex: 1; padding: 24px 60px; font-size: 15px; line-height: 1.8; resize: none; overflow-y: auto; background: var(--black); color: var(--white); }
   .notes-editor::placeholder { color: var(--grey); font-style: italic; }
+
+  /* HELP */
+  .help-pane { flex: 1; overflow-y: auto; padding: 40px 60px; max-width: 860px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+  .help-pane h1 { font-size: 22px; font-weight: 700; color: var(--white); letter-spacing: 0.05em; margin: 0 0 6px; }
+  .help-pane .help-subtitle { font-size: 12px; color: var(--grey); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 40px; }
+  .help-pane h2 { font-size: 13px; font-weight: 700; color: var(--red); letter-spacing: 0.2em; text-transform: uppercase; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  .help-pane h3 { font-size: 12px; font-weight: 700; color: var(--white); letter-spacing: 0.12em; text-transform: uppercase; margin: 20px 0 6px; }
+  .help-pane p { font-size: 13px; color: var(--grey-2); line-height: 1.75; margin: 0 0 10px; }
+  .help-pane ul { margin: 0 0 10px; padding-left: 18px; }
+  .help-pane li { font-size: 13px; color: var(--grey-2); line-height: 1.75; }
+  .help-pane li + li { margin-top: 2px; }
+  .help-pane strong { color: var(--white); font-weight: 600; }
+  .help-pane .help-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin: 12px 0 20px; }
+  .help-pane .help-card { background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 14px 16px; }
+  .help-pane .help-card h3 { margin-top: 0; }
+  .help-pane .help-card p { margin: 0; }
+  .help-pane .help-kbr { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 16px; }
+  .help-pane kbd { display: inline-block; background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; padding: 1px 7px; font-size: 11px; font-family: monospace; color: var(--white); letter-spacing: 0.05em; }
+  .help-pane .help-tip { background: rgba(200,30,30,0.08); border-left: 3px solid var(--red); padding: 10px 14px; border-radius: 0 3px 3px 0; margin: 12px 0 16px; font-size: 13px; color: var(--grey-2); line-height: 1.7; }
+  @media (max-width: 700px) { .help-pane { padding: 24px 20px; } }
 
   /* TOAST + MODAL */
   .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); border: 1px solid var(--red); color: var(--white); padding: 10px 20px; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; border-radius: 2px; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 100; }
@@ -1208,6 +1236,7 @@
         <button class="tab" data-tab="preview">Arranger</button>
         <button class="tab" data-tab="lyrics">Lyrics</button>
         <button class="tab" data-tab="notes">Notes</button>
+        <button class="tab" data-tab="help">Help</button>
       </div>
 
       <div class="tab-content">
@@ -1268,7 +1297,7 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 <button class="subtab" data-sub="beat">Beat</button>
                 <button class="subtab" data-sub="sequencer">Sequencer</button>
                 <button class="subtab" data-sub="melody">Melody</button>
-                <button class="subtab" data-sub="progression">Progressions</button>
+                <button class="subtab" data-sub="progression">Compositions</button>
               </div>
               <!-- Compose engine inputs — controlled via global song settings; hidden from UI -->
               <input type="number" id="composeTempo" value="100" min="40" max="240" style="display:none;" />
@@ -1285,6 +1314,7 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 <button class="inst-view-tab" data-view="instrument">Instrument</button>
                 <button class="inst-view-tab" data-view="rhythm">Rhythm</button>
                 <button class="inst-view-tab" data-view="saved">Saved</button>
+                <button class="inst-view-tab" data-view="editor">Editor</button>
               </div>
 
               <div class="inst-view-panel active" data-view="keyboard">
@@ -1346,6 +1376,23 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 </div>
                 <div class="progressions-list" id="progressionsList"></div>
               </div>
+
+              <div class="inst-view-panel" data-view="editor" id="chordsEditorPanel">
+                <div class="seq-toolbar" id="chordsEdToolbar"></div>
+                <div class="mel-roll-outer">
+                  <div id="chordsEdKeysCol" class="mel-keys-col"></div>
+                  <div id="chordsEdRollWrap" class="mel-roll-wrap">
+                    <div id="chordsEdRoll" class="mel-roll"></div>
+                  </div>
+                </div>
+                <div class="seq-toolbar" style="margin-top:8px;">
+                  <button class="chord-type-btn" id="chordsEdLoad" title="Populate from active chord progression">Load from progression</button>
+                  <button class="chord-type-btn" id="chordsEdClear">Clear</button>
+                  <input type="text" id="chordsEdSaveName" placeholder="Name this MIDI pattern…" class="search" style="flex:1;min-width:100px;" />
+                  <button class="chord-type-btn" id="chordsEdSave">Save</button>
+                </div>
+                <div id="chordsEdSelPanel"></div>
+              </div>
             </div>
 
             <!-- SAMPLER sub-pane -->
@@ -1356,6 +1403,7 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 <button class="inst-view-tab" data-view="sampler">Sampler</button>
                 <button class="inst-view-tab" data-view="rhythm">Rhythm</button>
                 <button class="inst-view-tab" data-view="saved">Saved</button>
+                <button class="inst-view-tab" data-view="editor">Editor</button>
               </div>
 
               <div class="inst-view-panel active" data-view="keyboard">
@@ -1414,6 +1462,23 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 </div>
                 <div class="progressions-list" id="samplerProgressionsList"></div>
               </div>
+
+              <div class="inst-view-panel" data-view="editor" id="samplerEditorPanel">
+                <div class="seq-toolbar" id="samplerEdToolbar"></div>
+                <div class="mel-roll-outer">
+                  <div id="samplerEdKeysCol" class="mel-keys-col"></div>
+                  <div id="samplerEdRollWrap" class="mel-roll-wrap">
+                    <div id="samplerEdRoll" class="mel-roll"></div>
+                  </div>
+                </div>
+                <div class="seq-toolbar" style="margin-top:8px;">
+                  <button class="chord-type-btn" id="samplerEdLoad" title="Populate from active sampler progression">Load from progression</button>
+                  <button class="chord-type-btn" id="samplerEdClear">Clear</button>
+                  <input type="text" id="samplerEdSaveName" placeholder="Name this MIDI pattern…" class="search" style="flex:1;min-width:100px;" />
+                  <button class="chord-type-btn" id="samplerEdSave">Save</button>
+                </div>
+                <div id="samplerEdSelPanel"></div>
+              </div>
             </div>
 
             <!-- BASS sub-pane -->
@@ -1424,6 +1489,7 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 <button class="inst-view-tab" data-view="voice">Instrument</button>
                 <button class="inst-view-tab" data-view="rhythm">Rhythm</button>
                 <button class="inst-view-tab" data-view="saved">Saved</button>
+                <button class="inst-view-tab" data-view="editor">Editor</button>
               </div>
 
               <div class="inst-view-panel active" data-view="keyboard">
@@ -1475,6 +1541,23 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                   <button class="chord-type-btn" id="saveBassProgression">Save</button>
                 </div>
                 <div class="progressions-list" id="bassProgressionsList"></div>
+              </div>
+
+              <div class="inst-view-panel" data-view="editor" id="bassEditorPanel">
+                <div class="seq-toolbar" id="bassEdToolbar"></div>
+                <div class="mel-roll-outer">
+                  <div id="bassEdKeysCol" class="mel-keys-col"></div>
+                  <div id="bassEdRollWrap" class="mel-roll-wrap">
+                    <div id="bassEdRoll" class="mel-roll"></div>
+                  </div>
+                </div>
+                <div class="seq-toolbar" style="margin-top:8px;">
+                  <button class="chord-type-btn" id="bassEdLoad" title="Populate from active bass progression">Load from progression</button>
+                  <button class="chord-type-btn" id="bassEdClear">Clear</button>
+                  <input type="text" id="bassEdSaveName" placeholder="Name this MIDI pattern…" class="search" style="flex:1;min-width:100px;" />
+                  <button class="chord-type-btn" id="bassEdSave">Save</button>
+                </div>
+                <div id="bassEdSelPanel"></div>
               </div>
             </div>
 
@@ -1599,8 +1682,12 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
 
             <!-- MELODY sub-pane: basic piano-roll MIDI editor -->
             <div class="compose-sub-pane" data-sub="melody" style="display:none;">
-              <div class="compose-section">
-                <h4>Melody Editor</h4>
+              <div class="inst-view-tabs" id="melodyViewTabs">
+                <button class="inst-view-tab active" data-view="editor">Editor</button>
+                <button class="inst-view-tab" data-view="saved">Saved</button>
+              </div>
+
+              <div class="inst-view-panel active" data-view="editor">
                 <div class="seq-toolbar">
                   <div>
                     <label>Sound</label>
@@ -1660,62 +1747,84 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
                 </div>
 
                 <div class="seq-toolbar" style="margin-top:10px;border-top:1px solid var(--line);padding-top:12px;">
-                  <div>
-                    <button class="chord-type-btn" id="melClear" title="Remove all notes">Clear</button>
-                  </div>
-                  <div style="display:flex;gap:6px;">
-                    <button class="transport-play-btn" id="melPlay" style="padding:4px 14px;font-size:13px;">▶ Play</button>
-                    <button class="chord-type-btn" id="melStop" style="padding:4px 12px;">Stop</button>
-                  </div>
+                  <button class="chord-type-btn" id="melClear" title="Remove all notes">Clear</button>
                   <div style="flex:1;"></div>
-                  <div style="font-size:11px;color:var(--grey-2);">Click grid to add · drag to move · drag right edge to resize</div>
+                  <input type="text" id="melEdSaveName" placeholder="Name this melody…" class="search" style="flex:0 1 180px;min-width:100px;" />
+                  <button class="chord-type-btn" id="melEdSave">Save</button>
                 </div>
+              </div>
+
+              <div class="inst-view-panel" data-view="saved">
+                <div class="progressions-list" id="melodyProgressionsList"></div>
               </div>
             </div>
 
             <!-- PROGRESSION sub-pane: combine -->
             <div class="compose-sub-pane" data-sub="progression" style="display:none;">
-              <!-- Active Progressions — shows what's currently loaded and ready to play -->
-              <div class="compose-section" id="activeProgressionsBox">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-                  <h4 style="margin:0;">Active Progressions</h4>
-                  <div style="display:flex;gap:6px;align-items:center;">
-                    <input type="text" id="compName" placeholder="Composition name…" class="search" style="width:180px;" />
-                    <select id="compLink" style="width:140px;"><option value="">— unlinked —</option></select>
-                    <button class="chord-type-btn" id="compSave">Save as Composition</button>
+              <div class="inst-view-tabs" id="progressionViewTabs">
+                <button class="inst-view-tab active" data-view="compositions">Compositions</button>
+                <button class="inst-view-tab" data-view="chords">Chords</button>
+                <button class="inst-view-tab" data-view="bass">Bass</button>
+                <button class="inst-view-tab" data-view="sampler">Sampler</button>
+                <button class="inst-view-tab" data-view="melody">Melody</button>
+              </div>
+
+              <div class="inst-view-panel active" data-view="compositions" style="padding:0;">
+                <!-- Active Progressions — shows what's currently loaded and ready to play -->
+                <div class="compose-section" id="activeProgressionsBox">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                    <h4 style="margin:0;">Active Progressions</h4>
+                    <div style="display:flex;gap:6px;align-items:center;">
+                      <input type="text" id="compName" placeholder="Composition name…" class="search" style="width:180px;" />
+                      <select id="compLink" style="width:140px;"><option value="">— unlinked —</option></select>
+                      <button class="chord-type-btn" id="compSave">Save as Composition</button>
+                    </div>
+                  </div>
+                  <div id="activeProgressionsSummary" style="margin-top:12px;display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--grey-2);">
+                    <!-- Filled by renderActiveProgressionsSummary() -->
                   </div>
                 </div>
-                <div id="activeProgressionsSummary" style="margin-top:12px;display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--grey-2);">
-                  <!-- Filled by renderActiveProgressionsSummary() -->
-                </div>
+                <!-- Hidden selects needed by save logic -->
+                <select id="compChordsSel" style="display:none;"></select>
+                <select id="compBassSel" style="display:none;"></select>
+                <select id="compBeatSel" style="display:none;"></select>
+                <select id="compAudioSel" style="display:none;"></select>
+                <select id="progLoopBars" style="display:none;"></select>
+                <details class="compose-section" open>
+                  <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
+                    <h4 style="margin:0;">Saved Compositions</h4>
+                  </summary>
+                  <div class="progressions-list" id="compositionsList" style="margin-top:12px;"></div>
+                </details>
+                <details class="compose-section">
+                  <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
+                    <h4 style="margin:0;">Copy From Another Song</h4>
+                  </summary>
+                  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;">
+                    <select id="copyFromSong" style="flex:1;min-width:180px;"></select>
+                    <select id="copyFromKind" style="width:140px;">
+                      <option value="chords">Chord Progression</option>
+                      <option value="bass">Bass Progression</option>
+                      <option value="composition">Composition</option>
+                    </select>
+                    <select id="copyFromItem" style="flex:1;min-width:180px;"></select>
+                    <button class="chord-type-btn" id="copyFromDo">Copy Here</button>
+                  </div>
+                </details>
               </div>
-              <!-- Hidden selects needed by save logic -->
-              <select id="compChordsSel" style="display:none;"></select>
-              <select id="compBassSel" style="display:none;"></select>
-              <select id="compBeatSel" style="display:none;"></select>
-              <select id="compAudioSel" style="display:none;"></select>
-              <select id="progLoopBars" style="display:none;"></select>
-              <details class="compose-section" open>
-                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
-                  <h4 style="margin:0;">Saved Compositions</h4>
-                </summary>
-                <div class="progressions-list" id="compositionsList" style="margin-top:12px;"></div>
-              </details>
-              <details class="compose-section">
-                <summary style="cursor:pointer;padding:0;list-style:none;display:flex;align-items:center;gap:8px;">
-                  <h4 style="margin:0;">Copy From Another Song</h4>
-                </summary>
-                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;">
-                  <select id="copyFromSong" style="flex:1;min-width:180px;"></select>
-                  <select id="copyFromKind" style="width:140px;">
-                    <option value="chords">Chord Progression</option>
-                    <option value="bass">Bass Progression</option>
-                    <option value="composition">Composition</option>
-                  </select>
-                  <select id="copyFromItem" style="flex:1;min-width:180px;"></select>
-                  <button class="chord-type-btn" id="copyFromDo">Copy Here</button>
-                </div>
-              </details>
+
+              <div class="inst-view-panel" data-view="chords">
+                <div class="progressions-list" id="progressionsTabChords"></div>
+              </div>
+              <div class="inst-view-panel" data-view="bass">
+                <div class="progressions-list" id="progressionsTabBass"></div>
+              </div>
+              <div class="inst-view-panel" data-view="sampler">
+                <div class="progressions-list" id="progressionsTabSampler"></div>
+              </div>
+              <div class="inst-view-panel" data-view="melody">
+                <div class="progressions-list" id="progressionsTabMelody"></div>
+              </div>
             </div>
 
           </div>
@@ -1740,6 +1849,115 @@ Use [Verse], [Chorus] etc. to create sections. Then switch to the Sections view 
 
         <div class="tab-pane" data-pane="notes">
           <textarea class="notes-editor" id="notesEditor" placeholder="Ideas, references, chord progressions, story notes, production thoughts…"></textarea>
+        </div>
+
+        <div class="tab-pane" data-pane="help">
+          <div class="help-pane">
+            <h1>OK-Composer</h1>
+            <p class="help-subtitle">Songwriter's Studio — User Guide</p>
+
+            <h2>Overview</h2>
+            <div class="help-grid">
+              <div class="help-card"><h3>Compose</h3><p>Build chord progressions, bass lines, beats, melodies, and MIDI patterns. The main workspace.</p></div>
+              <div class="help-card"><h3>Audio</h3><p>Record from your microphone, import audio clips, and manage recordings for use in the Sampler.</p></div>
+              <div class="help-card"><h3>Mixer</h3><p>Per-instrument volume, pan, and send levels. Master FX chain with EQ, compression, reverb, delay, and more.</p></div>
+              <div class="help-card"><h3>Arranger</h3><p>Arrange your song section-by-section. Set repeats, beats, and playback order. Export a full mixdown.</p></div>
+              <div class="help-card"><h3>Lyrics</h3><p>Write your lyrics with section markers (e.g. <strong>[Verse 1]</strong>). Sections link to progressions and appear in the Arranger.</p></div>
+              <div class="help-card"><h3>Notes</h3><p>A free-form scratchpad for ideas, references, and production thoughts. Plain text, no formatting.</p></div>
+            </div>
+
+            <h2>Compose — Chords</h2>
+            <p>The piano keyboard lets you build a chord progression by clicking notes then pressing <strong>+ Add Chord</strong>. Chord detection labels what you play. Use the sub-views to access more features:</p>
+            <ul>
+              <li><strong>Keyboard</strong> — click piano keys to select notes; choose note length; Add Chord or Rest</li>
+              <li><strong>Progression</strong> — shows the current chord sequence; drag cards to reorder; click a chord to edit it</li>
+              <li><strong>Instrument</strong> — choose which synth voice plays the chords</li>
+              <li><strong>Rhythm</strong> — set the strumming / arpeggiation pattern and save custom patterns</li>
+              <li><strong>Saved</strong> — save the current progression with a name; load previously saved progressions</li>
+              <li><strong>Editor</strong> — piano roll: draw custom MIDI voicings that override the progression during playback</li>
+            </ul>
+            <div class="help-tip">When the Editor has notes drawn, it overrides the progression for that instrument. Clear the editor to go back to the progression.</div>
+            <p><strong>MIDI keyboard:</strong> Notes played within half a second accumulate as one chord. Play the next chord and the buffer resets automatically.</p>
+
+            <h2>Compose — Bass</h2>
+            <ul>
+              <li><strong>Keyboard</strong> — click a root note, choose length, Add Note</li>
+              <li><strong>Instrument</strong> — bass voice, octave shift, gain, loop length, Follow Chord Root toggle</li>
+              <li><strong>Rhythm</strong> — bass rhythm pattern</li>
+              <li><strong>Saved / Editor</strong> — same as Chords; Editor range covers C1–C4</li>
+            </ul>
+            <p><strong>Follow Chord Root</strong> makes the bass automatically follow the root of each chord — no manual bass line needed.</p>
+
+            <h2>Compose — Sampler</h2>
+            <ul>
+              <li>Load a <strong>.mp3 / .wav / .flac</strong> file or record directly from your microphone</li>
+              <li>Adjust Trim start/end, Fade in/out, Gain, and Pitch</li>
+              <li>Follow Chord Root to pitch-shift the sample to each chord</li>
+              <li>Set a custom Loop bars length to keep the sample in sync</li>
+              <li><strong>Editor</strong> — place the sample at specific MIDI pitches and timings</li>
+            </ul>
+
+            <h2>Compose — Beat</h2>
+            <p>Choose a beat preset card or build a custom pattern. Per-drum controls:</p>
+            <ul>
+              <li>Gain and Pitch sliders for kick, snare, and hi-hat</li>
+              <li>ADSR envelope per drum</li>
+              <li>Sequencer tab: 16-step grid for fully custom patterns; save as User Beat</li>
+            </ul>
+
+            <h2>Compose — Melody</h2>
+            <p>A piano roll MIDI editor for melodic lines. Uses the same instrument voices as Chords.</p>
+            <ul>
+              <li><strong>Click</strong> the grid to place a note</li>
+              <li><strong>Drag</strong> a note to move it (horizontally = time, vertically = pitch)</li>
+              <li><strong>Drag right edge</strong> of a note to resize its length</li>
+              <li><strong>Double-click</strong> a note to delete it</li>
+              <li><strong>Quantise</strong> — snap all notes to the current grid (set amount 0–100%)</li>
+              <li><strong>Save</strong> — name and store the melody to the Saved tab; load it back any time</li>
+            </ul>
+
+            <h2>Compose — Compositions</h2>
+            <p>The Compositions tab lets you save and manage complete snapshots of your song's state.</p>
+            <ul>
+              <li><strong>Compositions</strong> — Active Progressions shows what's currently loaded. Name it and press <strong>Save as Composition</strong> to store the full snapshot.</li>
+              <li><strong>Chords / Bass / Sampler / Melody</strong> — browse all saved patterns of that type. Each shows a <strong>CHORDS</strong> or <strong>MIDI</strong> badge. Press <strong>Load</strong> to make it active, or <strong>+ Composition</strong> to load it and jump to the Compositions tab to save.</li>
+            </ul>
+
+            <h2>Playback</h2>
+            <p>The <strong>Play / Stop</strong> button at the top of the Compose tab controls all playback. Everything that is active plays together.</p>
+            <ul>
+              <li>If a MIDI editor has notes, it plays <em>instead of</em> the progression for that instrument</li>
+              <li>Drawing a note in an editor while playback is running auto-starts that editor immediately</li>
+              <li>Changing tempo or chords during playback reschedules upcoming notes without cutting off what's playing</li>
+              <li>Each instrument can have its own <strong>Loop bars</strong> length for independent loop lengths</li>
+            </ul>
+
+            <h2>Saving &amp; Backup</h2>
+            <ul>
+              <li>All changes save automatically to your browser's local storage after every edit</li>
+              <li><strong>Backup Export</strong> — downloads a .zip with audio clips, MIDI, lyrics, and notes</li>
+              <li><strong>Backup Import</strong> — restores songs from a previously exported .zip</li>
+              <li>Each browser / device has its own separate local storage — use Backup to move songs</li>
+            </ul>
+            <div class="help-tip">On iPhone, add OK-Composer to your Home Screen for a fullscreen experience. Mic recording requires the live URL (https) — it won't work over a local network http connection.</div>
+
+            <h2>Keyboard Shortcuts</h2>
+            <div class="help-kbr">
+              <span><kbd>N</kbd> New song</span>
+              <span><kbd>Backspace</kbd> Delete selected chord</span>
+              <span><kbd>Space</kbd> Play / Stop (when not in a text field)</span>
+            </div>
+
+            <h2>Tips</h2>
+            <ul>
+              <li>Use <strong>Lyrics sections</strong> (e.g. <code>[Chorus]</code>) to link progressions and beats to specific song parts</li>
+              <li>The <strong>Arranger</strong> plays sections in order — set per-section repeat counts to build your full song</li>
+              <li>The <strong>Mixer</strong> FX chain applies globally. Reverb and Delay are channel sends; all other FX are in series</li>
+              <li>Piano rolls scroll vertically — use your mouse wheel or trackpad over the roll area to navigate pitches</li>
+              <li>Use <strong>Load from progression</strong> in an editor to pre-fill the roll with the current progression's notes, then edit from there</li>
+              <li>Cross-song copy: use the Copy From Another Song section in Compositions to bring progressions from other songs</li>
+            </ul>
+          </div>
         </div>
 
         <div class="tab-pane" data-pane="preview">
@@ -2737,40 +2955,26 @@ function applyChordDetection(c){
   if (!c) return null;
   const notes = [...(c.notes || chordNotes(c.root, c.type, c.customNotes))].sort((a,b)=>a-b);
   const d = detectChord(notes);
-  if (d.type && d.root != null){
-    // Pick a MIDI root that matches the detected pitch class AND sits at the
-    // same octave as the actual root note already present in the chord
-    // (falling back to the lowest note's octave if the root isn't sounded).
-    let rootMidi;
-    const rootInChord = notes.find(n => (((n % 12) + 12) % 12) === d.root);
-    if (rootInChord != null){
-      rootMidi = rootInChord;
+  // Always preserve the exact notes the user selected — never derive from root+type.
+  // Detection is label-only; it must not silently replace notes with a canonical voicing.
+  c.type = 'Custom';
+  c.customNotes = [...notes];
+  c.notes = [...notes];
+  if (notes.length){
+    if (d.type && d.root != null){
+      const rootInChord = notes.find(n => (((n % 12) + 12) % 12) === d.root);
+      if (rootInChord != null){
+        c.root = rootInChord;
+      } else {
+        const baseOct = Math.floor(notes[0] / 12);
+        let rootMidi = baseOct * 12 + d.root;
+        while (rootMidi < notes[0] - 6) rootMidi += 12;
+        while (rootMidi > notes[0] + 6) rootMidi -= 12;
+        c.root = rootMidi;
+      }
     } else {
-      const baseOct = Math.floor(notes[0] / 12);
-      rootMidi = baseOct * 12 + d.root;
-      // Keep it near the lowest note (within an octave).
-      while (rootMidi < notes[0] - 6) rootMidi += 12;
-      while (rootMidi > notes[0] + 6) rootMidi -= 12;
+      c.root = notes[0];
     }
-    c.root = rootMidi;
-    const mapped = DETECT_TO_CHORD_TYPE[d.type];
-    if (mapped && d.inv === 0){
-      // Clean native type (Major/Minor/etc.) when root-position and triad.
-      c.type = mapped;
-      c.customNotes = null;
-      c.notes = null;   // let chordNotes() regenerate from root+type
-    } else {
-      // Keep custom notes so we preserve inversion / extended shape / exact voicing.
-      c.type = 'Custom';
-      c.customNotes = [...notes];
-      c.notes = [...notes];
-    }
-  } else {
-    // No known match — keep as Custom with the given notes, root = lowest note.
-    c.type = 'Custom';
-    c.customNotes = [...notes];
-    c.notes = [...notes];
-    if (notes.length) c.root = notes[0];
   }
   return d;
 }
@@ -4171,6 +4375,10 @@ let composeChorusBus = null;          // per-channel chorus send bus input
 let composeChorusReturn = null;       // GainNode → composeMaster
 let composeDistBus = null;            // per-channel dist send bus input
 let composeDistReturn = null;         // GainNode → composeMaster
+let composePhaserBus = null;          // per-channel phaser send bus input
+let composePhaserReturn = null;       // GainNode → composeMaster
+let composeFlangerBus = null;         // per-channel flanger send bus input
+let composeFlangerReturn = null;      // GainNode → composeMaster
 // Master-bus insert FX chain (in order):
 //   channels → fxChainIn → eq → comp → dist → od → chorus → flanger → phaser
 //            → autoWah → autoFilter → autoPan → tremolo → limiter → fxChainOut → composeMaster
@@ -4457,6 +4665,43 @@ function ensureComposeCtx(){
   composeDistReturn.gain.value = 0.75;
   composeDistBus.connect(_distNode).connect(_distLP).connect(composeDistReturn).connect(composeMaster);
 
+  // Phaser parallel send bus (4 all-pass filters with LFO)
+  composePhaserBus = composeCtx.createGain();
+  composePhaserReturn = composeCtx.createGain();
+  composePhaserReturn.gain.value = 0.85;
+  const _phaLFO = composeCtx.createOscillator();
+  _phaLFO.frequency.value = 0.5;
+  const _phaLFOG = composeCtx.createGain();
+  _phaLFOG.gain.value = 700;
+  _phaLFO.connect(_phaLFOG);
+  _phaLFO.start();
+  let _phaChain = composePhaserBus;
+  [1000, 2000, 4000, 8000].forEach(freq => {
+    const ap = composeCtx.createBiquadFilter();
+    ap.type = 'allpass'; ap.frequency.value = freq; ap.Q.value = 3;
+    _phaLFOG.connect(ap.frequency);
+    _phaChain.connect(ap); _phaChain = ap;
+  });
+  _phaChain.connect(composePhaserReturn).connect(composeMaster);
+
+  // Flanger parallel send bus (short modulated delay)
+  composeFlangerBus = composeCtx.createGain();
+  composeFlangerReturn = composeCtx.createGain();
+  composeFlangerReturn.gain.value = 0.85;
+  const _flaDelay = composeCtx.createDelay(0.02);
+  _flaDelay.delayTime.value = 0.005;
+  const _flaLFO = composeCtx.createOscillator();
+  _flaLFO.frequency.value = 0.4;
+  const _flaLFOG = composeCtx.createGain();
+  _flaLFOG.gain.value = 0.003;
+  const _flaFeedback = composeCtx.createGain();
+  _flaFeedback.gain.value = 0.4;
+  _flaLFO.connect(_flaLFOG).connect(_flaDelay.delayTime);
+  _flaLFO.start();
+  composeFlangerBus.connect(_flaDelay);
+  _flaDelay.connect(_flaFeedback).connect(_flaDelay);
+  _flaDelay.connect(composeFlangerReturn).connect(composeMaster);
+
   // Master FX insert chain. Built in FX_ORDER and chained serially from
   // composeFxChain.in → composeFxChain.out. composeFxChain.out connects to composeMaster.
   composeFxChain = { in: composeCtx.createGain(), out: composeCtx.createGain(), modules: {} };
@@ -4478,31 +4723,42 @@ function ensureComposeCtx(){
     const input = composeCtx.createGain();
     input.gain.value = 1.0;
     input.connect(composeFxChain.in);
-    const revSend = composeCtx.createGain();
-    revSend.gain.value = 0.0;
+    const revSend = composeCtx.createGain(); revSend.gain.value = 0.0;
     input.connect(revSend).connect(composeReverb);
-    const delSend = composeCtx.createGain();
-    delSend.gain.value = 0.0;
+    const delSend = composeCtx.createGain(); delSend.gain.value = 0.0;
     input.connect(delSend).connect(composeDelay);
-    const choSend = composeCtx.createGain();
-    choSend.gain.value = 0.0;
+    const choSend = composeCtx.createGain(); choSend.gain.value = 0.0;
     input.connect(choSend).connect(composeChorusBus);
-    const distSend = composeCtx.createGain();
-    distSend.gain.value = 0.0;
+    const distSend = composeCtx.createGain(); distSend.gain.value = 0.0;
     input.connect(distSend).connect(composeDistBus);
+    const phaSend = composeCtx.createGain(); phaSend.gain.value = 0.0;
+    input.connect(phaSend).connect(composePhaserBus);
+    const flaSend = composeCtx.createGain(); flaSend.gain.value = 0.0;
+    input.connect(flaSend).connect(composeFlangerBus);
     composeBus[name] = input;
-    composeSends[name] = { reverb: revSend, delay: delSend, chorus: choSend, dist: distSend };
+    composeSends[name] = { reverb: revSend, delay: delSend, chorus: choSend, dist: distSend, phaser: phaSend, flanger: flaSend };
+  });
+
+  // Drum sub-buses: kick/snare/hat each feed into composeBus['drums'] and have per-drum sends.
+  // playKick/Snare/Hat connect here so each drum's send contribution can be enabled/disabled.
+  ['kick','snare','hat'].forEach(part => {
+    const sub = composeCtx.createGain(); sub.gain.value = 1.0;
+    sub.connect(composeBus['drums']);
+    const revS = composeCtx.createGain(); revS.gain.value = 0.0; sub.connect(revS).connect(composeReverb);
+    const delS = composeCtx.createGain(); delS.gain.value = 0.0; sub.connect(delS).connect(composeDelay);
+    const choS = composeCtx.createGain(); choS.gain.value = 0.0; sub.connect(choS).connect(composeChorusBus);
+    const diS  = composeCtx.createGain(); diS.gain.value  = 0.0; sub.connect(diS).connect(composeDistBus);
+    const phaS = composeCtx.createGain(); phaS.gain.value = 0.0; sub.connect(phaS).connect(composePhaserBus);
+    const flaS = composeCtx.createGain(); flaS.gain.value = 0.0; sub.connect(flaS).connect(composeFlangerBus);
+    composeBus[part] = sub;
+    composeSends[part] = { reverb: revS, delay: delS, chorus: choS, dist: diS, phaser: phaS, flanger: flaS };
   });
 
   // Global (master) sends — apply FX to entire mix on top of per-channel sends
-  composeMasterReverbSend = composeCtx.createGain();
-  composeMasterReverbSend.gain.value = 0.0;
-  composeMasterDelaySend = composeCtx.createGain();
-  composeMasterDelaySend.gain.value = 0.0;
-  composeMasterChorusSend = composeCtx.createGain();
-  composeMasterChorusSend.gain.value = 0.0;
-  composeMasterDistSend = composeCtx.createGain();
-  composeMasterDistSend.gain.value = 0.0;
+  composeMasterReverbSend = composeCtx.createGain(); composeMasterReverbSend.gain.value = 0.0;
+  composeMasterDelaySend  = composeCtx.createGain(); composeMasterDelaySend.gain.value  = 0.0;
+  composeMasterChorusSend = composeCtx.createGain(); composeMasterChorusSend.gain.value = 0.0;
+  composeMasterDistSend   = composeCtx.createGain(); composeMasterDistSend.gain.value   = 0.0;
   MIXER_CHANNELS.forEach(name => {
     composeBus[name].connect(composeMasterReverbSend);
     composeBus[name].connect(composeMasterDelaySend);
@@ -4540,13 +4796,19 @@ function getBus(name){
 }
 
 /* -------- MIXER STATE + APPLY -------- */
+function _defaultDrumSendEnabled(){
+  const off = { kick: false, snare: true, hat: true };
+  const on  = { kick: true,  snare: true, hat: true };
+  return { rev: {...off}, del: {...off}, cho: {...on}, dist: {...on}, pha: {...off}, fla: {...off} };
+}
 function _defaultMixer(){
   const m = { master: {
-    gain: 0.7, revSend: 0, delSend: 0, choSend: 0, distSend: 0,
+    gain: 0.7, revSend: 0, delSend: 0, choSend: 0, distSend: 0, phaSend: 0, flaSend: 0,
     revDecay: 2.5, revDamping: 0.5, revWidth: 1.0, revPreDelay: 0.0,
     delayTime: 0.38, delayFb: 0.4, delaySync: false, delayDiv: '1/4',
   }};
-  MIXER_CHANNELS.forEach(c => { m[c] = { gain: 1.0, revSend: 0.0, delSend: 0.0, choSend: 0.0, distSend: 0.0, mute: false }; });
+  MIXER_CHANNELS.forEach(c => { m[c] = { gain: 1.0, revSend: 0.0, delSend: 0.0, choSend: 0.0, distSend: 0.0, phaSend: 0.0, flaSend: 0.0, mute: false, solo: false }; });
+  m.drumSendEnabled = _defaultDrumSendEnabled();
   m.fx = _defaultFx();
   return m;
 }
@@ -4562,6 +4824,17 @@ function getMixer(){
     if (!s.mixer[c]) s.mixer[c] = def[c];
     else Object.keys(def[c]).forEach(k => { if (s.mixer[c][k] == null) s.mixer[c][k] = def[c][k]; });
   });
+  if (!s.mixer.drumSendEnabled){
+    s.mixer.drumSendEnabled = _defaultDrumSendEnabled();
+  } else {
+    const defDSE = _defaultDrumSendEnabled();
+    Object.keys(defDSE).forEach(send => {
+      if (!s.mixer.drumSendEnabled[send]) s.mixer.drumSendEnabled[send] = defDSE[send];
+      else Object.keys(defDSE[send]).forEach(part => {
+        if (s.mixer.drumSendEnabled[send][part] == null) s.mixer.drumSendEnabled[send][part] = defDSE[send][part];
+      });
+    });
+  }
   if (!s.mixer.fx) s.mixer.fx = def.fx;
   else {
     FX_ORDER.forEach(fxName => {
@@ -4579,15 +4852,41 @@ function applyMixerToNodes(){
   const now = composeCtx.currentTime;
   const ramp = (param, v) => { try { param.setTargetAtTime(v, now, 0.02); } catch { param.value = v; } };
   ramp(composeMaster.gain, m.master.gain);
+  // Solo: if any channel is soloed, only soloed channels play
+  const soloedChannels = MIXER_CHANNELS.filter(c => m[c] && m[c].solo);
   MIXER_CHANNELS.forEach(c => {
     const bus = composeBus[c]; const sends = composeSends[c];
     if (!bus || !sends) return;
-    const muted = !!m[c].mute;
+    const soloSilenced = soloedChannels.length > 0 && !m[c].solo;
+    const muted = !!m[c].mute || soloSilenced;
     ramp(bus.gain, muted ? 0 : m[c].gain);
-    ramp(sends.reverb.gain, muted ? 0 : m[c].revSend);
-    ramp(sends.delay.gain, muted ? 0 : m[c].delSend);
-    if (sends.chorus) ramp(sends.chorus.gain, muted ? 0 : (m[c].choSend || 0));
-    if (sends.dist)   ramp(sends.dist.gain,   muted ? 0 : (m[c].distSend || 0));
+    if (c === 'drums'){
+      // Drums channel combined sends are replaced by per-drum sub-bus sends — zero them here
+      ramp(sends.reverb.gain, 0); ramp(sends.delay.gain, 0);
+      if (sends.chorus)  ramp(sends.chorus.gain, 0);
+      if (sends.dist)    ramp(sends.dist.gain, 0);
+      if (sends.phaser)  ramp(sends.phaser.gain, 0);
+      if (sends.flanger) ramp(sends.flanger.gain, 0);
+      // Apply sends per drum part
+      const dse = m.drumSendEnabled || _defaultDrumSendEnabled();
+      ['kick','snare','hat'].forEach(part => {
+        const ps = composeSends[part]; if (!ps) return;
+        const lvl = muted ? 0 : 1;
+        ramp(ps.reverb.gain,  lvl * (dse.rev[part]  ? (m[c].revSend  || 0) : 0));
+        ramp(ps.delay.gain,   lvl * (dse.del[part]  ? (m[c].delSend  || 0) : 0));
+        if (ps.chorus)  ramp(ps.chorus.gain,  lvl * (dse.cho[part]  ? (m[c].choSend  || 0) : 0));
+        if (ps.dist)    ramp(ps.dist.gain,    lvl * (dse.dist[part] ? (m[c].distSend || 0) : 0));
+        if (ps.phaser)  ramp(ps.phaser.gain,  lvl * (dse.pha[part]  ? (m[c].phaSend  || 0) : 0));
+        if (ps.flanger) ramp(ps.flanger.gain, lvl * (dse.fla[part]  ? (m[c].flaSend  || 0) : 0));
+      });
+    } else {
+      ramp(sends.reverb.gain, muted ? 0 : m[c].revSend);
+      ramp(sends.delay.gain, muted ? 0 : m[c].delSend);
+      if (sends.chorus)  ramp(sends.chorus.gain,  muted ? 0 : (m[c].choSend  || 0));
+      if (sends.dist)    ramp(sends.dist.gain,    muted ? 0 : (m[c].distSend || 0));
+      if (sends.phaser)  ramp(sends.phaser.gain,  muted ? 0 : (m[c].phaSend  || 0));
+      if (sends.flanger) ramp(sends.flanger.gain, muted ? 0 : (m[c].flaSend  || 0));
+    }
   });
   if (composeMasterReverbSend) ramp(composeMasterReverbSend.gain, m.master.revSend);
   if (composeMasterDelaySend)  ramp(composeMasterDelaySend.gain,  m.master.delSend);
@@ -4812,15 +5111,17 @@ function _openMixerKnobPopup(knobEl){
   const isSend = knobEl.classList.contains('ch-send-knob');
   let title = '';
   let knobsData = [];
+  let _popCh = null;
 
   if (isSend){
     const strip = knobEl.closest('.ch-strip');
     if (!strip) return;
     const ch = strip.dataset.ch;
+    _popCh = ch;
     const isMaster = (ch === '_master');
     title = strip.querySelector('.ch-label')?.textContent?.trim() || ch;
-    const labels = { rev:'Rev', del:'Dly', cho:'Cho', dist:'Dst' };
-    ['rev','del','cho','dist'].forEach(ctrl => {
+    const labels = { rev:'Rev', del:'Dly', cho:'Cho', dist:'Dst', pha:'Pha', fla:'Fla' };
+    ['rev','del','cho','dist','pha','fla'].forEach(ctrl => {
       const mx = getMixer();
       const src = isMaster ? mx.master : mx[ch];
       const val = src ? (src[ctrl+'Send'] || 0) : 0;
@@ -4872,11 +5173,38 @@ function _openMixerKnobPopup(knobEl){
     return `<div class="${cls} pop-knob" data-pidx="${idx}" data-val="${kd.val}" data-min="${kd.min}" data-max="${kd.max}" data-fmt="${kd.fmt||''}" data-def="${kd.def}" style="touch-action:none;">${_mkKnobSVGBig(norm)}<div class="${lblCls}">${esc(kd.label)}</div><div class="${valCls}">${_fmtFx(kd.val,kd.fmt||null)}</div></div>`;
   }
 
-  pop.innerHTML = `<div class="mixer-knob-pop-box"><div class="mixer-knob-pop-title"><span>${esc(title)}</span><button class="mixer-knob-pop-close" aria-label="Close">&#x2715;</button></div><div class="mixer-knob-pop-knobs">${knobsData.map((kd,i)=>_bigKnobHtml(kd,i)).join('')}</div></div>`;
+  // Build drum per-send checkboxes for the drums channel
+  let drumChecksHtml = '';
+  if (_popCh === 'drums'){
+    const mx = getMixer();
+    const dse = mx.drumSendEnabled || _defaultDrumSendEnabled();
+    const sendKeys = ['rev','del','cho','dist','pha','fla'];
+    const sendLabels = { rev:'Rev', del:'Dly', cho:'Cho', dist:'Dst', pha:'Pha', fla:'Fla' };
+    const partLabels = { kick:'Kick', snare:'Snare', hat:'Hat' };
+    drumChecksHtml = `<div style="padding:10px 14px 4px;font-size:10px;color:var(--grey-2);letter-spacing:0.08em;text-transform:uppercase;border-top:1px solid var(--line);margin-top:6px;">Per-drum sends</div><table style="border-collapse:collapse;padding:0 14px 10px;width:100%;font-size:10px;color:var(--grey);">` +
+      `<tr><td></td>${Object.keys(partLabels).map(p=>`<td style="text-align:center;padding:2px 6px;color:var(--grey-2)">${partLabels[p]}</td>`).join('')}</tr>` +
+      sendKeys.map(s => `<tr><td style="padding:2px 6px;color:var(--grey-2)">${sendLabels[s]}</td>` +
+        ['kick','snare','hat'].map(p => `<td style="text-align:center;padding:2px 6px;"><input type="checkbox" class="drum-send-check" data-send="${s}" data-part="${p}" ${dse[s][p]?'checked':''}></td>`).join('') +
+      `</tr>`).join('') +
+      `</table>`;
+  }
+  pop.innerHTML = `<div class="mixer-knob-pop-box"><div class="mixer-knob-pop-title"><span>${esc(title)}</span><button class="mixer-knob-pop-close" aria-label="Close">&#x2715;</button></div><div class="mixer-knob-pop-knobs">${knobsData.map((kd,i)=>_bigKnobHtml(kd,i)).join('')}</div>${drumChecksHtml}</div>`;
   document.body.appendChild(pop);
 
   pop.querySelector('.mixer-knob-pop-close').onclick = () => pop.remove();
   pop.addEventListener('pointerdown', e => { if (e.target === pop) pop.remove(); });
+
+  // Wire drum send checkboxes
+  pop.querySelectorAll('.drum-send-check').forEach(cb => {
+    cb.onchange = () => {
+      const mx = getMixer();
+      if (!mx.drumSendEnabled) mx.drumSendEnabled = _defaultDrumSendEnabled();
+      const s = cb.dataset.send; const p = cb.dataset.part;
+      if (!mx.drumSendEnabled[s]) mx.drumSendEnabled[s] = {};
+      mx.drumSendEnabled[s][p] = cb.checked;
+      applyMixerToNodes(); touchActive();
+    };
+  });
 
   function _setKnobState(kd, v){
     const mx = getMixer();
@@ -4885,6 +5213,7 @@ function _openMixerKnobPopup(knobEl){
       if (!t) return;
       if (kd.ctrl==='rev') t.revSend=v; else if (kd.ctrl==='del') t.delSend=v;
       else if (kd.ctrl==='cho') t.choSend=v; else if (kd.ctrl==='dist') t.distSend=v;
+      else if (kd.ctrl==='pha') t.phaSend=v; else if (kd.ctrl==='fla') t.flaSend=v;
     } else if (kd.kind === 'fx'){
       if (!mx.fx) mx.fx=_defaultFx();
       if (!mx.fx[kd.fxName]) mx.fx[kd.fxName]=_defaultFx()[kd.fxName];
@@ -4968,12 +5297,13 @@ function renderMixer(){
 
   // Helper: build a send-knob block
   function _sendKnobHtml(ctrl, val){
-    const labels = { rev:'Rev', del:'Dly', cho:'Cho', dist:'Dst' };
+    const labels = { rev:'Rev', del:'Dly', cho:'Cho', dist:'Dst', pha:'Pha', fla:'Fla' };
     return `<div class="ch-send-knob" data-ctrl="${ctrl}" data-value="${val}">${_mkKnobSVG(val)}<div class="ch-knob-label">${labels[ctrl]||ctrl}</div><div class="ch-knob-val">${(val*100).toFixed(0)}%</div></div>`;
   }
   // Helper: build a full channel strip HTML
   function _chStripHtml(c, ch, label, extraClass=''){
     const capTop = _gainToFaderTop(ch.gain);
+    const isMaster = extraClass === 'ch-master';
     return `
       <div class="ch-strip${ch.mute?' muted':''}${extraClass?' '+extraClass:''}" data-ch="${c}">
         <div class="ch-label" title="${esc(label)}">${esc(label)}</div>
@@ -4982,6 +5312,8 @@ function renderMixer(){
           ${_sendKnobHtml('del',  ch.delSend||0)}
           ${_sendKnobHtml('cho',  ch.choSend||0)}
           ${_sendKnobHtml('dist', ch.distSend||0)}
+          ${_sendKnobHtml('pha',  ch.phaSend||0)}
+          ${_sendKnobHtml('fla',  ch.flaSend||0)}
         </div>
         <div class="ch-fader-area">
           <div class="ch-fader-wrap">
@@ -4991,7 +5323,8 @@ function renderMixer(){
           </div>
         </div>
         <div class="ch-db">${_gainToDBStr(ch.gain)}</div>
-        ${extraClass ? '' : `<button class="ch-mute${ch.mute?' active':''}" title="Mute">M</button>`}
+        ${isMaster ? '' : `<button class="ch-mute${ch.mute?' active':''}" title="Mute">M</button>`}
+        ${isMaster ? '' : `<button class="ch-solo${ch.solo?' active':''}" title="Solo">S</button>`}
       </div>
     `;
   }
@@ -5058,6 +5391,8 @@ function renderMixer(){
         if (ctrl === 'del')  target.delSend  = v;
         if (ctrl === 'cho')  target.choSend  = v;
         if (ctrl === 'dist') target.distSend = v;
+        if (ctrl === 'pha')  target.phaSend  = v;
+        if (ctrl === 'fla')  target.flaSend  = v;
         applyMixerToNodes(); touchActive();
       });
       knob.addEventListener('pointerup', e => {
@@ -5077,6 +5412,8 @@ function renderMixer(){
         if (ctrl === 'del')  target.delSend  = 0;
         if (ctrl === 'cho')  target.choSend  = 0;
         if (ctrl === 'dist') target.distSend = 0;
+        if (ctrl === 'pha')  target.phaSend  = 0;
+        if (ctrl === 'fla')  target.flaSend  = 0;
         applyMixerToNodes(); touchActive();
       });
     });
@@ -5088,6 +5425,21 @@ function renderMixer(){
         mx[c].mute = !mx[c].mute;
         muteBtn.classList.toggle('active', !!mx[c].mute);
         strip.classList.toggle('muted', !!mx[c].mute);
+        applyMixerToNodes(); touchActive();
+      };
+    }
+    const soloBtn = strip.querySelector('.ch-solo');
+    if (soloBtn){
+      soloBtn.onclick = () => {
+        const mx = getMixer();
+        mx[c].solo = !mx[c].solo;
+        soloBtn.classList.toggle('active', !!mx[c].solo);
+        // Update all strips' solo button visual state
+        host.querySelectorAll('.ch-strip').forEach(s => {
+          const sc = s.dataset.ch; if (!mx[sc]) return;
+          const sb = s.querySelector('.ch-solo');
+          if (sb) sb.classList.toggle('active', !!mx[sc].solo);
+        });
         applyMixerToNodes(); touchActive();
       };
     }
@@ -5916,7 +6268,7 @@ function playKick(when){
     const g = ctx.createGain();
     o.frequency.setValueAtTime(baseFreqHi, t); o.frequency.exponentialRampToValueAtTime(baseFreqLo, t + 0.12);
     g.gain.setValueAtTime(0.9 * gMul, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
-    o.connect(g).connect(getBus('drums')); o.start(t); o.stop(t + 0.25);
+    o.connect(g).connect(getBus('kick')); o.start(t); o.stop(t + 0.25);
     return o;
   } finally { _adsrCtx = prev; }
 }
@@ -5934,7 +6286,7 @@ function playSnare(when){
     const n = ctx.createBufferSource(); n.buffer = buf;
     const g = ctx.createGain(); g.gain.setValueAtTime(0.45 * gMul, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
     const bp = ctx.createBiquadFilter(); bp.type = 'highpass'; bp.frequency.value = hpFreq;
-    n.connect(bp).connect(g).connect(getBus('drums')); n.start(t);
+    n.connect(bp).connect(g).connect(getBus('snare')); n.start(t);
     return n;
   } finally { _adsrCtx = prev; }
 }
@@ -5952,7 +6304,7 @@ function playHat(when){
     const n = ctx.createBufferSource(); n.buffer = buf;
     const g = ctx.createGain(); g.gain.setValueAtTime(0.18 * gMul, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
     const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = Math.min(hpFreq, ctx.sampleRate / 2 - 100);
-    n.connect(hp).connect(g).connect(getBus('drums')); n.start(t);
+    n.connect(hp).connect(g).connect(getBus('hat')); n.start(t);
     return n;
   } finally { _adsrCtx = prev; }
 }
@@ -6042,6 +6394,10 @@ function highlightChordNotes(notes){
 }
 
 /* -------- MIDI INPUT -------- */
+// MIDI chord grouping: notes within 500ms window accumulate as one chord; next note after window clears.
+let _midiChordTimer = null;
+let _midiChordActive = false;
+
 (function initMidi(){
   if (!navigator.requestMIDIAccess) return;
   navigator.requestMIDIAccess().then(access => {
@@ -6053,7 +6409,7 @@ function highlightChordNotes(notes){
       // Route to the active sub-tab's piano handler
       const sub = (typeof composeSubTab !== 'undefined') ? composeSubTab : 'chords';
       if (sub === 'chords' || sub === 'progression') {
-        if (typeof onPianoKey === 'function') onPianoKey(note);
+        if (typeof onPianoKey === 'function') onPianoKey(note, true);
       } else if (sub === 'bass') {
         if (typeof onBassPianoKey === 'function') onBassPianoKey(note);
       } else if (sub === 'sampler') {
@@ -6078,7 +6434,7 @@ function flashKey(midi){
   setTimeout(() => el.classList.remove('active'), 150);
 }
 
-function onPianoKey(midi){
+function onPianoKey(midi, fromMidi = false){
   _lastPianoMidi = midi;
   // If the chord-editor popover is in capture mode, route this tap into the
   // target chord instead of the default compose-pane behaviour.
@@ -6102,10 +6458,21 @@ function onPianoKey(midi){
   }
   const type = state.composeSelectedType;
   if (type === 'Custom'){
-    // add/remove from selection
-    const idx = state.composeCustomNotes.indexOf(midi);
-    if (idx >= 0) state.composeCustomNotes.splice(idx, 1);
-    else if (state.composeCustomNotes.length < 7) state.composeCustomNotes.push(midi);
+    if (fromMidi){
+      // MIDI keyboard: accumulate notes within 500ms as one chord; clear on new chord after gap.
+      if (!_midiChordActive) state.composeCustomNotes = [];
+      if (!state.composeCustomNotes.includes(midi) && state.composeCustomNotes.length < 7){
+        state.composeCustomNotes.push(midi);
+      }
+      _midiChordActive = true;
+      clearTimeout(_midiChordTimer);
+      _midiChordTimer = setTimeout(() => { _midiChordActive = false; }, 500);
+    } else {
+      // Mouse/touch: toggle note in/out
+      const idx = state.composeCustomNotes.indexOf(midi);
+      if (idx >= 0) state.composeCustomNotes.splice(idx, 1);
+      else if (state.composeCustomNotes.length < 7) state.composeCustomNotes.push(midi);
+    }
     updateCustomSelection();
     playInstrumentNote(midi, 0.6);
     if (state.composeCustomNotes.length > 0) {
@@ -6777,12 +7144,14 @@ function stopCompose(){
   compose.playing = false;
   clearTimeout(compose.schedulerTimer);
   cancelAnimationFrame(compose.rafId);
-  // Cancel everything scheduled (both already-playing and future-scheduled)
   compose.activeSynth.forEach(n => { try { n.stop(0); } catch {} try { n.disconnect(); } catch {} });
   compose.activeDrums.forEach(d => { try { d.node.stop(0); } catch {} try { d.node.disconnect(); } catch {} });
   compose.activeSynth = [];
   compose.activeDrums = [];
   compose.boundaries = [];
+  // Stop melody and instrument editors
+  try { if (typeof melodyState !== 'undefined' && melodyState.playing) melStop(); } catch {}
+  try { if (typeof _instEditors !== 'undefined') ['chords','bass','sampler'].forEach(i => instEdStop(i)); } catch {}
   const _cpBtn = document.getElementById('composePlay');
   if (_cpBtn) { _cpBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; _cpBtn.classList.remove('playing'); }
   const _tmEl = document.getElementById('transportMode');
@@ -6903,7 +7272,10 @@ function scheduleIteration(iterStart){
     const effTime = c.timeOverride || compose.global.time;
     const dur = computeChordDur(c, compose.global);
     const extraTranspose = (c.chordTransposeSemis || 0);
-    if (!c._silent && !c.rest){
+    const _chordsEdActive = typeof _instEditors !== 'undefined' && _instEditors.chords.state.notes.length > 0;
+    const _bassEdActive   = typeof _instEditors !== 'undefined' && _instEditors.bass.state.notes.length > 0;
+    const _sampEdActive   = typeof _instEditors !== 'undefined' && _instEditors.sampler.state.notes.length > 0;
+    if (!c._silent && !c.rest && !_chordsEdActive){
       const notes = (c.notes || chordNotes(c.root, c.type, c.customNotes))
         .map(n => n + (compose.global.transpose || 0) + extraTranspose);
       const cRhythm = c.rhythmOverride || compose.global.chordsRhythm || 'None';
@@ -6915,7 +7287,7 @@ function scheduleIteration(iterStart){
       });
     }
     // Bass follow-root: play root of each chord
-    if (compose.global.bassEnabled && compose.global.bassMode === 'follow' && !c._silent && !c.rest){
+    if (compose.global.bassEnabled && compose.global.bassMode === 'follow' && !c._silent && !c.rest && !_bassEdActive){
       const root = c.root + (compose.global.transpose || 0) + extraTranspose;
       const bRhythm = compose.global.bassRhythm || 'None';
       scheduleWithRhythm(bRhythm, t, dur, barDur, (hitT, hitDur) => {
@@ -6924,7 +7296,7 @@ function scheduleIteration(iterStart){
       });
     }
     // Sampler follow-root: trigger sample at the chord root
-    if (compose.global.samplerEnabled && compose.global.samplerMode === 'follow' && !c._silent && !c.rest && samplerState.buffer){
+    if (compose.global.samplerEnabled && compose.global.samplerMode === 'follow' && !c._silent && !c.rest && !_sampEdActive && samplerState.buffer){
       const root = c.root + (compose.global.transpose || 0) + extraTranspose;
       const sRhythm = compose.global.samplerRhythm || 'None';
       scheduleWithRhythm(sRhythm, t, dur, barDur, (hitT, hitDur) => {
@@ -6962,7 +7334,10 @@ function scheduleIteration(iterStart){
         const dur = computeChordDur(c, compose.global);
         const playDur = Math.min(dur, iterStart + iterDur - ct);
         const extraTranspose = (c.chordTransposeSemis || 0);
-        if (!c._silent && !c.rest){
+        const _cEd = typeof _instEditors !== 'undefined' && _instEditors.chords.state.notes.length > 0;
+        const _bEd = typeof _instEditors !== 'undefined' && _instEditors.bass.state.notes.length > 0;
+        const _sEd = typeof _instEditors !== 'undefined' && _instEditors.sampler.state.notes.length > 0;
+        if (!c._silent && !c.rest && !_cEd){
           const notes = (c.notes || chordNotes(c.root, c.type, c.customNotes))
             .map(n => n + (compose.global.transpose || 0) + extraTranspose);
           const cRhythm = c.rhythmOverride || compose.global.chordsRhythm || 'None';
@@ -6973,7 +7348,7 @@ function scheduleIteration(iterStart){
             });
           });
         }
-        if (compose.global.bassEnabled && compose.global.bassMode === 'follow' && !c._silent && !c.rest){
+        if (compose.global.bassEnabled && compose.global.bassMode === 'follow' && !c._silent && !c.rest && !_bEd){
           const root = c.root + (compose.global.transpose || 0) + extraTranspose;
           const bRhythm = compose.global.bassRhythm || 'None';
           scheduleWithRhythm(bRhythm, ct, playDur, barDur, (hitT, hitDur) => {
@@ -6981,7 +7356,7 @@ function scheduleIteration(iterStart){
             _tagAndPushSynth(bns, hitT);
           });
         }
-        if (compose.global.samplerEnabled && compose.global.samplerMode === 'follow' && !c._silent && !c.rest && samplerState.buffer){
+        if (compose.global.samplerEnabled && compose.global.samplerMode === 'follow' && !c._silent && !c.rest && !_sEd && samplerState.buffer){
           const root = c.root + (compose.global.transpose || 0) + extraTranspose;
           const sRhythm = compose.global.samplerRhythm || 'None';
           scheduleWithRhythm(sRhythm, ct, playDur, barDur, (hitT, hitDur) => {
@@ -6996,7 +7371,7 @@ function scheduleIteration(iterStart){
     }
   }
   // Bass own-progression: cycle independently within iterDur at bassCycle length (Live Loops)
-  if (compose.global.bassEnabled && compose.global.bassMode === 'own' && bassOwn.length){
+  if (compose.global.bassEnabled && compose.global.bassMode === 'own' && bassOwn.length && !(typeof _instEditors !== 'undefined' && _instEditors.bass.state.notes.length)){
     const cycle = Math.max(0.1, bassCycle);
     let cycleBase = iterStart;
     while (cycleBase < iterStart + iterDur - 0.001){
@@ -7017,7 +7392,7 @@ function scheduleIteration(iterStart){
     }
   }
   // Sampler own-progression: cycle independently within iterDur at samplerCycle length (Live Loops)
-  if (compose.global.samplerEnabled && compose.global.samplerMode === 'own' && samplerOwn.length && samplerState.buffer){
+  if (compose.global.samplerEnabled && compose.global.samplerMode === 'own' && samplerOwn.length && samplerState.buffer && !(typeof _instEditors !== 'undefined' && _instEditors.sampler.state.notes.length)){
     const cycle = Math.max(0.1, samplerCycle);
     let cycleBase = iterStart;
     while (cycleBase < iterStart + iterDur - 0.001){
@@ -7318,6 +7693,8 @@ function composePlayProgression(prog, onDone, opts = {}){
   const kickoff = ctx.currentTime + 0.05;
   compose.startT = kickoff;
   scheduleIteration(kickoff);
+  // Auto-start instrument editors that have notes (they play alongside compose)
+  try { if (typeof _instEditors !== 'undefined') ['chords','bass','sampler'].forEach(i => { if (_instEditors[i].state.notes.length) instEdPlay(i); }); } catch {}
   startPlayhead();
   const _cpBtn2 = document.getElementById('composePlay');
   if (_cpBtn2) { _cpBtn2.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14"/></svg>'; _cpBtn2.classList.add('playing'); }
@@ -7396,14 +7773,14 @@ function rescheduleFromNow(changedField){
 }
 
 $('#composePlay').onclick = () => {
-  if (compose.playing){ stopCompose(); return; }
-  if (typeof melodyState !== 'undefined' && melodyState.playing){ melStop(); return; }
-  const _activeSub = document.querySelector('.compose-subtabs .subtab.active')?.dataset.sub;
-  if (typeof melPlay === 'function' && typeof melodyState !== 'undefined' &&
-      (_lastTransportMode === 'melody' || _activeSub === 'melody') && melodyState.notes.length){
-    melPlay(); return;
-  }
+  const _anythingPlaying = compose.playing || (typeof melodyState !== 'undefined' && melodyState.playing);
+  if (_anythingPlaying){ stopCompose(); return; }
+  // Always start the full compose engine (handles beat, bass, inst editors, chord progression)
   composePlayProgression({ chords: composeWorking.chords });
+  // Also start melody if it has notes — melPlay syncs to compose.startT
+  if (typeof melPlay === 'function' && typeof melodyState !== 'undefined' && melodyState.notes.length){
+    melPlay();
+  }
 };
 const _globalStopBtn = document.getElementById('globalStop');
 if (_globalStopBtn) _globalStopBtn.onclick = () => stopCompose();
@@ -7544,16 +7921,154 @@ function switchInstView(tabsId, view){
   if (el) el.querySelectorAll('.inst-view-tab').forEach(btn => {
     btn.onclick = () => {
       switchInstView(tabsId, btn.dataset.view);
+      const inst = tabsId === 'chordsViewTabs' ? 'chords' : tabsId === 'bassViewTabs' ? 'bass' : 'sampler';
       if (btn.dataset.view === 'rhythm'){
-        const inst = tabsId === 'chordsViewTabs' ? 'chords' : tabsId === 'bassViewTabs' ? 'bass' : 'sampler';
         const getKey = inst === 'chords' ? () => chordsRhythm : inst === 'bass' ? () => bassState.rhythm : () => samplerState.rhythm;
         const setKey = inst === 'chords' ? k => { chordsRhythm = k; } : inst === 'bass' ? k => { bassState.rhythm = k; } : k => { samplerState.rhythm = k; };
         renderRhythmGrid(inst+'RhythmGrid', inst+'RhythmSteps', inst, getKey, setKey);
         _wireRhythmSave(inst+'RhythmSave', inst+'RhythmName', inst+'RhythmSteps', inst);
+      } else if (btn.dataset.view === 'editor'){
+        _renderInstEdToolbar(inst);
+        _renderInstEdRoll(inst);
       }
     };
   });
 });
+
+// --- Melody view tabs ---
+const _melViewTabs = document.getElementById('melodyViewTabs');
+if (_melViewTabs) _melViewTabs.querySelectorAll('.inst-view-tab').forEach(btn => {
+  btn.onclick = () => {
+    switchInstView('melodyViewTabs', btn.dataset.view);
+    if (btn.dataset.view === 'saved') renderMelodyProgressionsList();
+  };
+});
+
+// Wire melody editor save
+const _melEdSaveBtn = document.getElementById('melEdSave');
+if (_melEdSaveBtn) _melEdSaveBtn.onclick = () => {
+  const song = getActive(); if (!song){ showToast('Pick a song first'); return; }
+  if (typeof melodyState === 'undefined' || !melodyState.notes.length){ showToast('No notes to save'); return; }
+  const nameEl = document.getElementById('melEdSaveName');
+  const cnt = (song.progressions||[]).filter(p=>p.type==='midi'&&p.inst==='melody').length;
+  const name = (nameEl?.value||'').trim() || `Melody ${cnt+1}`;
+  song.progressions = song.progressions||[];
+  song.progressions.push({ id: uid(), name, type:'midi', inst:'melody', midiNotes: melodyState.notes.map(n=>({...n})), bars: melodyState.bars, grid: melodyState.grid, createdAt: Date.now() });
+  if (nameEl) nameEl.value = '';
+  touchActive(); save();
+  showToast(`Saved "${name}"`);
+};
+
+function renderMelodyProgressionsList(){
+  const song = getActive();
+  const list = document.getElementById('melodyProgressionsList');
+  if (!list) return;
+  if (!song){ list.innerHTML = ''; return; }
+  const progs = (song.progressions||[]).filter(p => p.type==='midi' && p.inst==='melody');
+  if (!progs.length){ list.innerHTML = '<div class="empty-state">No saved melodies yet.</div>'; return; }
+  list.innerHTML = progs.map(p => `<div class="progression-card" data-id="${p.id}">
+    <span class="name">${esc(p.name)}</span>
+    <span class="chords-preview">${p.midiNotes?.length||0} notes · ${p.bars} bars</span>
+    <span style="font-size:9px;padding:1px 5px;border:1px solid var(--line);border-radius:2px;color:var(--grey-2);flex-shrink:0;">MIDI</span>
+    <button class="chord-type-btn" data-act="load">Load</button>
+    <button class="chord-type-btn" data-act="del">×</button>
+  </div>`).join('');
+  list.querySelectorAll('.progression-card').forEach(card => {
+    const p = progs.find(x => x.id === card.dataset.id);
+    card.querySelector('[data-act=load]').onclick = () => {
+      if (typeof melodyState === 'undefined') return;
+      melodyState.notes = (p.midiNotes||[]).map(n=>({...n}));
+      melodyState.bars = p.bars; melodyState.grid = p.grid;
+      renderMelodyUI();
+      switchInstView('melodyViewTabs', 'editor');
+      showToast(`Loaded "${p.name}"`);
+    };
+    card.querySelector('[data-act=del]').onclick = () => {
+      song.progressions = (song.progressions||[]).filter(x => x.id !== p.id);
+      touchActive(); save(); renderMelodyProgressionsList();
+    };
+  });
+}
+
+// --- Progressions view tabs ---
+const _progViewTabs = document.getElementById('progressionViewTabs');
+if (_progViewTabs) _progViewTabs.querySelectorAll('.inst-view-tab').forEach(btn => {
+  btn.onclick = () => {
+    switchInstView('progressionViewTabs', btn.dataset.view);
+    const v = btn.dataset.view;
+    if (v === 'chords' || v === 'bass' || v === 'sampler' || v === 'melody') renderProgressionsTab(v);
+    if (v === 'compositions') renderCompositionsUI();
+  };
+});
+
+function renderProgressionsTab(instType){
+  const song = getActive();
+  const capInst = instType.charAt(0).toUpperCase()+instType.slice(1);
+  const list = document.getElementById('progressionsTab'+capInst);
+  if (!list) return;
+  if (!song){ list.innerHTML = ''; return; }
+  let progs;
+  if (instType === 'chords'){
+    progs = (song.progressions||[]).filter(p => !p.type || p.type === 'chords' || (p.type==='midi'&&p.inst==='chords'));
+  } else {
+    progs = (song.progressions||[]).filter(p => p.type==='midi' && p.inst===instType);
+  }
+  if (!progs.length){ list.innerHTML = '<div class="empty-state">No saved progressions yet.</div>'; return; }
+  list.innerHTML = progs.map(p => {
+    const isMidi = p.type === 'midi';
+    const preview = isMidi ? `${p.midiNotes?.length||0} notes · ${p.bars} bars` : (p.chords||[]).map(c=>buildChordLabel(c)).join(' → ')+` · ${p.tempo||100} BPM`;
+    return `<div class="progression-card" data-id="${p.id}">
+      <span class="name">${esc(p.name)}</span>
+      <span class="chords-preview">${preview}</span>
+      <span style="font-size:9px;padding:1px 5px;border:1px solid var(--line);border-radius:2px;color:var(--grey-2);flex-shrink:0;">${isMidi?'MIDI':'CHORDS'}</span>
+      <button class="chord-type-btn" data-act="load">Load</button>
+      <button class="chord-type-btn" data-act="addcomp">+ Composition</button>
+      <button class="chord-type-btn" data-act="del">×</button>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.progression-card').forEach(card => {
+    const p = progs.find(x => x.id === card.dataset.id);
+    card.querySelector('[data-act=load]').onclick = () => {
+      if (p.type === 'midi'){
+        if (p.inst === 'melody'){
+          if (typeof melodyState !== 'undefined'){
+            melodyState.notes = (p.midiNotes||[]).map(n=>({...n}));
+            melodyState.bars = p.bars; melodyState.grid = p.grid;
+            renderMelodyUI();
+          }
+        } else if (_instEditors[p.inst]){
+          const st = _instEditors[p.inst].state;
+          st.notes = (p.midiNotes||[]).map(n=>({...n})); st.bars = p.bars; st.grid = p.grid;
+          _renderInstEdToolbar(p.inst); _renderInstEdRoll(p.inst);
+          switchInstView(p.inst+'ViewTabs', 'editor');
+          if (compose.playing){ instEdPlay(p.inst); rescheduleTimelineFromNow(); }
+        }
+      } else {
+        if (compose.playing) stopCompose();
+        composeWorking = { chords: p.chords.map(c=>({...c})) };
+        renderCompose(); renderProgressionRow();
+      }
+      showToast(`Loaded "${p.name}"`);
+    };
+    card.querySelector('[data-act=addcomp]').onclick = () => {
+      if (p.type !== 'midi'){
+        composeWorking = { chords: p.chords.map(c=>({...c})) };
+        renderProgressionRow();
+      } else if (_instEditors[p.inst]){
+        const st = _instEditors[p.inst].state;
+        st.notes = (p.midiNotes||[]).map(n=>({...n})); st.bars = p.bars; st.grid = p.grid;
+        _renderInstEdToolbar(p.inst); _renderInstEdRoll(p.inst);
+      }
+      switchInstView('progressionViewTabs', 'compositions');
+      renderCompositionsUI();
+      showToast(`Loaded "${p.name}" — save as Composition below`);
+    };
+    card.querySelector('[data-act=del]').onclick = () => {
+      song.progressions = (song.progressions||[]).filter(x => x.id !== p.id);
+      touchActive(); save(); renderProgressionsTab(instType);
+    };
+  });
+}
 
 // --- Live Loops: per-track loop length — each sub-tab has its own select ---
 function _wireLoopSel(id, key){
@@ -8607,18 +9122,14 @@ function renderBeatGrid(){
     : `<div class="beat-empty">No user beats yet. Create one in the Sequencer sub-tab.</div>`;
   const fLabel = `Factory${!activeIsUser ? ' ●' : ''}`;
   const uLabel = `User${activeIsUser ? ' ●' : ''}`;
-  const loopVal = trackLoopLens.beat != null ? String(trackLoopLens.beat) : '';
   host.innerHTML = `
     <div class="beat-view-tabs" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <button class="beat-view-tab ${beatGridView==='factory'?'active':''}" data-view="factory">${fLabel}</button>
       <button class="beat-view-tab ${beatGridView==='user'?'active':''}" data-view="user">${uLabel}</button>
-      <div class="meta-field" style="margin-left:8px;"><label>Loop bars</label><select id="beatLoopLen" style="width:76px;"><option value="">Natural</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></div>
     </div>
     <div class="beat-grid-inner" ${beatGridView!=='factory'?'style="display:none;"':''}>${factoryCards}</div>
     <div class="beat-grid-inner" ${beatGridView!=='user'?'style="display:none;"':''}>${userBlock}</div>
   `;
-  const _bll = host.querySelector('#beatLoopLen');
-  if (_bll){ _bll.value = loopVal; _wireLoopSel('beatLoopLen', 'beat'); }
   host.querySelectorAll('.beat-view-tab').forEach(btn => {
     btn.onclick = (e) => { e.stopPropagation(); beatGridView = btn.dataset.view; renderBeatGrid(); };
   });
@@ -9302,6 +9813,7 @@ function _melAttachInteractions(host){
       const n = melodyState.notes.find(x => x.id === id);
       if (!n) return;
       melodyState.selectedId = id;
+      try { getMelodySoundFn(melodyState.sound)(n.pitch, 0.15, undefined, 0.2); } catch {}
       renderMelodyRoll(); updateMelSelPanel();
       const resizing = !!e.target.closest('.mel-resize');
       const startMouseX = e.clientX;
@@ -9483,11 +9995,10 @@ function melStop(){
   melodyState.playing = false;
   _melStopPlayhead();
   const btn = $('#melPlay'); if (btn){ btn.textContent = '▶ Play'; btn.classList.remove('playing'); }
-  const _cpBtnMs = document.getElementById('composePlay');
-  const _tmElMs = document.getElementById('transportMode');
-  if (compose.playing){
-    if (_tmElMs) _tmElMs.textContent = 'Compose';
-  } else {
+  // Only update transport UI if compose isn't going to handle it (stopCompose does its own UI update)
+  if (!compose.playing){
+    const _cpBtnMs = document.getElementById('composePlay');
+    const _tmElMs = document.getElementById('transportMode');
     if (_cpBtnMs) { _cpBtnMs.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; _cpBtnMs.classList.remove('playing'); }
     if (_tmElMs) _tmElMs.textContent = 'Stopped';
   }
@@ -9503,6 +10014,473 @@ function melStop(){
   });
   melodyState.nodesActive = [];
 }
+
+/* -------- INSTRUMENT EDITORS (Chords / Bass / Sampler piano rolls) -------- */
+function _makeInstEditorState(overrides){
+  return Object.assign({
+    notes: [], bars: 2, grid: 16, snap: true, qAmt: 100,
+    loop: true, playing: false, selectedId: null,
+    nodesActive: [], playStartT: 0, playTimer: null, iterTimer: null,
+    cycleBars: null, rafId: null,
+    pitchLow: 36, pitchHigh: 84,
+  }, overrides);
+}
+const _instEditors = {
+  chords:  { state: _makeInstEditorState(), ids: { toolbar:'chordsEdToolbar',  roll:'chordsEdRoll',  keys:'chordsEdKeysCol',  wrap:'chordsEdRollWrap',  load:'chordsEdLoad',  clear:'chordsEdClear',  sel:'chordsEdSelPanel'  } },
+  bass:    { state: _makeInstEditorState({pitchLow:24,pitchHigh:60}), ids: { toolbar:'bassEdToolbar',    roll:'bassEdRoll',    keys:'bassEdKeysCol',    wrap:'bassEdRollWrap',    load:'bassEdLoad',    clear:'bassEdClear',    sel:'bassEdSelPanel'    } },
+  sampler: { state: _makeInstEditorState(), ids: { toolbar:'samplerEdToolbar', roll:'samplerEdRoll', keys:'samplerEdKeysCol', wrap:'samplerEdRollWrap', load:'samplerEdLoad', clear:'samplerEdClear', sel:'samplerEdSelPanel' } },
+};
+
+function _instEdNextId(){ return 'ie_' + Math.random().toString(36).slice(2,9); }
+
+function _loadInstEdFromChords(st){
+  st.notes = [];
+  const chords = composeWorking.chords;
+  if (!chords.length) return;
+  const totalBars = chords.reduce((s,c) => s + (c.duration||1), 0);
+  st.bars = Math.max(2, Math.ceil(totalBars));
+  const cpp = st.grid; // cells per bar
+  let pos = 0;
+  chords.forEach(c => {
+    const dur = c.duration || 1;
+    if (!c._silent && !c.rest){
+      const notes = (c.notes || chordNotes(c.root, c.type, c.customNotes));
+      notes.forEach(midi => {
+        st.notes.push({ id: _instEdNextId(), pitch: midi, start: pos * cpp, length: dur * cpp, velocity: 100 });
+      });
+    }
+    pos += dur;
+  });
+}
+function _loadInstEdFromBass(st){
+  st.notes = [];
+  const prog = bassState.followRoot ? composeWorking.chords.map(c=>({ root: (c.notes||chordNotes(c.root,c.type,c.customNotes))[0]||36, duration: c.duration||1 })) : bassState.ownProgression;
+  if (!prog.length) return;
+  const totalBars = prog.reduce((s,n) => s + (n.duration||1), 0);
+  st.bars = Math.max(2, Math.ceil(totalBars));
+  const cpp = st.grid;
+  let pos = 0;
+  prog.forEach(n => {
+    const dur = n.duration || 1;
+    const midi = (n.root || n.midi || 36) + (bassState.octave||0)*12;
+    st.notes.push({ id: _instEdNextId(), pitch: Math.max(0,Math.min(127,midi)), start: pos * cpp, length: dur * cpp, velocity: 100 });
+    pos += dur;
+  });
+}
+function _loadInstEdFromSampler(st){
+  st.notes = [];
+  const prog = samplerState.followRoot ? composeWorking.chords.map(c=>({ root: (c.notes||chordNotes(c.root,c.type,c.customNotes))[0]||60, duration: c.duration||1 })) : samplerState.ownProgression;
+  if (!prog.length) return;
+  const totalBars = prog.reduce((s,n) => s + (n.duration||1), 0);
+  st.bars = Math.max(2, Math.ceil(totalBars));
+  const cpp = st.grid;
+  let pos = 0;
+  prog.forEach(n => {
+    const dur = n.duration || 1;
+    const midi = n.root || n.midi || 60;
+    st.notes.push({ id: _instEdNextId(), pitch: Math.max(0,Math.min(127,midi)), start: pos * cpp, length: dur * cpp, velocity: 100 });
+    pos += dur;
+  });
+}
+
+function _instEdTotalCells(st){ return st.bars * st.grid; }
+function _instEdCellDur(st){
+  const tempo = parseInt(document.getElementById('composeTempo')?.value,10)||100;
+  const bpb   = parseInt((document.getElementById('composeTime')?.value||'4/4').split('/')[0],10)||4;
+  return (60/tempo)*bpb / st.grid;
+}
+
+function _renderInstEdRoll(inst){
+  const ed = _instEditors[inst];
+  const st = ed.state;
+  const roll = document.getElementById(ed.ids.roll);
+  const keysCol = document.getElementById(ed.ids.keys);
+  const wrap = document.getElementById(ed.ids.wrap);
+  if (!roll || !keysCol) return;
+
+  // Per-editor pitch bounds
+  const pLow = st.pitchLow ?? MEL_PITCH_LOW;
+  const pHigh = st.pitchHigh ?? MEL_PITCH_HIGH;
+
+  // Keys column — identical pattern to melody editor
+  const H = (pHigh - pLow + 1) * MEL_ROW_HEIGHT;
+  let inner = keysCol.querySelector('.mel-keys-inner');
+  if (!inner){ inner = document.createElement('div'); inner.className='mel-keys-inner'; inner.style.cssText='position:relative;width:100%;'; keysCol.appendChild(inner); }
+  inner.style.height = H + 'px';
+  inner.innerHTML = '';
+  for (let p = pHigh; p >= pLow; p--){
+    const pc = p % 12;
+    const isBlack = _isBlackKey(pc);
+    const key = document.createElement('div');
+    key.className = 'mel-key ' + (isBlack ? 'black' : 'white') + (pc === 0 ? ' c-note' : '');
+    key.style.top    = ((pHigh - p) * MEL_ROW_HEIGHT) + 'px';
+    key.style.height = MEL_ROW_HEIGHT + 'px';
+    if (pc === 0){ const oct = Math.floor(p/12)-1; key.textContent = 'C'+oct; }
+    inner.appendChild(key);
+  }
+  if (wrap && !wrap.dataset.edKeyScroll){ wrap.dataset.edKeyScroll='1'; wrap.addEventListener('scroll', () => { keysCol.scrollTop = wrap.scrollTop; }); }
+
+  // Roll
+  const totalCells = _instEdTotalCells(st);
+  const beatW = (st.grid / 4) * MEL_CELL_WIDTH;
+  roll.innerHTML = '';
+  roll.style.width  = (totalCells * MEL_CELL_WIDTH) + 'px';
+  roll.style.height = H + 'px';
+  roll.style.setProperty('--mel-row',  MEL_ROW_HEIGHT + 'px');
+  roll.style.setProperty('--mel-grid', MEL_CELL_WIDTH + 'px');
+  roll.style.setProperty('--mel-beat', beatW + 'px');
+
+  // Black-key row shading
+  for (let p = pLow; p <= pHigh; p++){
+    if (_isBlackKey(p % 12)){
+      const band = document.createElement('div');
+      band.className = 'mel-keyrow-black';
+      band.style.top    = ((pHigh - p) * MEL_ROW_HEIGHT) + 'px';
+      band.style.height = MEL_ROW_HEIGHT + 'px';
+      roll.appendChild(band);
+    }
+  }
+  // Bar lines
+  for (let b = 1; b < st.bars; b++){
+    const ln = document.createElement('div'); ln.className = 'mel-bar-line';
+    ln.style.left = (b * st.grid * MEL_CELL_WIDTH) + 'px'; roll.appendChild(ln);
+  }
+  // Notes
+  st.notes.forEach(n => {
+    const el = document.createElement('div');
+    el.className = 'mel-note' + (n.id === st.selectedId ? ' selected' : '');
+    el.dataset.id = n.id;
+    el.style.left   = (n.start * MEL_CELL_WIDTH) + 'px';
+    el.style.top    = ((pHigh - n.pitch) * MEL_ROW_HEIGHT) + 'px';
+    el.style.width  = Math.max(6, n.length * MEL_CELL_WIDTH - 1) + 'px';
+    el.style.height = (MEL_ROW_HEIGHT - 1) + 'px';
+    const vb = document.createElement('div'); vb.className = 'mel-vel-bar';
+    vb.style.width = ((n.velocity / 127) * 100) + '%'; el.appendChild(vb);
+    const rs = document.createElement('div'); rs.className = 'mel-resize'; el.appendChild(rs);
+    roll.appendChild(el);
+  });
+  // Playhead
+  const ph = document.createElement('div'); ph.className = 'mel-playhead'; ph.id = ed.ids.roll+'_ph';
+  ph.style.display = st.playing ? 'block' : 'none'; roll.appendChild(ph);
+
+  // Scroll to show a sensible initial pitch region on first render
+  if (wrap && !wrap.dataset.ieScrolled){
+    wrap.dataset.ieScrolled = '1';
+    const scrollPitch = inst === 'bass' ? 48 : 60;
+    const scrollTop = Math.max(0, (pHigh - scrollPitch) * MEL_ROW_HEIGHT);
+    requestAnimationFrame(() => { if (wrap){ wrap.scrollTop = scrollTop; keysCol.scrollTop = scrollTop; } });
+  }
+
+  _instEdAttach(inst);
+  _instEdUpdateSelPanel(inst);
+}
+
+function _instEdPreviewNote(inst, pitch){
+  try {
+    const cellDur = _instEdCellDur(_instEditors[inst].state);
+    if (inst === 'chords') playInstrumentNote(pitch, Math.min(cellDur, 0.4));
+    else if (inst === 'bass') playBassVoiceNote(pitch, Math.min(cellDur, 0.4), undefined, (bassState.gain||0.9)*0.4);
+    else if (inst === 'sampler') playSamplerNote(pitch, Math.min(cellDur, 0.4), undefined, 0.9);
+  } catch {}
+}
+
+function _instEdUpdateSelPanel(inst){
+  const ed = _instEditors[inst];
+  const st = ed.state;
+  const panel = document.getElementById(ed.ids.sel);
+  if (!panel) return;
+  const n = st.notes.find(x => x.id === st.selectedId);
+  if (!n){ panel.style.display = 'none'; return; }
+  panel.style.display = 'flex';
+  const maxCell = _instEdTotalCells(st);
+  const setV = (id, v) => { const el = document.getElementById(id); if(el) el.value = v; };
+  setV(inst+'EdSelStart',  n.start.toFixed(2));
+  setV(inst+'EdSelStartN', n.start.toFixed(2));
+  setV(inst+'EdSelLen',    n.length.toFixed(2));
+  setV(inst+'EdSelLenN',   n.length.toFixed(2));
+  setV(inst+'EdSelVel',    n.velocity);
+  setV(inst+'EdSelVelN',   n.velocity);
+  const startEl  = document.getElementById(inst+'EdSelStart');
+  const startNEl = document.getElementById(inst+'EdSelStartN');
+  const lenEl    = document.getElementById(inst+'EdSelLen');
+  const lenNEl   = document.getElementById(inst+'EdSelLenN');
+  const velEl    = document.getElementById(inst+'EdSelVel');
+  const velNEl   = document.getElementById(inst+'EdSelVelN');
+  if (startEl)  startEl.max  = maxCell;
+  if (startNEl) startNEl.max = maxCell;
+  if (lenEl)    lenEl.max    = Math.max(1, maxCell - n.start);
+  if (lenNEl)   lenNEl.max   = Math.max(1, maxCell - n.start);
+  const apply = () => {
+    const nn = st.notes.find(x => x.id === st.selectedId); if (!nn) return;
+    if (startEl)  nn.start    = Math.max(0, Math.min(maxCell-nn.length, parseFloat(startEl.value)||0));
+    if (lenEl)    nn.length   = Math.max(0.05, parseFloat(lenEl.value)||1);
+    if (velEl)    nn.velocity = Math.max(1, Math.min(127, parseInt(velEl.value,10)||100));
+    _renderInstEdRoll(inst);
+  };
+  [startEl, startNEl, lenEl, lenNEl, velEl, velNEl].forEach(el => { if(el && !el.dataset.ieSelBound){ el.dataset.ieSelBound='1'; el.oninput = apply; } });
+}
+
+function _instEdAttach(inst){
+  const ed = _instEditors[inst];
+  const st = ed.state;
+  const roll = document.getElementById(ed.ids.roll);
+  if (!roll || roll.dataset.ieInit) return;
+  roll.dataset.ieInit = '1';
+
+  roll.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    const noteEl = e.target.closest('.mel-note');
+    const resizing = e.target.classList.contains('mel-resize');
+
+    if (noteEl){
+      const id = noteEl.dataset.id;
+      if (e.detail === 2){
+        st.notes = st.notes.filter(n => n.id !== id);
+        if (st.selectedId === id) st.selectedId = null;
+        _renderInstEdRoll(inst); e.preventDefault(); return;
+      }
+      const n = st.notes.find(x => x.id === id);
+      if (!n) return;
+      st.selectedId = id;
+      _instEdPreviewNote(inst, n.pitch);
+      const startMouseX = e.clientX, startMouseY = e.clientY;
+      const startStart = n.start, startLen = n.length, startPitch = n.pitch;
+      let lastPitch = startPitch;
+      const onMove = ev => {
+        const dx = ev.clientX - startMouseX, dy = ev.clientY - startMouseY;
+        if (resizing){
+          n.length = Math.max(0.25, startLen + dx / MEL_CELL_WIDTH);
+          if (st.snap) n.length = Math.max(1, Math.round(n.length));
+          if (n.start + n.length > _instEdTotalCells(st)) n.length = _instEdTotalCells(st) - n.start;
+        } else {
+          const raw = Math.max(0, Math.min(_instEdTotalCells(st)-n.length, startStart + dx/MEL_CELL_WIDTH));
+          n.start = st.snap ? Math.round(raw) : raw;
+          const dPitch = -Math.round(dy/MEL_ROW_HEIGHT);
+          n.pitch = Math.max(st.pitchLow, Math.min(st.pitchHigh, startPitch+dPitch));
+          if (n.pitch !== lastPitch){ lastPitch = n.pitch; _instEdPreviewNote(inst, n.pitch); }
+        }
+        _renderInstEdRoll(inst);
+      };
+      const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      return;
+    }
+
+    // Click empty grid → add note
+    const rect = roll.getBoundingClientRect();
+    const rawCell = (e.clientX - rect.left) / MEL_CELL_WIDTH;
+    const pitchRow = Math.floor((e.clientY - rect.top) / MEL_ROW_HEIGHT);
+    const pitch = st.pitchHigh - pitchRow;
+    if (pitch < st.pitchLow || pitch > st.pitchHigh) return;
+    const cellStart = st.snap ? Math.floor(rawCell) : rawCell;
+    if (cellStart >= _instEdTotalCells(st)) return;
+    const wasEmpty = st.notes.length === 0;
+    const note = { id: _instEdNextId(), pitch, start: cellStart, length: 1, velocity: 100 };
+    st.notes.push(note);
+    st.selectedId = note.id;
+    _instEdPreviewNote(inst, pitch);
+    _renderInstEdRoll(inst);
+    // Auto-start editor alongside compose when first note is drawn
+    if (wasEmpty && compose.playing){
+      instEdPlay(inst);
+      rescheduleTimelineFromNow();
+    }
+  });
+}
+
+function _instEdScheduleIteration(inst, iterStart){
+  const ed = _instEditors[inst];
+  const st = ed.state;
+  const tempo = parseInt(document.getElementById('composeTempo')?.value,10)||100;
+  const bpb   = parseInt((document.getElementById('composeTime')?.value||'4/4').split('/')[0],10)||4;
+  const barDur = (60/tempo)*bpb;
+  const cellDur = barDur / st.grid;
+  st.notes.forEach(n => {
+    const start = iterStart + n.start * cellDur;
+    const dur   = Math.max(0.05, n.length * cellDur);
+    const gain  = 0.15 + (n.velocity / 127) * 0.35;
+    try {
+      let ns;
+      if (inst === 'chords') ns = playInstrumentNote(n.pitch, dur, start, 0.28);
+      else if (inst === 'bass') ns = [playBassVoiceNote(n.pitch, dur, start, (bassState.gain||0.9)*0.4)];
+      else if (inst === 'sampler') ns = [playSamplerNote(n.pitch, dur, start, 0.9)];
+      if (ns){ [].concat(ns).filter(Boolean).forEach(node => st.nodesActive.push(node)); }
+    } catch {}
+  });
+  return iterStart + (st.cycleBars || st.bars) * barDur;
+}
+
+function _instEdStartPlayhead(inst){
+  const ed = _instEditors[inst];
+  const st = ed.state;
+  const phId = ed.ids.roll + '_ph';
+  if (st.rafId){ cancelAnimationFrame(st.rafId); st.rafId = null; }
+  const tick = () => {
+    if (!st.playing){ if(st.rafId){ cancelAnimationFrame(st.rafId); st.rafId=null;} return; }
+    try {
+      const ctx = ensureComposeCtx();
+      const ph = document.getElementById(phId);
+      if (!ph){ return; }
+      const cellDur = _instEdCellDur(st);
+      const totalDur = (st.cycleBars||st.bars) * st.grid * cellDur;
+      if (totalDur<=0) return;
+      const elapsed = ctx.currentTime - st.playStartT;
+      const posInLoop = ((elapsed % totalDur) + totalDur) % totalDur;
+      ph.style.display = 'block';
+      ph.style.left = (posInLoop / cellDur * MEL_CELL_WIDTH) + 'px';
+    } catch {}
+    st.rafId = requestAnimationFrame(tick);
+  };
+  st.rafId = requestAnimationFrame(tick);
+}
+
+function instEdPlay(inst){
+  const ed = _instEditors[inst];
+  const st = ed.state;
+  instEdStop(inst);
+  if (!st.notes.length) return;
+  const ctx = ensureComposeCtx();
+  if (ctx.state === 'suspended') ctx.resume();
+  // Sync to compose transport if running
+  let t0;
+  if (compose.playing && compose.startT){
+    const tempo = parseInt(document.getElementById('composeTempo')?.value,10)||100;
+    const bpb = parseInt((document.getElementById('composeTime')?.value||'4/4').split('/')[0],10)||4;
+    const barDur = (60/tempo)*bpb;
+    const now = ctx.currentTime;
+    const elapsed = now - compose.startT;
+    const nextBar = Math.max(0, Math.ceil(elapsed/barDur)) * barDur;
+    t0 = compose.startT + nextBar + 0.01;
+    if (t0 < now + 0.03) t0 = now + 0.05;
+  } else {
+    t0 = ctx.currentTime + 0.05;
+  }
+  st.playing = true;
+  st.playStartT = t0;
+  st.nodesActive = [];
+  const step = iterStart => {
+    const nextT = _instEdScheduleIteration(inst, iterStart);
+    if (!st.playing) return;
+    st.iterTimer = setTimeout(() => { if (!st.playing) return; step(nextT); }, Math.max(0, (nextT-ctx.currentTime-0.05)*1000));
+  };
+  step(t0);
+  _instEdStartPlayhead(inst);
+}
+
+function instEdStop(inst){
+  const ed = _instEditors[inst];
+  const st = ed.state;
+  st.playing = false;
+  if (st.rafId){ cancelAnimationFrame(st.rafId); st.rafId = null; }
+  const ph = document.getElementById(ed.ids.roll + '_ph');
+  if (ph) ph.style.display = 'none';
+  clearTimeout(st.playTimer); clearTimeout(st.iterTimer);
+  st.playTimer = null; st.iterTimer = null;
+  const ctx = ensureComposeCtx();
+  const now = ctx.currentTime;
+  st.nodesActive.forEach(n => { try { if(n.stop) n.stop(now); } catch {} try { n.disconnect&&n.disconnect(); } catch {} });
+  st.nodesActive = [];
+}
+
+function _renderInstEdToolbar(inst){
+  const ed = _instEditors[inst];
+  const st = ed.state;
+  const host = document.getElementById(ed.ids.toolbar);
+  const selHost = document.getElementById(ed.ids.sel);
+  if (!host || host.dataset.init) return;
+  host.dataset.init = '1';
+
+  host.innerHTML = `
+    <div><label>Bars</label>
+      <select id="${inst}EdBars" style="width:72px;">
+        <option value="1">1</option><option value="2">2</option><option value="4">4</option><option value="8">8</option>
+      </select>
+    </div>
+    <div><label>Grid</label>
+      <select id="${inst}EdGrid" style="width:90px;">
+        <option value="4">1/4</option><option value="8">1/8</option><option value="16">1/16</option><option value="32">1/32</option>
+      </select>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
+        <input type="checkbox" id="${inst}EdSnap" checked style="cursor:pointer;" /> Snap
+      </label>
+    </div>
+    <div>
+      <label title="How tightly notes snap to grid">Quantise amt</label>
+      <input type="range" id="${inst}EdQAmt" min="0" max="100" step="1" value="100" style="width:100px;" />
+      <span id="${inst}EdQAmtV" style="min-width:32px;">100%</span>
+      <button class="chord-type-btn" id="${inst}EdQuantise" title="Snap all notes to current grid">Apply</button>
+    </div>`;
+
+  document.getElementById(inst+'EdBars').value = String(st.bars);
+  document.getElementById(inst+'EdGrid').value = String(st.grid);
+  document.getElementById(inst+'EdQAmt').value  = String(st.qAmt);
+
+  document.getElementById(inst+'EdBars').onchange = e => { st.bars = parseInt(e.target.value,10)||2; _renderInstEdRoll(inst); };
+  document.getElementById(inst+'EdGrid').onchange = e => { st.grid = parseInt(e.target.value,10)||16; _renderInstEdRoll(inst); };
+  document.getElementById(inst+'EdSnap').onchange = e => { st.snap = e.target.checked; };
+  document.getElementById(inst+'EdQAmt').oninput  = e => { st.qAmt = parseInt(e.target.value,10)||100; document.getElementById(inst+'EdQAmtV').textContent = st.qAmt+'%'; };
+  document.getElementById(inst+'EdQuantise').onclick = () => {
+    const q = st.qAmt / 100;
+    st.notes.forEach(n => { n.start = n.start * (1-q) + Math.round(n.start) * q; n.length = Math.max(0.05, n.length * (1-q) + Math.round(n.length) * q); });
+    _renderInstEdRoll(inst);
+  };
+
+  // Selected note panel
+  if (selHost && !selHost.dataset.init){
+    selHost.dataset.init = '1';
+    selHost.innerHTML = `
+      <strong style="color:var(--white);">Selected note</strong>
+      <label>Start</label>
+      <input type="range" id="${inst}EdSelStart" min="0" max="32" step="0.01" value="0" style="width:100px;" />
+      <input type="number" id="${inst}EdSelStartN" min="0" step="0.01" style="width:56px;" />
+      <label>Length</label>
+      <input type="range" id="${inst}EdSelLen" min="0.05" max="8" step="0.05" value="1" style="width:100px;" />
+      <input type="number" id="${inst}EdSelLenN" min="0.05" step="0.05" style="width:56px;" />
+      <label>Velocity</label>
+      <input type="range" id="${inst}EdSelVel" min="1" max="127" step="1" value="100" style="width:100px;" />
+      <input type="number" id="${inst}EdSelVelN" min="1" max="127" style="width:50px;" />`;
+    selHost.style.cssText = 'display:none;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px;';
+  }
+}
+
+// Wire Load/Clear buttons for each instrument editor (tabs are handled in the inst-view-tab loop above)
+['chords','bass','sampler'].forEach(inst => {
+  const loadBtn = document.getElementById(inst+'EdLoad');
+  if (loadBtn) loadBtn.onclick = () => {
+    const st = _instEditors[inst].state;
+    if (inst === 'chords') _loadInstEdFromChords(st);
+    else if (inst === 'bass') _loadInstEdFromBass(st);
+    else _loadInstEdFromSampler(st);
+    _renderInstEdRoll(inst);
+    if (compose.playing){ instEdPlay(inst); rescheduleTimelineFromNow(); }
+  };
+  const clearBtn = document.getElementById(inst+'EdClear');
+  if (clearBtn) clearBtn.onclick = () => {
+    const st = _instEditors[inst].state;
+    st.notes = []; st.selectedId = null;
+    instEdStop(inst);
+    _renderInstEdRoll(inst);
+    if (compose.playing) rescheduleTimelineFromNow();
+  };
+  const saveBtn = document.getElementById(inst+'EdSave');
+  if (saveBtn) saveBtn.onclick = () => {
+    const song = getActive(); if (!song){ showToast('Pick a song first'); return; }
+    const st = _instEditors[inst].state;
+    if (!st.notes.length){ showToast('No notes to save'); return; }
+    const nameEl = document.getElementById(inst+'EdSaveName');
+    const cnt = (song.progressions||[]).filter(p=>p.type==='midi'&&p.inst===inst).length;
+    const label = inst.charAt(0).toUpperCase()+inst.slice(1);
+    const name = (nameEl?.value||'').trim() || `${label} MIDI ${cnt+1}`;
+    song.progressions = song.progressions||[];
+    song.progressions.push({ id: uid(), name, type:'midi', inst, midiNotes: st.notes.map(n=>({...n})), bars: st.bars, grid: st.grid, createdAt: Date.now() });
+    if (nameEl) nameEl.value = '';
+    touchActive(); save();
+    showToast(`Saved "${name}"`);
+  };
+});
 
 /* -------- SAVE PROGRESSION -------- */
 function saveCurrentProgression(){
@@ -9529,7 +10507,7 @@ function renderCompose(){
   const song = getActive();
   const list = $('#progressionsList');
   if (!song){ list.innerHTML = ''; return; }
-  const progs = song.progressions || [];
+  const progs = (song.progressions || []).filter(p => !p.type || p.type === 'chords');
   // Populate link select with sections
   const linkSel = $('#composeLink');
   const sections = parseSections(song.lyrics || '');
@@ -10083,6 +11061,13 @@ $('#newSongBtn').onclick = () => {
   bassState.followRoot = true; bassState.ownProgression = []; bassState.voice = 'electric'; bassState.enabled = true; bassState.octave = -2; bassState.gain = 0.9;
   samplerState.followRoot = false; samplerState.ownProgression = [];
   if (typeof melodyState !== 'undefined'){ melodyState.notes = []; melodyState.selectedId = null; }
+  try { if (typeof _instEditors !== 'undefined'){
+    ['chords','bass','sampler'].forEach(i => {
+      _instEditors[i].state.notes = []; _instEditors[i].state.selectedId = null;
+      const wrap = document.getElementById(_instEditors[i].ids.wrap);
+      if (wrap) delete wrap.dataset.ieScrolled;
+    });
+  }} catch {}
   const s = newSong(); state.songs.unshift(s); state.activeId = s.id; save();
   renderAll();
 };
